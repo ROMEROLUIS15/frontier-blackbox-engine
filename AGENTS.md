@@ -102,3 +102,44 @@ A task is done only when all of these hold, with the command output reported:
   (`docs/specification.md`, structure in README.md, section "La especificación"), and `experimentos.jsonl`.
 - When a behavior changes from assumption to observed, update the code, the tests and the specification
   together.
+
+## 10. Multi-agent workspaces (console effort)
+Scope: applies to agents working in git worktrees under `../frontier-worktrees/` on branches `feat/console`,
+`console/*` and `chore/agent-harness`. Sections 0–9 still apply; this section adds rules, it overrides none.
+Full rationale and status of each control: `docs/agent-harness.md`.
+
+- `main` is production: never modified directly. Today this is enforced by policy (humans and agents), not by
+  GitHub branch protection or rulesets (none configured; verified via API).
+- One agent per worktree and branch. Never edit another agent's worktree.
+- `feat/console` is the temporary integration branch for this effort (it replaces a `develop` branch).
+- Exclusive file ownership per workspace (WS1–WS4, harness). Source of truth: the `OWNERSHIP` and `PROTECTED`
+  constants in `scripts/check-workspace.ts`. Check: `node scripts/check-workspace.ts --workspace <ws>` prints
+  only `PASS` lines.
+- No edit outside the workspace's ownership without explicit human authorization.
+- No push, merge to `main` or deploy without explicit human approval.
+- The backend (`src/`), its HTTP contract and the official docs are frozen. Check:
+  `git diff main...HEAD -- src` is empty (also run by the script as `backend-untouched`).
+- No secrets in the repository and no calls to the original service. Check: the `secrets-and-original-host`
+  step of the script.
+- Shared contracts live in `console/contract/` and are frozen before parallel work starts; a contract change
+  needs the integration owner (WS4) and human approval.
+- Clean code, strict TypeScript, descriptive names, separation of concerns (sections 2 and 3 apply to the
+  console code as well).
+- Before integrating: workspace tests, typecheck and build of the workspace, then
+  `node scripts/check-workspace.ts --workspace <ws>` and root `npm run verify`, all with exit code 0.
+- Every agent reports verifiable results as `<command>: <output>`, plus blockers and changed files. Never claim
+  a test passed without execution evidence.
+- No new abstractions, tools or dependencies without a written justification.
+
+Control classification (details and evidence: `docs/agent-harness.md`):
+- **Automated and enforced today:** GitHub secret scanning and push protection (enabled, verified via API);
+  CI workflow `ci` on push to `main` and on pull requests (backend `verify` run verified on `a2620cc`); the
+  local guardrail script.
+- **Automated but not yet enforced or verified:** the CI jobs `backend-verify`, `console-verify` and
+  `harness-guardrails` (defined in `.github/workflows/ci.yml`, not yet run on GitHub); required status checks
+  (nothing requires them yet, so a red check does not block a merge).
+- **Manual:** human review before merge, push and deploy; Railway deploy decisions.
+- **Pending (PLANNED, requires owner approval):** a `main` ruleset (see `docs/agent-harness.md`, section 6)
+  and Railway watch paths (not verifiable from GitHub). Do not describe either as active.
+- Release workspace: `node scripts/check-workspace.ts --workspace release --base <ref>` is the check for pull
+  requests into `main`: any path may change except the backend and official deliverables.
