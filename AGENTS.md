@@ -33,8 +33,9 @@ A task is done only when all of these hold, with the command output reported:
 - No type assertions in `src/` except `as const`; narrow with runtime checks instead.
   Check: `rg -n --pcre2 '^(?!\s*(import|//)).*\bas (?!const\b)([A-Z]|unknown\b|any\b)' src` returns nothing.
   Tests may assert types only on trusted fixtures (`pruebas/`, `experimentos.jsonl`) and Node APIs.
-- External data (HTTP body, headers, env vars) is validated at the boundary (`src/http`, `src/main.ts`) before
-  it reaches `protocol` or `bank`.
+- No compiler suppressions. Check: `rg -n '@ts-ignore|@ts-nocheck|@ts-expect-error' src test` returns nothing.
+- External data (HTTP body, headers, env vars) is typed `unknown` or `string | undefined` and validated at the
+  boundary (`src/http`, `src/main.ts`, `src/config.ts`) before it reaches `protocol` or `bank`.
 
 ## 3. Clean code
 - Intention-revealing names; small single-purpose functions; no duplicated logic (error bodies live only in
@@ -43,12 +44,17 @@ A task is done only when all of these hold, with the command output reported:
 - Minimal changes: touch only what the task needs; no refactors of unrelated code and no new dependencies
   unless the task requires them.
 - Code, comments and identifiers in English. Response strings are the exception (see 5).
+- Cross-cutting concerns live in one place each: auth and routing in `src/http/server.ts`, message parsing in
+  `src/protocol/parse.ts`, error bodies in `src/protocol/errors.ts`, logging through the `Logger` passed to
+  `createServer`. Check: `rg -n 'error: "E' src` matches only `src/protocol/errors.ts`.
 
 ## 4. Security
 - Never print, log, commit or paste a token (team or personal). Tokens come only from environment variables
   (`TEAM_TOKEN`) or files outside the repository.
 - Error responses and logs never echo request headers or secrets. Unexpected failures answer a generic body
   without stack traces or internal details.
+- Logs contain only method, path (without query string), status, duration and, for failures, the error class
+  name. Never headers, bodies or tokens. Check: `test/logging.test.ts` passes.
 - Fail-safe state: every command validates all its inputs before its first mutation, so a rejected request
   leaves state exactly as it was (observed: rejected requests consume no `AC`/`OP` number — E:2→E:3, E:9→E:10).
 - `.env*` files are never committed. Check: `.gitignore` lists `.env*`; `git ls-files | rg -i '\.env|token'`
@@ -67,10 +73,17 @@ A task is done only when all of these hold, with the command output reported:
 - State is isolated per accepted token. The replica accepts only `TEAM_TOKEN`, so it holds exactly one state;
   any other token gets `401 E001` and never touches state.
 - Exactly one running instance (README.md:135). No autoscaling or multiple replicas.
+- Atomic commands: `src/bank` is synchronous, so a command never interleaves with another request.
+  Check: `rg -n 'async|await' src/bank` returns nothing.
 
 ## 7. Quality
 - Pragmatic TDD: write or extend a failing test first for every observed behavior; unknown behavior is not
   blocked on tests but must carry `// ASSUMPTION:`.
+- Test layers: unit (`test/control.test.ts`, `test/config.test.ts`), HTTP integration and stateful sequences
+  (`test/golden.test.ts`), logging (`test/logging.test.ts`).
+- Regression: every `seq` in `experimentos.jsonl` and the whole `pruebas/ejemplos.jsonl` are replayed by a test.
+- One command before any commit, push or deploy: `npm run verify` (typecheck + tests) exits 0.
+- Deployed service: `npm run smoke` against the public URL before declaring it operational.
 - Before reporting work as done, satisfy the Definition of Done.
 - Never state that something works without the output of the command that proves it.
 
