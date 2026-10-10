@@ -2,11 +2,20 @@ export interface StatusBadgeProps {
   status: number;
 }
 
-function toneFor(status: number): string {
-  if (status >= 500) return "text-danger";
-  if (status >= 400) return "text-warning";
-  if (status >= 200 && status < 300) return "text-success";
-  return "text-text-muted";
+type Tone = "success" | "warning" | "danger" | "muted";
+
+const TONE_STYLE: Record<Tone, string> = {
+  success: "border-success/40 bg-success/10 text-success",
+  warning: "border-warning/40 bg-warning/10 text-warning",
+  danger: "border-danger/40 bg-danger/10 text-danger",
+  muted: "border-border bg-surface-raised text-text-muted",
+};
+
+function toneFor(status: number): Tone {
+  if (status >= 500) return "danger";
+  if (status >= 400) return "warning";
+  if (status >= 200 && status < 300) return "success";
+  return "muted";
 }
 
 /**
@@ -14,5 +23,14 @@ function toneFor(status: number): string {
  * Always shows the numeric status.
  */
 export function StatusBadge({ status }: StatusBadgeProps) {
-  return <span className={`rounded border border-border px-2 py-0.5 font-mono text-xs ${toneFor(status)}`}>{status}</span>;
+  const tone = toneFor(status);
+  return (
+    <span
+      data-tone={tone}
+      className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 font-mono text-xs font-semibold tabular-nums ${TONE_STYLE[tone]}`}
+    >
+      <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-current" />
+      {status}
+    </span>
+  );
 }
