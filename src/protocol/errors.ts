@@ -30,4 +30,6 @@ export const Errors = {
   insufficientFunds: err(422, "E507", "saldo insuficiente"),
   // Observed: experimentos.jsonl:7-9, 12 (unknown path, or unsupported method on a known path).
   routeNotFound: err(404, "E404", "ruta desconocida"),
+  // ASSUMPTION: unexpected failures answer a generic 500 E500 body (unverified; no internals exposed).
+  internal: err(500, "E500", "error interno"),
 } as const;

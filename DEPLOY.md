@@ -13,7 +13,13 @@
 
 - `TEAM_TOKEN` (required): the only bearer token accepted. Set it as a Railway service variable; never commit it.
   The process exits with code 1 if it is missing.
-- `PORT`: provided by Railway; defaults to `3000` locally. The server binds `0.0.0.0`.
+- `PORT`: provided by Railway; defaults to `3000` locally. Must be an integer 1–65535, otherwise the process exits
+  with code 1. The server binds `0.0.0.0`.
+
+## Logs
+
+- stdout: one JSON line per request: `{"level","method","path","status","ms"}` (no query string, headers or body).
+- stderr: unexpected failures as `{"level":"error","method","path","error":<class name>}`.
 
 ## Single instance only
 

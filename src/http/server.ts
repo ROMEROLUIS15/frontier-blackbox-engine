@@ -54,13 +54,28 @@ function extractMessage(raw: string | null): string | Reply {
 
 const ROUTES = new Set(["GET /health", "POST /__reset", "POST /msg"]);
 
-export function createServer(teamToken: string): Server {
+/** Sink for structured log lines. Lines never contain headers, query strings or bodies. */
+export interface Logger {
+  info(line: string): void;
+  error(line: string): void;
+}
+
+const consoleLogger: Logger = {
+  info: (line) => console.log(line),
+  error: (line) => console.error(line),
+};
+
+function pathOf(req: IncomingMessage): string {
+  return (req.url ?? "").split("?")[0] ?? "";
+}
+
+export function createServer(teamToken: string, logger: Logger = consoleLogger): Server {
   const state = createState();
   let requestCounter = 0;
   const expectedAuth = `Bearer ${teamToken}`;
 
   async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> {
-    const path = (req.url ?? "").split("?")[0];
+    const path = pathOf(req);
     const route = `${req.method ?? ""} ${path}`;
 
     // Observed: unknown routes and unsupported methods answer 404 before auth (experimentos.jsonl:7-9, 12).
@@ -99,9 +114,18 @@ export function createServer(teamToken: string): Server {
   }
 
   return createHttpServer((req, res) => {
-    handle(req, res).catch(() => {
-      // ASSUMPTION: unexpected failures answer a generic 500 E500 body (unverified; no internals exposed).
-      if (!res.headersSent) send(res, { status: 500, body: { error: "E500", mensaje: "error interno" } });
+    const started = performance.now();
+    const method = req.method ?? "";
+    const path = pathOf(req);
+    res.on("finish", () => {
+      const ms = Math.round((performance.now() - started) * 100) / 100;
+      logger.info(JSON.stringify({ level: "info", method, path, status: res.statusCode, ms }));
+    });
+    handle(req, res).catch((error: unknown) => {
+      // Only the error class name is logged: messages could echo request data.
+      const name = error instanceof Error ? error.name : typeof error;
+      logger.error(JSON.stringify({ level: "error", method, path, error: name }));
+      if (!res.headersSent) send(res, Errors.internal);
       else res.end();
     });
   });
