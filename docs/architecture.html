@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Architecture — Reto 2 replica</title>
+<style>
+  @page { size: A4 landscape; margin: 12mm; }
+  body { font-family: "Segoe UI", Arial, sans-serif; margin: 0; color: #0f172a; }
+  h1 { font-size: 15pt; margin: 0 0 2mm; }
+  p { font-size: 10pt; color: #475569; margin: 2mm 0 0; }
+  img { width: 100%; display: block; }
+</style></head>
+<body>
+<h1>Architecture — Reto 2 "La caja negra" replica</h1>
+<img src="architecture.svg" alt="Architecture diagram">
+<p>Request flow: 1 HTTPS request → 2 validate message (format, control value, command, arity) → 3 control value check →
+4 execute command (only if valid) → 5 read/update in-memory state → 6 status + JSON response.
+Auxiliary dependencies (red/green "auxiliary"): control algorithm used by validation; error catalog used by validation and commands.
+http/server.ts is the only I/O adapter; control and bank modules are pure.</p>
+</body></html>

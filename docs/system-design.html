@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>System Design — Reto 2 "La caja negra" replica</title>
+<style>
+  @page { size: A4; margin: 11mm 12mm; }
+  * { box-sizing: border-box; }
+  body { font-family: "Segoe UI", Arial, sans-serif; font-size: 8.6pt; line-height: 1.32; color: #0f172a; margin: 0; }
+  h1 { font-size: 14pt; margin: 0 0 1mm; }
+  .sub { color: #475569; margin: 0 0 2mm; }
+  h2 { font-size: 9.6pt; margin: 2.2mm 0 0.8mm; color: #1e3a8a; border-bottom: 0.6px solid #cbd5e1; }
+  img { width: 100%; display: block; margin: 1mm 0 0.5mm; }
+  .cols { column-count: 2; column-gap: 6mm; }
+  .cols section { break-inside: avoid; }
+  ul { margin: 0; padding-left: 4mm; }
+  li { margin: 0 0 0.5mm; }
+  p { margin: 0 0 0.8mm; }
+  code { font-family: Consolas, monospace; font-size: 8pt; background: #f1f5f9; padding: 0 0.6mm; }
+  .tag { font-weight: 600; font-size: 7.6pt; padding: 0 1mm; border-radius: 2px; }
+  .obs { background: #dcfce7; color: #14532d; }
+  .asm { background: #fee2e2; color: #7f1d1d; }
+  .legend { color: #475569; font-size: 7.8pt; }
+</style>
+</head>
+<body>
+<h1>System Design — Reto 2 "La caja negra" replica</h1>
+<p class="sub">Drop-in replacement for an undocumented service: same HTTP status and body for every request, errors included.
+Node.js 24 + TypeScript, <code>node:http</code>, zero runtime dependencies, one in-memory state, deployed as a single Railway instance.</p>
+
+<img src="architecture.svg" alt="Architecture: client to http/server.ts, protocol/parse.ts with control/iso7064.ts, bank/commands.ts with bank/state.ts, errors catalog, inside one Railway replica">
+<p class="legend">Flow: 1 request → 2 validate message → 3 check control value → 4 execute command → 5 read/update state → 6 response.
+Labels: <span class="tag obs">observed</span> backed by recorded responses (<code>pruebas/ejemplos.jsonl</code>, <code>experimentos.jsonl</code>);
+<span class="tag asm">assumption</span> untested default, isolated in code as <code>// ASSUMPTION:</code>.</p>
+
+<div class="cols">
+<section>
+<h2>Components and responsibilities</h2>
+<ul>
+  <li><code>http/server.ts</code> — only I/O adapter: Bearer auth, routes, JSON body, <code>X-Req</code> counter.</li>
+  <li><code>protocol/parse.ts</code> — splits <code>m</code> on <code>;</code> (last field = control); validates format, control value, command (case-insensitive), arity.</li>
+  <li><code>control/iso7064.ts</code> — pure: uppercase payload, digits kept, A=1…Z=26, separators dropped; <code>98 − (N·100 mod 97)</code>.</li>
+  <li><code>bank/commands.ts</code> — PING, ALTA, CONSULTA, DEPOSITO, TRANSFER, ANULA; validates all inputs before mutating.</li>
+  <li><code>bank/state.ts</code> — accounts, operations, <code>AC-NNNN</code>/<code>OP-NNNN</code> counters, reset.</li>
+  <li><code>protocol/errors.ts</code> — single catalog of byte-exact bodies (incl. <code>"recieved"</code>, trailing space in <code>"comando desconocido "</code>).</li>
+</ul>
+</section>
+
+<section>
+<h2>State and persistence</h2>
+<ul>
+  <li>In memory only, one state bound to <code>TEAM_TOKEN</code>; <code>POST /__reset</code> clears it → <code>200 {"ok":true}</code> <span class="tag obs">observed</span>.</li>
+  <li>Sequential ids from 0001; rejected requests and ANULA consume no id <span class="tag obs">observed</span>.</li>
+  <li>ANULA of a TRANSFER debits the destination <span class="tag obs">observed</span>; credits the origin <span class="tag asm">assumption</span>.</li>
+  <li>No persistence needed: every evaluation test starts with <code>POST /__reset</code> (README).</li>
+</ul>
+</section>
+
+<section>
+<h2>Authentication, validation, errors</h2>
+<ul>
+  <li>Wrong token → <code>401 E001 "no autorizado"</code> <span class="tag obs">observed</span>; missing token, same <span class="tag asm">assumption</span>. <code>GET /health</code> public → 200.</li>
+  <li>Control: non-digits → <code>400 E201</code>; wrong value → <code>400 E202</code> <span class="tag obs">observed</span>, ISO formula confirmed on edge residues.</li>
+  <li>Unknown command → <code>400 E301</code>; wrong arity → <code>400 E302</code>; unknown account → <code>404 E401</code>; limit → <code>422 E506</code>; funds → <code>422 E507</code> <span class="tag obs">observed</span>.</li>
+  <li>Order E201 → E202 → E301 → E302, transfer limit <code>&gt; 100000</code>, codes E101/E303/E402/E404/E500 <span class="tag asm">assumption</span>.</li>
+</ul>
+</section>
+
+<section>
+<h2>Technical decisions</h2>
+<ul>
+  <li>Native TypeScript stripping: no build step, fast start.</li>
+  <li>Pure <code>control</code>/<code>bank</code> + one HTTP adapter: logic testable without a server.</li>
+  <li>Golden tests replay the 20 recorded examples and the ISO experiment (<code>npm test</code>: 8/8 pass); <code>tsc --noEmit</code> clean.</li>
+  <li>No LLM inside the replica: behavior is deterministic. Never calls the original.</li>
+  <li>Engineering contract in <code>AGENTS.md</code> (strict types, no secrets, Definition of Done).</li>
+</ul>
+</section>
+
+<section>
+<h2>Deployment — single instance</h2>
+<ul>
+  <li>Railway, Railpack builder (no Docker): <code>node src/main.ts</code>, health check <code>/health</code>, restart <code>ALWAYS</code>, Node <code>24.x</code>.</li>
+  <li>Exactly 1 replica, no autoscaling, no sleeping: state is per process and each step has 5 s.</li>
+  <li><code>TEAM_TOKEN</code> as a service variable, never committed or logged.</li>
+</ul>
+</section>
+
+<section>
+<h2>Risks and limitations</h2>
+<ul>
+  <li>Untested error order and invented codes may fail multi-error or edge-case tests.</li>
+  <li>The original may change during the day; parity is checked against the 20:00 version.</li>
+  <li>A restart loses state mid-sequence; mitigated by one always-on instance.</li>
+</ul>
+</section>
+</div>
+</body>
+</html>
