@@ -222,3 +222,48 @@ describe("R9: the control of non-PING commands is 1 or 2 digits (E201 otherwise)
     assert.deepEqual(await raw("PING;064"), PONG);
   });
 });
+
+describe("R10: the control value is compared as exact text, not as a number", () => {
+  const E202 = { status: 400, body: { error: "E202", mensaje: "control inválido" } };
+  test("X:309 ALTA;Mateo;03 is E202 although the valid control is 3", async () => {
+    assert.deepEqual(await raw("ALTA;Mateo;03"), E202);
+  });
+  test("X:310 ALTA;Mateo;00 is E202", async () => {
+    assert.deepEqual(await raw("ALTA;Mateo;00"), E202);
+  });
+  test("E:4 ALTA;Mateo;3 is accepted", async () => {
+    assert.deepEqual(await raw("ALTA;Mateo;3"), { status: 201, body: { cuentaId: "AC-0001" } });
+  });
+});
+
+describe("R11: E301 carries a sugerencia when a known command is one edit away", () => {
+  const body = (sugerencia?: string) => ({
+    status: 400,
+    body: sugerencia === undefined
+      ? { error: "E301", mensaje: "comando desconocido " }
+      : { error: "E301", mensaje: "comando desconocido ", sugerencia },
+  });
+  const cases: Array<[string, string, string | undefined]> = [
+    ["X:286", " PING;64", "PING"],
+    ["X:287", "ALTA ;Ana;50", "ALTA"],
+    ["X:300", "PIN;87", "PING"],
+    ["X:301", "PINGG;28", "PING"],
+    ["X:302", "DEPOSITOS;AC-0001;100;67", "DEPOSITO"],
+    ["X:303", "CONSULT;AC-0001;41", "CONSULTA"],
+    ["X:304", "ping ;64", "PING"],
+    ["X:305", "AL TA;Ana;50", "ALTA"],
+    ["X:308 no key when nothing is close", "XYZ;20", undefined],
+    ["X:126 no key for SALDOS (distance 4)", "SALDOS;AC-0001;38", undefined],
+  ];
+  for (const [evidence, m, sugerencia] of cases) {
+    test(`${evidence}: ${m}`, async () => {
+      assert.deepEqual(await raw(m), body(sugerencia));
+    });
+  }
+  test("X:306 control errors win over E301: ' PING;XX' is E201 (no PING exemption)", async () => {
+    assert.deepEqual(await raw(" PING;XX"), { status: 400, body: { error: "E201", mensaje: "control mal formado" } });
+  });
+  test("X:307 ' PING;63' is E202", async () => {
+    assert.deepEqual(await raw(" PING;63"), { status: 400, body: { error: "E202", mensaje: "control inválido" } });
+  });
+});
