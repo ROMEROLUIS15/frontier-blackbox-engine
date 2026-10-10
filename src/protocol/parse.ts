@@ -19,13 +19,15 @@ const ARITY: Record<CommandName, number> = {
   ANULA: 1,
 };
 
-// ASSUMPTION: only distance 1 is evidenced (experimentos.jsonl:286, 287, 300-305); SALDOS, at distance 4, gets no
-// suggestion (X:126) and XYZ neither (X:308). Distances 2-3 have not been measured. Change the threshold here only.
-const SUGGESTION_MAX_DISTANCE = 1;
+// Observed: distance <= 2 gets a suggestion (experimentos.jsonl:286, 287, 300-305, 311, 312); distance 3 (DEPOS,
+// X:313) and 4 (SALDOS, X:126) do not, nor does XYZ (X:308). Change the threshold here only.
+const SUGGESTION_MAX_DISTANCE = 2;
 
 /**
  * Closest known command to an unknown (already upper-cased, untrimmed) command name, or null when none is within
- * SUGGESTION_MAX_DISTANCE. ASSUMPTION: ties go to the first command in ARITY order (not evidenced).
+ * SUGGESTION_MAX_DISTANCE.
+ * ASSUMPTION: the metric is plain Levenshtein; X:311-313 cannot tell it apart from Damerau (PIGN is 2 / 1).
+ * ASSUMPTION: ties go to the first command in ARITY order (not evidenced).
  */
 export function suggestCommand(name: string): CommandName | null {
   let best: CommandName | null = null;
