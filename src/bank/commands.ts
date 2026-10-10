@@ -14,7 +14,7 @@ const MAX_AMOUNT = 9999999999;
 function parseAmount(raw: string): number | null {
   // Observed: 0, negative, decimal and non-numeric amounts -> E303 (experimentos.jsonl:21-24, 26, 177, 230-232).
   // Observed for DEPOSITO: a leading zero ("0500") -> E303 (experimentos.jsonl:84, 168).
-  // Inference: TRANSFER shares this parser, so it rejects leading zeros too (not observed).
+  // Observed for TRANSFER: a leading zero ("0100") -> E303 (experimentos.jsonl:335).
   if (!/^[1-9]\d*$/.test(raw)) return null;
   const n = Number(raw);
   return n <= MAX_AMOUNT ? n : null;
@@ -73,7 +73,10 @@ export function execute(state: BankState, msg: ParsedMessage): Reply {
 
     case "TRANSFER": {
       // Observed order (version 2): E303 -> E304 -> E401 -> E506 -> E507
-      // (experimentos.jsonl:221, 210, 222, 78, 30).
+      // (experimentos.jsonl:221, 210, 222, 78, 30). E506 comes before E507 when both apply: 50001 with a
+      // balance of 50000 -> E506 (experimentos.jsonl:320).
+      // Observed: rejected requests (E303, E304, E507) consume no operation number (experimentos.jsonl:323-324,
+      // 335-337).
       const amount = parseAmount(c);
       if (amount === null) return Errors.invalidAmount;
       // Observed: same origin and destination -> E304 even when the account does not exist, no balance change
@@ -98,7 +101,9 @@ export function execute(state: BankState, msg: ParsedMessage): Reply {
       if (op.annulled) return { status: 200, body: { ok: false, motivo: "ya anulada" } };
       op.annulled = true;
       // Observed: reverting a TRANSFER debits the destination and credits the origin (experimentos.jsonl:65-67);
-      // reverting a DEPOSITO debits the account (68-69); negative balances are allowed (72-73).
+      // reverting a DEPOSITO debits the account (68-69); negative balances are allowed (72-73, 322).
+      // Observed: ANULA consumes no operation number (experimentos.jsonl:322-324). A second ANULA of a TRANSFER
+      // answers ok:false "ya anulada" (experimentos.jsonl:325-328).
       state.accounts.set(op.to, (state.accounts.get(op.to) ?? 0) - op.amount);
       if (op.from !== null) state.accounts.set(op.from, (state.accounts.get(op.from) ?? 0) + op.amount);
       return { status: 200, body: { ok: true, anulada: a } };
