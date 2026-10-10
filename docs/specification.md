@@ -2,9 +2,9 @@
 
 Permite reimplementar el servicio sin tocar el original. Evidencia: `X:n` = línea (`id`) n de `experimentos.jsonl`.
 Las líneas X:31–X:50 (`seq` `s-ej-01`) reproducen contra el original, en orden y tras un reset, los 20 ejemplos de
-`pruebas/ejemplos.jsonl` (X:30+n = ejemplo n), con status y cuerpo idénticos en los 20 casos. El log tiene 281 líneas:
+`pruebas/ejemplos.jsonl` (X:30+n = ejemplo n), con status y cuerpo idénticos en los 20 casos. El log tiene 313 líneas:
 X:1–X:84 son la versión 1 (campo `version` ausente: orden de validación, ANULA, saldos negativos y TRANSFER con
-cuentas inexistentes o iguales) y X:85–X:281 son la versión 2 (`"version":"v2"`, 197 líneas). Esta especificación
+cuentas inexistentes o iguales) y X:85–X:313 son la versión 2 (`"version":"v2"`, 229 líneas). Esta especificación
 describe la **versión 2**; donde difiere de la versión 1 la diferencia se documenta en la sección 6. Los ejemplos de
 `pruebas/ejemplos.jsonl` se repitieron contra la versión 2 en X:115–X:134 (`s-ej-01-v2`, mismas 20 solicitudes).
 
@@ -19,11 +19,11 @@ Formato de error común: `{"error":"<código>","mensaje":"<texto>"}`. Todos los 
 |---|---|---|---|
 | ENT-01 | Rutas conocidas: `GET /health`, `POST /__reset`, `POST /msg`. Mensajes en `POST /msg` con cuerpo `{"m":"<texto>"}`. | X:2, X:14; README | confirmado |
 | ENT-02 | Ruta inexistente (GET o POST) → `404 {"error":"E404","mensaje":"ruta desconocida"}`. | X:7, X:8, X:12 | confirmado |
-| ENT-03 | Método no admitido en ruta conocida (`GET /msg`) → mismo `404 E404 "ruta desconocida"`. | X:9 | probable |
+| ENT-03 | Método no admitido en ruta conocida (`GET /msg`, `PUT /msg`, `DELETE /msg`) → mismo `404 E404 "ruta desconocida"`. | X:9, X:297, X:298 | confirmado |
 | ENT-04 | La ruta se resuelve antes que la autenticación: ruta inexistente sin token → 404, no 401 (inferido). | X:12 | probable |
 | ENT-05 | Autenticación `Authorization: Bearer <token>`. Sin header o con token incorrecto → `401 {"error":"E001","mensaje":"no autorizado"}`. | X:1, X:11 (incorrecto), X:10 (sin header) | confirmado |
 | ENT-06 | `GET /health` exige token: sin token → `401 E001`; con token → `200 {"ok":true}`. | X:13, X:14 | probable |
-| ENT-07 | `POST /__reset` con token → `200 {"ok":true}` y vuelve el estado al inicial (ver MEM-01). | Salida de los runs s-ctl-01, s-io-01, s-amt-01 (el reset no se registró como línea); X:3, X:19 | probable |
+| ENT-07 | `POST /__reset` con token → `200 {"ok":true}` y vuelve el estado al inicial (ver MEM-01). | Salida de los runs s-ctl-01, s-io-01, s-amt-01 (el reset no se registró como línea); X:3, X:19, X:299 (`200 {"ok":true}`) | probable |
 | ENT-08 | Cuerpo que no es JSON → `400 {"error":"E100","mensaje":"json inválido"}`. | X:15 | probable |
 | ENT-09 | JSON sin campo `m`, o `m` no string → `400 {"error":"E102","mensaje":"falta m"}`. | X:16, X:17 | confirmado |
 | ENT-10 | Header `X-Req`: contador de `POST /msg` autenticados (incluye respuestas de error); no se reinicia con `/__reset`; no aparece en 401, 404 ni `/health`. | X:2–X:6 (1..5), X:15 (6), X:18→X:19 (9→10 tras reset), X:1, X:7–X:14 (sin header) | probable |
@@ -39,7 +39,8 @@ Formato de error común: `{"error":"<código>","mensaje":"<texto>"}`. Todos los 
 | INT-03 | Control válido = `98 − (N·100 mod 97)` (ISO 7064 MOD 97-10). N: payload en mayúsculas; dígitos sin cambio; letras A=1…Z=26 sin relleno; `;`, `-` y demás símbolos se descartan. | X:31–X:50 (los 18 controles numéricos aceptados coinciden; X:32, rechazado, no coincide); restos borde 0 y 1: X:3–X:6 | confirmado |
 | INT-04 | Control numérico incorrecto → `400 {"error":"E202","mensaje":"control inválido"}` (salvo en `PING`, ver INT-09). | X:32, X:4, X:6 | confirmado |
 | INT-05 | El control se calcula sobre el payload en mayúsculas: `CONSULTa;AC-0001` acepta el mismo control (14) que `CONSULTA;AC-0001` (inferido). | X:41, X:35 | probable |
-| INT-06 | Formato del control en comandos distintos de `PING`: 1 o 2 dígitos. `ALTA;Ana;050` (valor válido 50), `ALTA;Ana;150`, `+50` y `" 50"` → `400 E201` (150 no es E202); un solo dígito se acepta (`ALTA;Mateo;3` → `201`). `PING;064` → `200` solo porque `PING` ignora el control (X:58, INT-09). No se midió si un control de 2 dígitos con cero inicial (p. ej. `03`) es válido. | X:282–X:285 (ola 10, aún no incluidas en el log local de 281 líneas); E:4; X:58 | confirmado (formato); supuesto: `0N` válido como número |
+| INT-06 | Formato del control en comandos distintos de `PING`: 1 o 2 dígitos. `ALTA;Ana;050` (valor válido 50), `ALTA;Ana;150`, `+50` y `" 50"` → `400 E201` (150 no es E202); un solo dígito se acepta (`ALTA;Mateo;3` → `201`). `PING;064` → `200` solo porque `PING` ignora el control (X:58, INT-09). | X:282–X:285; E:4; X:58 | confirmado en v2 |
+| INT-06b | Valor del control en comandos distintos de `PING`: se compara como **texto exacto**, no como número. `ALTA;Mateo;03` y `ALTA;Mateo;00` → `400 E202` aunque el control válido es 3; `ALTA;Mateo;3` → `201`. `" PING"` (con espacio) no recibe la exención de `PING`: `" PING;XX"` → E201 y `" PING;63"` → E202. | X:309, X:310, X:306, X:307; E:4 | confirmado en v2 |
 | INT-07 | Mensaje sin ningún `;`, incluido el mensaje vacío (`{"m":"PING"}`, `{"m":""}`) → `400 {"error":"E103","mensaje":"falta control"}`, antes que cualquier otra validación del mensaje. | X:60, X:144, X:204 | confirmado |
 | INT-08 | Letras no ASCII en el payload del control. | — | supuesto: se descartan como cualquier símbolo |
 | INT-09 | `PING` ignora el control por completo (formato y valor), pero valida la aridad: `PING;XX` y `PING;63` (el control válido es 64) → `200 {"pong":true}`; `PING;A;XX` → `400 E302`. Consistente con el ejemplo del README (líneas 59–63, `PING;XX`). Ver sección 6.2. | X:197, X:212, X:213; README | confirmado |
@@ -54,7 +55,7 @@ El nombre del comando no distingue mayúsculas (X:41, X:57; probable). Aridad = 
 | CMD-01 | `PING` (0 args) | `200 {"pong":true}`; el control no se valida (INT-09). | X:31, X:2, X:115, X:197, X:212 | confirmado |
 | CMD-02 | `ALTA;nombre` (1) | Crea cuenta con saldo 0 → `201 {"cuentaId":"AC-NNNN"}`, secuencial desde `AC-0001`. | X:33, X:34, X:3, X:5, X:19, X:20 | confirmado |
 | CMD-03 | `ALTA` | Nombre duplicado: se acepta y crea otra cuenta (`ALTA;Ana` dos veces → `AC-0001`, `AC-0002`). | X:74, X:83 | probable |
-| CMD-03b | `ALTA` | Nombres con caracteres especiales. | — | supuesto: se aceptan |
+| CMD-03b | `ALTA` | Nombres con dígitos, símbolos, no ASCII o de 60 caracteres se aceptan (`Ana2`, `Ana-María`, 60 × `A`). Otros nombres (vacío: E104). | X:288, X:289, X:290 | confirmado para esos casos; supuesto: el resto |
 | CMD-04 | `CONSULTA;cuenta` (1) | `200 {"cuenta_id":"AC-NNNN","saldo":"<centavos/100 con 2 decimales>"}`: el saldo es un **string** (0 → `"0.00"`, 1 → `"0.01"`, 40000 → `"400.00"`, −5 → `"-0.05"`, −500 → `"-5.00"`, −1000 → `"-10.00"`, 19999999998 → `"199999999.98"`). En v1 era un número (X:35: `0`; X:38: `40000`); ver CAM-01. | X:119, X:176, X:122, X:228, X:157, X:249, X:281 | confirmado |
 | CMD-05 | `CONSULTA` | Cuenta inexistente → `404 {"error":"E401","mensaje":"cuenta inexistente"}`. El id distingue mayúsculas: `ac-0001` → E401. | X:45, X:82 | confirmado |
 | CMD-06 | `DEPOSITO;cuenta;monto` (2) | Suma al saldo → `200 {"status":"recieved","operacionId":"OP-NNNN"}`. | X:36, X:48, X:25 | confirmado |
@@ -64,8 +65,8 @@ El nombre del comando no distingue mayúsculas (X:41, X:57; probable). Aridad = 
 | CMD-08b | `DEPOSITO`, `TRANSFER` | Monto máximo 9999999999: por encima → `400 E303 "monto inválido"` (antes que E506 en TRANSFER); 9999999999 se acepta dos veces seguidas (saldo `"199999999.98"`), sin tope de saldo. Ver sección 6.2. | X:278, X:279, X:280, X:281, X:275, X:276 | confirmado en v2 |
 | CMD-09 | `TRANSFER;origen;destino;monto` (3) | Resta del origen, suma al destino → `200 {"status":"recieved","operacionId":"OP-NNNN"}`. | X:37, X:38, X:40, X:41, X:28, X:29 | confirmado |
 | CMD-10 | `TRANSFER` | Monto > 50000 → `422 {"error":"E506","mensaje":"límite excedido"}`; 50000 se acepta (inclusivo). En v1 el límite era 100000 (X:39, X:40, X:27, X:28); ver CAM-02. | X:190, X:191, X:112 | confirmado |
-| CMD-11 | `TRANSFER` | El límite es por transferencia, no acumulado: en v1, 100000 + 30000 seguidas se aceptaron (inferido). No repetido en v2. | X:28, X:29 | probable |
-| CMD-12 | `TRANSFER` | Saldo del origen menor que el monto → `422 {"error":"E507","mensaje":"saldo insuficiente"}`. | X:46 | probable |
+| CMD-11 | `TRANSFER` | El límite es por transferencia, no acumulado: en v2 dos TRANSFER de 30000 seguidas (suma 60000 > 50000) se aceptan y el destino queda en `"600.00"`. En v1: 100000 + 30000 (X:28, X:29). | X:218, X:219, X:220; X:28, X:29 | confirmado |
+| CMD-12 | `TRANSFER` | Saldo del origen menor que el monto → `422 {"error":"E507","mensaje":"saldo insuficiente"}`. Transferir exactamente el saldo del origen se acepta (`200`). | X:46; X:295 | probable; confirmado en v2 para el saldo exacto |
 | CMD-13 | `TRANSFER` | Monto 0 → `400 E303 "monto inválido"`. | X:26 | probable |
 | CMD-14 | `TRANSFER` | Origen inexistente o destino inexistente → `404 E401 "cuenta inexistente"`. | X:75, X:76 | probable |
 | CMD-14b | `TRANSFER` | Origen y destino iguales → `400 {"error":"E304","mensaje":"origen y destino iguales"}`; no cambia el saldo (500 antes y después) ni consume número de operación. | X:79–X:81 | probable |
@@ -77,8 +78,8 @@ El nombre del comando no distingue mayúsculas (X:41, X:57; probable). Aridad = 
 | CMD-18 | `ANULA` | Anular un TRANSFER devuelve el monto al origen (1000 → 1000 con destino 0). | X:64–X:67 | probable |
 | CMD-18b | `ANULA` | Anular un DEPOSITO descuenta el monto de la cuenta (1000 → 0). | X:63, X:68, X:69 | probable |
 | CMD-18c | `ANULA` | Los saldos negativos están permitidos: anular un DEPOSITO ya gastado deja −500. | X:70–X:73 | probable |
-| CMD-19 | Comando desconocido | → `400 {"error":"E301","mensaje":"comando desconocido "}` (con espacio final). | X:42 | probable |
-| CMD-20 | Aridad incorrecta | → `400 {"error":"E302","mensaje":"aridad inválida"}`. | X:50 | probable |
+| CMD-19 | Comando desconocido | → `400 {"error":"E301","mensaje":"comando desconocido "}` (con espacio final). Si un comando conocido está a distancia de edición (Levenshtein) de 2 o menos del nombre (en mayúsculas, sin recortar espacios) el cuerpo añade `"sugerencia":"<COMANDO>"` (ver OBS-05). | X:42, X:126, X:308 | probable |
+| CMD-20 | Aridad incorrecta | → `400 {"error":"E302","mensaje":"aridad inválida"}`; también `ANULA` con un argumento de más. | X:50, X:291 | probable |
 
 ## 4. Memoria entre requests
 
@@ -103,7 +104,7 @@ El nombre del comando no distingue mayúsculas (X:41, X:57; probable). Aridad = 
 | E104 | 400 | `segmento vacío` | X:179, X:194–X:196, X:198–X:202, X:205, X:242 | confirmado en v2 |
 | E201 | 400 | `control mal formado` | X:47 | probable |
 | E202 | 400 | `control inválido` | X:32, X:4, X:6 | confirmado |
-| E301 | 400 | `comando desconocido ` (espacio final) | X:42 | probable |
+| E301 | 400 | `comando desconocido ` (espacio final); variante con `"sugerencia":"<COMANDO>"` cuando hay un comando a distancia ≤ 2 (OBS-05) | X:42, X:126, X:308; variante: X:286, X:287, X:300–X:305, X:311, X:312 | probable; variante confirmada en v2 |
 | E304 | 400 | `origen y destino iguales` | X:80, X:210, X:222 | confirmado |
 | E302 | 400 | `aridad inválida` | X:50 | probable |
 | E303 | 400 | `monto inválido` | X:21–X:24, X:26, X:77, X:84, X:211, X:221, X:275, X:278 | confirmado |
@@ -153,6 +154,8 @@ de versión**. La réplica los implementa porque son lo observado.
 | OBS-02 | Orden de validación de TRANSFER E303 → E304 → E401 → E506 → E507 (ORD-08) y de DEPOSITO E303 → E401 (ORD-09). | X:210, X:211, X:221, X:222 | confirmado en v2 |
 | OBS-03 | Monto máximo 9999999999 en DEPOSITO y TRANSFER (`E303` por encima, antes que `E506`); sin tope de saldo (CMD-08b). | X:275, X:276, X:278, X:279, X:280, X:281 | confirmado en v2 |
 | OBS-04 | Mensaje vacío `""` → `E103` (INT-07). | X:204 | confirmado en v2 |
+| OBS-05 | `E301` con campo opcional `sugerencia`: nombre del comando conocido más cercano si está a distancia de edición (Levenshtein) ≤ 2 del campo de comando en mayúsculas, sin recortar espacios: `" PING"`, `PIN`, `PINGG`, `ping `, `PIGN` (distancia 2) → `PING`; `ALTA ` y `AL TA` → `ALTA`; `DEPOSITOS` → `DEPOSITO`; `CONSULT` y `CONSUL` (distancia 2) → `CONSULTA`. Sin la clave cuando no hay comando cercano: `DEPOS` (distancia 3, X:313), `SALDOS` (distancia 4, X:126) y `XYZ`. Los errores de control ganan antes: `" PING;XX"` → E201, `" PING;63"` → E202. Supuestos: Levenshtein frente a Damerau (las sondas no los distinguen: `PIGN` es 2 y 1); desempate por el orden PING, ALTA, CONSULTA, DEPOSITO, TRANSFER, ANULA. | X:286, X:287, X:300–X:305, X:311–X:313, X:308, X:126; X:306, X:307 | confirmado en v2 (umbral ≤ 2); supuesto: métrica exacta y desempate |
+| OBS-06 | El control de comandos distintos de `PING` es de 1 o 2 dígitos y se compara como texto exacto (INT-06, INT-06b). | X:282–X:285, X:309, X:310 | confirmado en v2 |
 
 ### 6.3 Límite del método
 
