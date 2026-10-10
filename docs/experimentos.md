@@ -61,8 +61,8 @@ repetición en v2 y se marcan como inferidas.
 
 - **Versión 1** (campo `version` ausente): X:1–X:84, 84 líneas.
 - **Repetición de la versión 1 contra la versión 2** (campo `replay_of`): X:85–X:168, 84 líneas, una por cada línea de la versión 1, con la misma solicitud y el mismo estado.
-- **Ondas nuevas de la versión 2:** X:169–X:313, 145 líneas.
-- Total: 313 líneas (v1: 84; v2: 229, desde X:85).
+- **Ondas nuevas de la versión 2:** X:169–X:337, 169 líneas.
+- Total: 337 líneas (v1: 84; v2: 253, desde X:85).
 
 Cada `seq` empieza con `POST /__reset`, de modo que su primera solicitud parte de un estado vacío. El propósito de cada
 secuencia es la primera hipótesis registrada en ella.
@@ -109,19 +109,23 @@ secuencia es la primera hipótesis registrada en ella.
 | `s-v2-http-02` | X:297–X:299 | 3 | v2 | PUT /msg: ¿404 E404? |
 | `s-v2-sug-01` | X:300–X:310 | 11 | v2 | Sugerencia: 'PIN' (distancia 1 de PING, control válido): ¿E301 con sugerencia PING? |
 | `s-v2-sug-02` | X:311–X:313 | 3 | v2 | Umbral de sugerencia: 'CONSUL' está a distancia de Levenshtein 2 de CONSULTA: ¿sugerencia? |
+| `s-v2-final-p1` | X:314–X:315 | 2 | v2 | Reset previo de P1; además verifica que el original responde y que el token es válido |
+| `s-v2-final-sb` | X:316–X:328 | 13 | v2 | Reset previo de la secuencia S-B |
+| `s-v2-final-p4` | X:329–X:330 | 2 | v2 | Reset previo de P4 |
+| `s-v2-final-sa` | X:331–X:337 | 7 | v2 | Reset previo de la secuencia S-A |
 
 ## Resumen de hallazgos
 
 Todas las cifras se calculan al generar el documento.
 
-- Líneas del log: 313 (versión 1: 84; versión 2: 229).
+- Líneas del log: 337 (versión 1: 84; versión 2: 253).
 - Conclusiones que empiezan con "CAMBIO 1": 12.
 - Conclusiones que empiezan con "CAMBIO 2": 7.
 - Conclusiones que empiezan con "Consecuencia del CAMBIO": 4.
-- Conclusiones que empiezan con "Comportamiento de v2": 80.
-- La réplica coincide con el original en 229/229 líneas de la versión 2.
+- Conclusiones que empiezan con "Comportamiento de v2": 94.
+- La réplica coincide con el original en 253/253 líneas de la versión 2.
 - La réplica coincide con el original en 69/84 líneas de la versión 1.
-- Entradas con una línea de Limitación (el registro no alcanza para explicar algo): 34.
+- Entradas con una línea de Limitación (el registro no alcanza para explicar algo): 19.
 
 La réplica implementa la versión 2. Una diferencia en una línea de la versión 1 no es un defecto: indica un punto donde
 la versión 2 cambió el comportamiento. Líneas de la versión 1 que difieren:
@@ -160,11 +164,11 @@ Distribución de etiquetas:
 
 - Cambio de versión probado: 21
 - Consecuencia de un cambio: 4
-- Comportamiento de v2 sin línea base en v1: 80
-- Preparación: 45
+- Comportamiento de v2 sin línea base en v1: 94
+- Preparación: 51
 - Línea base v1: 73
 - Repetición en v2: 69
-- Observación: 21
+- Observación: 25
 
 ## Glosario
 
@@ -193,22 +197,22 @@ El texto de `mensaje` y el status son los de la sección 5 de la especificación
 
 | Código | Status | `mensaje` | Se produce cuando | Fuente |
 |---|---|---|---|---|
-| E001 | 401 | `no autorizado` | falta la cabecera `Authorization` o el token es incorrecto | sección 5, fila E001; ENT-05 |
-| E404 | 404 | `ruta desconocida` | ruta inexistente o método no admitido en una ruta conocida | sección 5, fila E404; ENT-02, ENT-03 |
-| E100 | 400 | `json inválido` | el cuerpo no es JSON | sección 5, fila E100; ENT-08 |
-| E102 | 400 | `falta m` | el JSON no trae `m`, o `m` no es un string | sección 5, fila E102; ENT-09, ENT-11 |
-| E103 | 400 | `falta control` | el mensaje no contiene ningún `;` | sección 5, fila E103; INT-07 |
-| E104 | 400 | `segmento vacío` | algún segmento de `m` al dividirlo por `;` está vacío | sección 5, fila E104; INT-10 |
-| E201 | 400 | `control mal formado` | el control no es numérico o no tiene 1 o 2 dígitos (salvo en `PING`) | sección 5, fila E201; INT-02, INT-06 |
-| E202 | 400 | `control inválido` | el control es numérico pero no es el válido (salvo en `PING`) | sección 5, fila E202; INT-04, INT-06b |
-| E301 | 400 | `comando desconocido ` | el comando no existe; puede añadir `sugerencia` | sección 5, fila E301; CMD-19, OBS-05 |
-| E302 | 400 | `aridad inválida` | el número de argumentos no es el del comando | sección 5, fila E302; CMD-20 |
-| E303 | 400 | `monto inválido` | el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo | sección 5, fila E303; CMD-07, CMD-07b, CMD-08b |
-| E304 | 400 | `origen y destino iguales` | en `TRANSFER`, origen y destino son la misma cuenta | sección 5, fila E304; CMD-14b |
-| E401 | 404 | `cuenta inexistente` | la cuenta consultada, de origen o de destino no existe | sección 5, fila E401; CMD-05, CMD-14 |
-| E402 | 404 | `operación inexistente` | la operación que se quiere anular no existe | sección 5, fila E402; CMD-16 |
-| E506 | 422 | `límite excedido` | el monto de un `TRANSFER` supera el límite de la versión | sección 5, fila E506; CMD-10, CAM-02 |
-| E507 | 422 | `saldo insuficiente` | el saldo de la cuenta de origen es menor que el monto | sección 5, fila E507; CMD-12 |
+| E001 | 401 | `no autorizado` | falta la cabecera `Authorization` o el token es incorrecto | ERR-02; ENT-05 |
+| E404 | 404 | `ruta desconocida` | ruta inexistente o método no admitido en una ruta conocida | ERR-01; ENT-02, ENT-03 |
+| E100 | 400 | `json inválido` | el cuerpo no es JSON | ERR-03; ENT-08 |
+| E102 | 400 | `falta m` | el JSON no trae `m`, o `m` no es un string | ERR-04; ENT-09, ENT-11 |
+| E103 | 400 | `falta control` | el mensaje no contiene ningún `;` | ERR-05; INT-07 |
+| E104 | 400 | `segmento vacío` | algún segmento de `m` al dividirlo por `;` está vacío | ERR-06; INT-10 |
+| E201 | 400 | `control mal formado` | el control no es numérico o no tiene 1 o 2 dígitos (salvo en `PING`) | ERR-07; INT-02, INT-06 |
+| E202 | 400 | `control inválido` | el control es numérico pero no es el válido (salvo en `PING`) | ERR-08; INT-04, INT-06b |
+| E301 | 400 | `comando desconocido ` | el comando no existe; puede añadir `sugerencia` | ERR-09; CMD-19, OBS-05 |
+| E302 | 400 | `aridad inválida` | el número de argumentos no es el del comando | ERR-11; CMD-20 |
+| E303 | 400 | `monto inválido` | el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo | ERR-12; CMD-07, CMD-07b, CMD-08b |
+| E304 | 400 | `origen y destino iguales` | en `TRANSFER`, origen y destino son la misma cuenta | ERR-10; CMD-14b |
+| E401 | 404 | `cuenta inexistente` | la cuenta consultada, de origen o de destino no existe | ERR-13; CMD-05, CMD-14 |
+| E402 | 404 | `operación inexistente` | la operación que se quiere anular no existe | ERR-14; CMD-16 |
+| E506 | 422 | `límite excedido` | el monto de un `TRANSFER` supera el límite de la versión | ERR-15; CMD-10, CAM-02 |
+| E507 | 422 | `saldo insuficiente` | el saldo de la cuenta de origen es menor que el monto | ERR-16; CMD-12 |
 
 ### Formas de respuesta correcta
 
@@ -248,6 +252,7 @@ Cada entrada recibe una categoría de forma mecánica: «Preparación» si la hi
 | Sonda de montos | `amt` | Pertenece a una secuencia que sondea los montos: qué valores acepta o rechaza el servicio (cero, negativos, decimales, texto) y desde qué valor se aplica un límite (especificación, CMD-07, CMD-10). |
 | Sonda de efecto en el estado | `anu`, `tr`, `neg` | Pertenece a una secuencia que sondea cómo las operaciones modifican el estado (anulaciones, transferencias, saldos negativos): comprueba lo que recuerda el servicio entre solicitudes (especificación, sección 4). |
 | Sonda del nombre de comando | `sug` | Pertenece a una secuencia que sondea los nombres de comando desconocidos y la sugerencia que acompaña a E301 (especificación, OBS-05). |
+| Sonda de la campaña final | `final` | Pertenece a la campaña final de experimentos (secuencias `final-*`): sondea un punto concreto, el que enuncia la hipótesis registrada. |
 | Reproducción de un ejemplo oficial | `ej` | Reproduce uno de los 20 ejemplos oficiales de `pruebas/ejemplos.jsonl` para comprobar que el original responde lo mismo (especificación, encabezado). |
 
 ## Experimentos por secuencia
@@ -259,7 +264,7 @@ Secuencia de 1 solicitud(es) de v1, nombre base `diag`. Propósito: Diagnóstico
 - Categorías de sus entradas: Sonda de forma HTTP (1).
 - Comandos que envía: `PING`.
 - Errores que devuelve el original: E001 (1).
-- Filas de la especificación que citan sus líneas: ENT-05, ENT-10, E001.
+- Filas de la especificación que citan sus líneas: ENT-05, ENT-10, ERR-02.
 
 Pasos y efecto sobre el estado (según las respuestas registradas del original):
 
@@ -310,7 +315,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E001","mensaje":"no autorizado"}
 ```
 
-Error E001 (HTTP 401): el servicio responde «no autorizado». Según la especificación se produce cuando falta la cabecera `Authorization` o el token es incorrecto (sección 5, fila E001, ENT-05).
+Error E001 (HTTP 401): el servicio responde «no autorizado». Según la especificación se produce cuando falta la cabecera `Authorization` o el token es incorrecto (ERR-02, ENT-05).
 
 **Respuesta de la réplica:** status 401 — coincide
 
@@ -332,7 +337,7 @@ Es la base de comparación de v1; su repetición en v2 es X:85, donde la respues
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas ENT-05 (confirmado), ENT-10 (probable), E001 (confirmado).
+- Especificación: la citan las filas ENT-05 (confirmado), ENT-10 (probable), ERR-02 (confirmado).
 - Par v1/v2: X:1 (v1) y X:85 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:2, X:8, X:10, X:11, X:31; v2: X:86, X:92, X:94, X:95, X:115, X:250, X:251, X:256 y 5 más).
 - Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): mismo mensaje `m`, pero con otra autenticación (los ejemplos oficiales son `POST /msg` con el token del equipo); las respuestas no son comparables directamente.
@@ -344,7 +349,7 @@ Secuencia de 5 solicitud(es) de v1, nombre base `ctl`. Propósito: Línea base: 
 - Categorías de sus entradas: Sonda del dígito de control (5).
 - Comandos que envía: `PING`, `ALTA`.
 - Errores que devuelve el original: E202 (2).
-- Filas de la especificación que citan sus líneas: ENT-01, ENT-10, CMD-01, ENT-07, INT-03, CMD-02, MEM-01, INT-04, MEM-02, E202.
+- Filas de la especificación que citan sus líneas: ENT-01, ENT-10, CMD-01, RIE-04, ENT-07, INT-03, CMD-02, MEM-01, INT-04, MEM-02, ERR-08.
 
 Pasos y efecto sobre el estado (según las respuestas registradas del original):
 
@@ -421,7 +426,7 @@ Es la base de comparación de v1; su repetición en v2 es X:86, donde la respues
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas ENT-01 (confirmado), ENT-10 (probable), CMD-01 (confirmado).
+- Especificación: la citan las filas ENT-01 (confirmado), ENT-10 (probable), CMD-01 (confirmado), RIE-04 (probable).
 - Par v1/v2: X:2 (v1) y X:86 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:1, X:8, X:10, X:11, X:31; v2: X:85, X:92, X:94, X:95, X:115, X:250, X:251, X:256 y 5 más).
 - Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
@@ -491,7 +496,7 @@ Es la base de comparación de v1; su repetición en v2 es X:87, donde la respues
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas ENT-07 (probable), ENT-10 (probable), INT-03 (confirmado), CMD-02 (confirmado), MEM-01 (confirmado).
+- Especificación: la citan las filas ENT-07 (confirmado), ENT-10 (probable), INT-03 (confirmado), CMD-02 (confirmado), MEM-01 (confirmado), RIE-04 (probable).
 - Par v1/v2: X:3 (v1) y X:87 (v2, `replay_of`); las respuestas registradas del original son iguales.
 
 #### X:4 — POST /msg ALTA;Laro;1
@@ -537,7 +542,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E202","mensaje":"control inválido"}
 ```
 
-Error E202 (HTTP 400): el servicio responde «control inválido». Según la especificación se produce cuando el control es numérico pero no es el válido (salvo en `PING`) (sección 5, fila E202, INT-04, INT-06b).
+Error E202 (HTTP 400): el servicio responde «control inválido». Según la especificación se produce cuando el control es numérico pero no es el válido (salvo en `PING`) (ERR-08, INT-04, INT-06b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -559,7 +564,7 @@ Es la base de comparación de v1; su repetición en v2 es X:88, donde la respues
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas ENT-10 (probable), INT-03 (confirmado), INT-04 (confirmado), MEM-02 (confirmado), E202 (confirmado).
+- Especificación: la citan las filas ENT-10 (probable), INT-03 (confirmado), INT-04 (confirmado), MEM-02 (confirmado), ERR-08 (confirmado), RIE-04 (probable).
 - Par v1/v2: X:4 (v1) y X:88 (v2, `replay_of`); las respuestas registradas del original son iguales.
 
 #### X:5 — POST /msg ALTA;Mari;97
@@ -627,7 +632,7 @@ Es la base de comparación de v1; su repetición en v2 es X:89, donde la respues
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas ENT-10 (probable), INT-03 (confirmado), CMD-02 (confirmado), MEM-02 (confirmado).
+- Especificación: la citan las filas ENT-10 (probable), INT-03 (confirmado), CMD-02 (confirmado), MEM-02 (confirmado), RIE-04 (probable).
 - Par v1/v2: X:5 (v1) y X:89 (v2, `replay_of`); las respuestas registradas del original son iguales.
 
 #### X:6 — POST /msg ALTA;Miro;0
@@ -673,7 +678,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E202","mensaje":"control inválido"}
 ```
 
-Error E202 (HTTP 400): el servicio responde «control inválido». Según la especificación se produce cuando el control es numérico pero no es el válido (salvo en `PING`) (sección 5, fila E202, INT-04, INT-06b).
+Error E202 (HTTP 400): el servicio responde «control inválido». Según la especificación se produce cuando el control es numérico pero no es el válido (salvo en `PING`) (ERR-08, INT-04, INT-06b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -695,7 +700,7 @@ Es la base de comparación de v1; su repetición en v2 es X:90, donde la respues
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas ENT-10 (probable), INT-03 (confirmado), INT-04 (confirmado), E202 (confirmado).
+- Especificación: la citan las filas ENT-10 (probable), INT-03 (confirmado), INT-04 (confirmado), ERR-08 (confirmado), RIE-04 (probable).
 - Par v1/v2: X:6 (v1) y X:90 (v2, `replay_of`); las respuestas registradas del original son iguales.
 
 ### s-io-01 — v1, X:7–X:18
@@ -705,7 +710,7 @@ Secuencia de 12 solicitud(es) de v1, nombre base `io`. Propósito: Ruta inexiste
 - Categorías de sus entradas: Sonda de forma HTTP (12).
 - Comandos que envía: `PING`, `ANULA`.
 - Errores que devuelve el original: E404 (4), E001 (3), E100 (1), E102 (2), E402 (1).
-- Filas de la especificación que citan sus líneas: ENT-02, ENT-10, E404, ENT-03, ENT-05, E001, ENT-04, ORD-01, ENT-06, ENT-01, ENT-08, E100, ENT-09, E102, CMD-16, MEM-06, E402.
+- Filas de la especificación que citan sus líneas: ENT-02, ENT-10, ERR-01, ENT-03, ENT-05, ERR-02, ENT-04, ORD-01, ENT-06, ENT-01, ENT-08, ERR-03, ENT-09, ERR-04, CMD-16, MEM-06, ERR-14, RIE-04.
 
 Pasos y efecto sobre el estado (según las respuestas registradas del original):
 
@@ -753,7 +758,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: no es
 {"error":"E404","mensaje":"ruta desconocida"}
 ```
 
-Error E404 (HTTP 404): el servicio responde «ruta desconocida». Según la especificación se produce cuando ruta inexistente o método no admitido en una ruta conocida (sección 5, fila E404, ENT-02, ENT-03).
+Error E404 (HTTP 404): el servicio responde «ruta desconocida». Según la especificación se produce cuando ruta inexistente o método no admitido en una ruta conocida (ERR-01, ENT-02, ENT-03).
 
 **Respuesta de la réplica:** status 404 — coincide
 
@@ -775,7 +780,7 @@ Es la base de comparación de v1; su repetición en v2 es X:91, donde la respues
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas ENT-02 (confirmado), ENT-10 (probable), E404 (confirmado).
+- Especificación: la citan las filas ENT-02 (confirmado), ENT-10 (probable), ERR-01 (confirmado).
 - Par v1/v2: X:7 (v1) y X:91 (v2, `replay_of`); las respuestas registradas del original son iguales.
 
 #### X:8 — POST /noexiste
@@ -821,7 +826,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: no es
 {"error":"E404","mensaje":"ruta desconocida"}
 ```
 
-Error E404 (HTTP 404): el servicio responde «ruta desconocida». Según la especificación se produce cuando ruta inexistente o método no admitido en una ruta conocida (sección 5, fila E404, ENT-02, ENT-03).
+Error E404 (HTTP 404): el servicio responde «ruta desconocida». Según la especificación se produce cuando ruta inexistente o método no admitido en una ruta conocida (ERR-01, ENT-02, ENT-03).
 
 **Respuesta de la réplica:** status 404 — coincide
 
@@ -843,7 +848,7 @@ Es la base de comparación de v1; su repetición en v2 es X:92, donde la respues
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas ENT-02 (confirmado), ENT-10 (probable), E404 (confirmado).
+- Especificación: la citan las filas ENT-02 (confirmado), ENT-10 (probable), ERR-01 (confirmado).
 - Par v1/v2: X:8 (v1) y X:92 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:1, X:2, X:10, X:11, X:31; v2: X:85, X:86, X:94, X:95, X:115, X:250, X:251, X:256 y 5 más).
 - Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): mismo mensaje `m`, pero con otra ruta (los ejemplos oficiales son `POST /msg` con el token del equipo); las respuestas no son comparables directamente.
@@ -879,7 +884,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: no es
 {"error":"E404","mensaje":"ruta desconocida"}
 ```
 
-Error E404 (HTTP 404): el servicio responde «ruta desconocida». Según la especificación se produce cuando ruta inexistente o método no admitido en una ruta conocida (sección 5, fila E404, ENT-02, ENT-03).
+Error E404 (HTTP 404): el servicio responde «ruta desconocida». Según la especificación se produce cuando ruta inexistente o método no admitido en una ruta conocida (ERR-01, ENT-02, ENT-03).
 
 **Respuesta de la réplica:** status 404 — coincide
 
@@ -901,7 +906,7 @@ Es la base de comparación de v1; su repetición en v2 es X:93, donde la respues
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas ENT-03 (confirmado), ENT-10 (probable), E404 (confirmado).
+- Especificación: la citan las filas ENT-03 (confirmado), ENT-10 (probable), ERR-01 (confirmado).
 - Par v1/v2: X:9 (v1) y X:93 (v2, `replay_of`); las respuestas registradas del original son iguales.
 
 #### X:10 — POST /msg PING;64
@@ -946,7 +951,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E001","mensaje":"no autorizado"}
 ```
 
-Error E001 (HTTP 401): el servicio responde «no autorizado». Según la especificación se produce cuando falta la cabecera `Authorization` o el token es incorrecto (sección 5, fila E001, ENT-05).
+Error E001 (HTTP 401): el servicio responde «no autorizado». Según la especificación se produce cuando falta la cabecera `Authorization` o el token es incorrecto (ERR-02, ENT-05).
 
 **Respuesta de la réplica:** status 401 — coincide
 
@@ -970,7 +975,7 @@ El texto registrado marca parte de la conclusión como inferida o supuesta: esa 
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas ENT-05 (confirmado), ENT-10 (probable), E001 (confirmado).
+- Especificación: la citan las filas ENT-05 (confirmado), ENT-10 (probable), ERR-02 (confirmado).
 - Par v1/v2: X:10 (v1) y X:94 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:1, X:2, X:8, X:11, X:31; v2: X:85, X:86, X:92, X:95, X:115, X:250, X:251, X:256 y 5 más).
 - Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): mismo mensaje `m`, pero con otra autenticación (los ejemplos oficiales son `POST /msg` con el token del equipo); las respuestas no son comparables directamente.
@@ -1018,7 +1023,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E001","mensaje":"no autorizado"}
 ```
 
-Error E001 (HTTP 401): el servicio responde «no autorizado». Según la especificación se produce cuando falta la cabecera `Authorization` o el token es incorrecto (sección 5, fila E001, ENT-05).
+Error E001 (HTTP 401): el servicio responde «no autorizado». Según la especificación se produce cuando falta la cabecera `Authorization` o el token es incorrecto (ERR-02, ENT-05).
 
 **Respuesta de la réplica:** status 401 — coincide
 
@@ -1040,7 +1045,7 @@ Es la base de comparación de v1; su repetición en v2 es X:95, donde la respues
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas ENT-05 (confirmado), ENT-10 (probable), E001 (confirmado).
+- Especificación: la citan las filas ENT-05 (confirmado), ENT-10 (probable), ERR-02 (confirmado).
 - Par v1/v2: X:11 (v1) y X:95 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:1, X:2, X:8, X:10, X:31; v2: X:85, X:86, X:92, X:94, X:115, X:250, X:251, X:256 y 5 más).
 - Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): mismo mensaje `m`, pero con otra autenticación (los ejemplos oficiales son `POST /msg` con el token del equipo); las respuestas no son comparables directamente.
@@ -1075,7 +1080,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: no es
 {"error":"E404","mensaje":"ruta desconocida"}
 ```
 
-Error E404 (HTTP 404): el servicio responde «ruta desconocida». Según la especificación se produce cuando ruta inexistente o método no admitido en una ruta conocida (sección 5, fila E404, ENT-02, ENT-03).
+Error E404 (HTTP 404): el servicio responde «ruta desconocida». Según la especificación se produce cuando ruta inexistente o método no admitido en una ruta conocida (ERR-01, ENT-02, ENT-03).
 
 **Respuesta de la réplica:** status 404 — coincide
 
@@ -1099,7 +1104,7 @@ El texto registrado marca parte de la conclusión como inferida o supuesta: esa 
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas ENT-02 (confirmado), ENT-04 (probable), ENT-10 (probable), E404 (confirmado), ORD-01 (probable).
+- Especificación: la citan las filas ENT-02 (confirmado), ENT-04 (probable), ENT-10 (probable), ERR-01 (confirmado), ORD-01 (probable).
 - Par v1/v2: X:12 (v1) y X:96 (v2, `replay_of`); las respuestas registradas del original son iguales.
 
 #### X:13 — GET /health
@@ -1132,7 +1137,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: no es
 {"error":"E001","mensaje":"no autorizado"}
 ```
 
-Error E001 (HTTP 401): el servicio responde «no autorizado». Según la especificación se produce cuando falta la cabecera `Authorization` o el token es incorrecto (sección 5, fila E001, ENT-05).
+Error E001 (HTTP 401): el servicio responde «no autorizado». Según la especificación se produce cuando falta la cabecera `Authorization` o el token es incorrecto (ERR-02, ENT-05).
 
 **Respuesta de la réplica:** status 401 — coincide
 
@@ -1154,7 +1159,7 @@ Es la base de comparación de v1; su repetición en v2 es X:97, donde la respues
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas ENT-06 (probable), ENT-10 (probable), E001 (confirmado).
+- Especificación: la citan las filas ENT-06 (probable), ENT-10 (probable), ERR-02 (confirmado).
 - Par v1/v2: X:13 (v1) y X:97 (v2, `replay_of`); las respuestas registradas del original son iguales.
 
 #### X:14 — GET /health
@@ -1246,7 +1251,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: no es
 {"error":"E100","mensaje":"json inválido"}
 ```
 
-Error E100 (HTTP 400): el servicio responde «json inválido». Según la especificación se produce cuando el cuerpo no es JSON (sección 5, fila E100, ENT-08).
+Error E100 (HTTP 400): el servicio responde «json inválido». Según la especificación se produce cuando el cuerpo no es JSON (ERR-03, ENT-08).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -1268,7 +1273,7 @@ Es la base de comparación de v1; su repetición en v2 es X:99, donde la respues
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas ENT-08 (probable), ENT-10 (probable), E100 (probable).
+- Especificación: la citan las filas ENT-08 (probable), ENT-10 (probable), ERR-03 (probable).
 - Par v1/v2: X:15 (v1) y X:99 (v2, `replay_of`); las respuestas registradas del original son iguales.
 
 #### X:16 — POST /msg {}
@@ -1304,7 +1309,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: no es
 {"error":"E102","mensaje":"falta m"}
 ```
 
-Error E102 (HTTP 400): el servicio responde «falta m». Según la especificación se produce cuando el JSON no trae `m`, o `m` no es un string (sección 5, fila E102, ENT-09, ENT-11).
+Error E102 (HTTP 400): el servicio responde «falta m». Según la especificación se produce cuando el JSON no trae `m`, o `m` no es un string (ERR-04, ENT-09, ENT-11).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -1326,7 +1331,7 @@ Es la base de comparación de v1; su repetición en v2 es X:100, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas ENT-09 (confirmado), E102 (confirmado).
+- Especificación: la citan las filas ENT-09 (confirmado), ERR-04 (confirmado).
 - Par v1/v2: X:16 (v1) y X:100 (v2, `replay_of`); las respuestas registradas del original son iguales.
 
 #### X:17 — POST /msg {"m":123}
@@ -1362,7 +1367,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: no es
 {"error":"E102","mensaje":"falta m"}
 ```
 
-Error E102 (HTTP 400): el servicio responde «falta m». Según la especificación se produce cuando el JSON no trae `m`, o `m` no es un string (sección 5, fila E102, ENT-09, ENT-11).
+Error E102 (HTTP 400): el servicio responde «falta m». Según la especificación se produce cuando el JSON no trae `m`, o `m` no es un string (ERR-04, ENT-09, ENT-11).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -1386,7 +1391,7 @@ El texto registrado marca parte de la conclusión como inferida o supuesta: esa 
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas ENT-09 (confirmado), E102 (confirmado).
+- Especificación: la citan las filas ENT-09 (confirmado), ERR-04 (confirmado).
 - Par v1/v2: X:17 (v1) y X:101 (v2, `replay_of`); las respuestas registradas del original son iguales.
 
 #### X:18 — POST /msg ANULA;OP-0099;69
@@ -1430,7 +1435,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E402","mensaje":"operación inexistente"}
 ```
 
-Error E402 (HTTP 404): el servicio responde «operación inexistente». Según la especificación se produce cuando la operación que se quiere anular no existe (sección 5, fila E402, CMD-16).
+Error E402 (HTTP 404): el servicio responde «operación inexistente». Según la especificación se produce cuando la operación que se quiere anular no existe (ERR-14, CMD-16).
 
 **Respuesta de la réplica:** status 404 — coincide
 
@@ -1454,7 +1459,7 @@ El texto registrado marca parte de la conclusión como inferida o supuesta: esa 
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas ENT-10 (probable), CMD-16 (probable), MEM-06 (probable), E402 (probable).
+- Especificación: la citan las filas ENT-10 (probable), CMD-16 (confirmado), MEM-06 (probable), ERR-14 (confirmado), RIE-04 (probable).
 - Par v1/v2: X:18 (v1) y X:102 (v2, `replay_of`); las respuestas registradas del original son iguales.
 
 ### s-amt-01 — v1, X:19–X:30
@@ -1464,7 +1469,7 @@ Secuencia de 12 solicitud(es) de v1, nombre base `amt`. Propósito: Preparación
 - Categorías de sus entradas: Preparación (3); Sonda de montos (9).
 - Comandos que envía: `ALTA`, `DEPOSITO`, `TRANSFER`.
 - Errores que devuelve el original: E303 (5), E506 (2).
-- Filas de la especificación que citan sus líneas: ENT-07, ENT-10, CMD-02, MEM-01, MEM-06, CMD-07, MEM-02, E303, CMD-06, CMD-08, CMD-13, E506, CMD-09, CMD-11, CAM-02, ORD-05, ORD-08.
+- Filas de la especificación que citan sus líneas: ENT-07, ENT-10, CMD-02, MEM-01, MEM-06, RIE-04, CMD-07, MEM-02, ERR-12, RIE-05, CMD-06, CMD-08, CMD-13, ERR-15, CMD-09, CMD-11, CAM-02, ORD-05, ORD-08.
 
 Pasos y efecto sobre el estado (según las respuestas registradas del original):
 
@@ -1544,9 +1549,9 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas ENT-07 (probable), ENT-10 (probable), CMD-02 (confirmado), MEM-01 (confirmado), MEM-06 (probable).
+- Especificación: la citan las filas ENT-07 (confirmado), ENT-10 (probable), CMD-02 (confirmado), MEM-01 (confirmado), MEM-06 (probable), RIE-04 (probable).
 - Par v1/v2: X:19 (v1) y X:103 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:61, X:74, X:83; v2: X:145, X:158, X:167, X:169, X:174, X:181, X:187, X:193 y 9 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:61, X:74, X:83; v2: X:145, X:158, X:167, X:169, X:174, X:181, X:187, X:193 y 11 más).
 
 #### X:20 — POST /msg ALTA;Beto;11
 
@@ -1613,7 +1618,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 
 - Especificación: la citan las filas CMD-02 (confirmado).
 - Par v1/v2: X:20 (v1) y X:104 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:62; v2: X:146, X:170, X:182, X:188, X:216, X:224, X:244, X:274 y 1 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:62; v2: X:146, X:170, X:182, X:188, X:216, X:224, X:244, X:274 y 3 más).
 
 #### X:21 — POST /msg DEPOSITO;AC-0001;0;31
 
@@ -1656,7 +1661,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E303","mensaje":"monto inválido"}
 ```
 
-Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (sección 5, fila E303, CMD-07, CMD-07b, CMD-08b).
+Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (ERR-12, CMD-07, CMD-07b, CMD-08b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -1680,7 +1685,7 @@ El texto registrado marca parte de la conclusión como inferida o supuesta: esa 
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas CMD-07 (confirmado), MEM-02 (confirmado), E303 (confirmado).
+- Especificación: la citan las filas CMD-07 (confirmado), MEM-02 (confirmado), ERR-12 (confirmado), RIE-05 (probable).
 - Par v1/v2: X:21 (v1) y X:105 (v2, `replay_of`); las respuestas registradas del original son iguales.
 
 #### X:22 — POST /msg DEPOSITO;AC-0001;-5;16
@@ -1724,7 +1729,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E303","mensaje":"monto inválido"}
 ```
 
-Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (sección 5, fila E303, CMD-07, CMD-07b, CMD-08b).
+Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (ERR-12, CMD-07, CMD-07b, CMD-08b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -1746,7 +1751,7 @@ Es la base de comparación de v1; su repetición en v2 es X:106, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas CMD-07 (confirmado), MEM-02 (confirmado), E303 (confirmado).
+- Especificación: la citan las filas CMD-07 (confirmado), MEM-02 (confirmado), ERR-12 (confirmado), RIE-05 (probable).
 - Par v1/v2: X:22 (v1) y X:106 (v2, `replay_of`); las respuestas registradas del original son iguales.
 
 #### X:23 — POST /msg DEPOSITO;AC-0001;12.5;7
@@ -1790,7 +1795,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E303","mensaje":"monto inválido"}
 ```
 
-Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (sección 5, fila E303, CMD-07, CMD-07b, CMD-08b).
+Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (ERR-12, CMD-07, CMD-07b, CMD-08b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -1812,7 +1817,7 @@ Es la base de comparación de v1; su repetición en v2 es X:107, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas CMD-07 (confirmado), MEM-02 (confirmado), E303 (confirmado).
+- Especificación: la citan las filas CMD-07 (confirmado), MEM-02 (confirmado), ERR-12 (confirmado), RIE-05 (probable).
 - Par v1/v2: X:23 (v1) y X:107 (v2, `replay_of`); las respuestas registradas del original son iguales.
 
 #### X:24 — POST /msg DEPOSITO;AC-0001;abc;13
@@ -1856,7 +1861,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E303","mensaje":"monto inválido"}
 ```
 
-Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (sección 5, fila E303, CMD-07, CMD-07b, CMD-08b).
+Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (ERR-12, CMD-07, CMD-07b, CMD-08b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -1878,7 +1883,7 @@ Es la base de comparación de v1; su repetición en v2 es X:108, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas CMD-07 (confirmado), MEM-02 (confirmado), E303 (confirmado).
+- Especificación: la citan las filas CMD-07 (confirmado), MEM-02 (confirmado), ERR-12 (confirmado), RIE-05 (probable).
 - Par v1/v2: X:24 (v1) y X:108 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v2: X:211).
 
@@ -1989,7 +1994,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E303","mensaje":"monto inválido"}
 ```
 
-Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (sección 5, fila E303, CMD-07, CMD-07b, CMD-08b).
+Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (ERR-12, CMD-07, CMD-07b, CMD-08b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -2011,7 +2016,7 @@ Es la base de comparación de v1; su repetición en v2 es X:110, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas CMD-13 (probable), E303 (confirmado).
+- Especificación: la citan las filas CMD-13 (probable), ERR-12 (confirmado).
 - Par v1/v2: X:26 (v1) y X:110 (v2, `replay_of`); las respuestas registradas del original son iguales.
 
 #### X:27 — POST /msg TRANSFER;AC-0001;AC-0002;100001;9
@@ -2055,7 +2060,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E506","mensaje":"límite excedido"}
 ```
 
-Error E506 (HTTP 422): el servicio responde «límite excedido». Según la especificación se produce cuando el monto de un `TRANSFER` supera el límite de la versión (sección 5, fila E506, CMD-10, CAM-02).
+Error E506 (HTTP 422): el servicio responde «límite excedido». Según la especificación se produce cuando el monto de un `TRANSFER` supera el límite de la versión (ERR-15, CMD-10, CAM-02).
 
 **Respuesta de la réplica:** status 422 — coincide
 
@@ -2077,7 +2082,7 @@ Es la base de comparación de v1; su repetición en v2 es X:111, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas E506 (confirmado).
+- Especificación: la citan las filas ERR-15 (confirmado).
 - Par v1/v2: X:27 (v1) y X:111 (v2, `replay_of`); las respuestas registradas del original son iguales.
 
 #### X:28 — POST /msg TRANSFER;AC-0001;AC-0002;100000;12
@@ -2258,7 +2263,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E506","mensaje":"límite excedido"}
 ```
 
-Error E506 (HTTP 422): el servicio responde «límite excedido». Según la especificación se produce cuando el monto de un `TRANSFER` supera el límite de la versión (sección 5, fila E506, CMD-10, CAM-02).
+Error E506 (HTTP 422): el servicio responde «límite excedido». Según la especificación se produce cuando el monto de un `TRANSFER` supera el límite de la versión (ERR-15, CMD-10, CAM-02).
 
 **Respuesta de la réplica:** status 422 — coincide
 
@@ -2282,7 +2287,7 @@ El texto registrado marca parte de la conclusión como inferida o supuesta: esa 
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas E506 (confirmado), ORD-05 (probable), ORD-08 (confirmado en v2).
+- Especificación: la citan las filas ERR-15 (confirmado), ORD-05 (confirmado en v2), ORD-08 (confirmado en v2).
 - Par v1/v2: X:30 (v1) y X:114 (v2, `replay_of`); las respuestas registradas del original son iguales.
 
 ### s-ej-01 — v1, X:31–X:50
@@ -2292,7 +2297,7 @@ Secuencia de 20 solicitud(es) de v1, nombre base `ej`. Propósito: Reproducción
 - Categorías de sus entradas: Reproducción de un ejemplo oficial (20).
 - Comandos que envía: `PING`, `ALTA`, `CONSULTA`, `DEPOSITO`, `TRANSFER`, `SALDOS`, `ANULA`.
 - Errores que devuelve el original: E202 (1), E506 (1), E301 (1), E401 (1), E507 (1), E201 (1), E302 (1).
-- Filas de la especificación que citan sus líneas: INT-01, INT-03, CMD-01, INT-04, MEM-02, E202, CMD-02, INT-05, MEM-04, CAM-01, CMD-06, CMD-08, CMD-09, E506, CMD-17, CMD-19, E301, CMD-15, MEM-03, MEM-05, CMD-05, E401, CMD-12, E507, INT-02, E201, CMD-20, E302.
+- Filas de la especificación que citan sus líneas: INT-01, INT-03, CMD-01, RIE-03, INT-04, MEM-02, ERR-08, CMD-02, RIE-02, INT-05, MEM-04, CAM-01, CMD-06, CMD-08, RIE-01, CMD-09, ERR-15, CMD-17, RIE-05, CMD-19, ERR-09, CMD-15, MEM-03, MEM-05, CMD-05, ERR-13, CMD-12, ERR-16, INT-02, ERR-07, CMD-20, ERR-11.
 
 Pasos y efecto sobre el estado (según las respuestas registradas del original):
 
@@ -2382,7 +2387,7 @@ Es la base de comparación de v1; su repetición en v2 es X:115, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-01 (confirmado).
+- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-01 (confirmado), RIE-03 (confirmado).
 - Par v1/v2: X:31 (v1) y X:115 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:1, X:2, X:8, X:10, X:11; v2: X:85, X:86, X:92, X:94, X:95, X:250, X:251, X:256 y 5 más).
 - Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
@@ -2428,7 +2433,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E202","mensaje":"control inválido"}
 ```
 
-Error E202 (HTTP 400): el servicio responde «control inválido». Según la especificación se produce cuando el control es numérico pero no es el válido (salvo en `PING`) (sección 5, fila E202, INT-04, INT-06b).
+Error E202 (HTTP 400): el servicio responde «control inválido». Según la especificación se produce cuando el control es numérico pero no es el válido (salvo en `PING`) (ERR-08, INT-04, INT-06b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -2450,7 +2455,7 @@ Es la base de comparación de v1; su repetición en v2 es X:116, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), INT-04 (confirmado), MEM-02 (confirmado), E202 (confirmado).
+- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), INT-04 (confirmado), MEM-02 (confirmado), ERR-08 (confirmado), RIE-03 (confirmado).
 - Par v1/v2: X:32 (v1) y X:116 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Ejemplo oficial E:2 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
@@ -2517,7 +2522,7 @@ Es la base de comparación de v1; su repetición en v2 es X:117, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-02 (confirmado), MEM-02 (confirmado).
+- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-02 (confirmado), MEM-02 (confirmado), RIE-02 (confirmado), RIE-03 (confirmado).
 - Par v1/v2: X:33 (v1) y X:117 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Ejemplo oficial E:3 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
@@ -2584,7 +2589,7 @@ Es la base de comparación de v1; su repetición en v2 es X:118, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-02 (confirmado).
+- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-02 (confirmado), RIE-03 (confirmado).
 - Par v1/v2: X:34 (v1) y X:118 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Ejemplo oficial E:4 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
@@ -2651,9 +2656,9 @@ Es la base de comparación de v1; su repetición en v2 es X:119, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), INT-05 (probable), MEM-04 (confirmado), CAM-01 (confirmado).
+- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), INT-05 (probable), MEM-04 (confirmado), CAM-01 (confirmado), RIE-03 (confirmado).
 - Par v1/v2: X:35 (v1) y X:119 (v2, `replay_of`); las respuestas registradas del original difieren.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:66, X:69, X:81; v2: X:150, X:153, X:165, X:176, X:178, X:228, X:234, X:236 y 2 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:66, X:69, X:81; v2: X:150, X:153, X:165, X:176, X:178, X:228, X:234, X:236 y 3 más).
 - Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:36 — POST /msg DEPOSITO;AC-0001;250000;86
@@ -2719,7 +2724,7 @@ Es la base de comparación de v1; su repetición en v2 es X:120, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-06 (confirmado), CMD-08 (probable).
+- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-06 (confirmado), CMD-08 (probable), RIE-01 (confirmado), RIE-03 (confirmado).
 - Par v1/v2: X:36 (v1) y X:120 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v2: X:171, X:183, X:189, X:217).
 - Ejemplo oficial E:6 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
@@ -2787,7 +2792,7 @@ Es la base de comparación de v1; su repetición en v2 es X:121, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-09 (confirmado).
+- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-09 (confirmado), RIE-03 (confirmado).
 - Par v1/v2: X:37 (v1) y X:121 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Ejemplo oficial E:7 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
@@ -2854,9 +2859,9 @@ Es la base de comparación de v1; su repetición en v2 es X:122, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-09 (confirmado), MEM-04 (confirmado), CAM-01 (confirmado).
+- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-09 (confirmado), MEM-04 (confirmado), CAM-01 (confirmado), RIE-03 (confirmado).
 - Par v1/v2: X:38 (v1) y X:122 (v2, `replay_of`); las respuestas registradas del original difieren.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:49, X:67, X:73; v2: X:133, X:151, X:157, X:173, X:186, X:192, X:220, X:249).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:49, X:67, X:73; v2: X:133, X:151, X:157, X:173, X:186, X:192, X:220, X:249 y 1 más).
 - Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 - Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
@@ -2901,7 +2906,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E506","mensaje":"límite excedido"}
 ```
 
-Error E506 (HTTP 422): el servicio responde «límite excedido». Según la especificación se produce cuando el monto de un `TRANSFER` supera el límite de la versión (sección 5, fila E506, CMD-10, CAM-02).
+Error E506 (HTTP 422): el servicio responde «límite excedido». Según la especificación se produce cuando el monto de un `TRANSFER` supera el límite de la versión (ERR-15, CMD-10, CAM-02).
 
 **Respuesta de la réplica:** status 422 — coincide
 
@@ -2923,7 +2928,7 @@ Es la base de comparación de v1; su repetición en v2 es X:123, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), MEM-02 (confirmado), E506 (confirmado).
+- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), MEM-02 (confirmado), ERR-15 (confirmado), RIE-03 (confirmado).
 - Par v1/v2: X:39 (v1) y X:123 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Ejemplo oficial E:9 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
@@ -2990,7 +2995,7 @@ Es la base de comparación de v1; su repetición en v2 es X:124, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-09 (confirmado), CMD-17 (probable), MEM-02 (confirmado).
+- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-09 (confirmado), CMD-17 (probable), MEM-02 (confirmado), RIE-03 (confirmado).
 - Par v1/v2: X:40 (v1) y X:124 (v2, `replay_of`); las respuestas registradas del original difieren.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:28; v2: X:112).
 - Ejemplo oficial E:10 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
@@ -3058,7 +3063,7 @@ Es la base de comparación de v1; su repetición en v2 es X:125, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), INT-05 (probable), CMD-09 (confirmado), MEM-04 (confirmado).
+- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), INT-05 (probable), CMD-09 (confirmado), MEM-04 (confirmado), RIE-03 (confirmado), RIE-05 (probable).
 - Par v1/v2: X:41 (v1) y X:125 (v2, `replay_of`); las respuestas registradas del original difieren.
 - Ejemplo oficial E:11 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
@@ -3103,7 +3108,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E301","mensaje":"comando desconocido "}
 ```
 
-Error E301 (HTTP 400): el servicio responde «comando desconocido ». Según la especificación se produce cuando el comando no existe; puede añadir `sugerencia` (sección 5, fila E301, CMD-19, OBS-05).
+Error E301 (HTTP 400): el servicio responde «comando desconocido ». Según la especificación se produce cuando el comando no existe; puede añadir `sugerencia` (ERR-09, CMD-19, OBS-05).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -3125,7 +3130,7 @@ Es la base de comparación de v1; su repetición en v2 es X:126, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-19 (probable), E301 (probable; variante confirmada en v2).
+- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-19 (probable), ERR-09 (probable; variante confirmada en v2), RIE-01 (confirmado), RIE-03 (confirmado).
 - Par v1/v2: X:42 (v1) y X:126 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Ejemplo oficial E:12 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
@@ -3192,7 +3197,7 @@ Es la base de comparación de v1; su repetición en v2 es X:127, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-15 (probable), CMD-17 (probable), MEM-03 (probable).
+- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-15 (confirmado), CMD-17 (probable), MEM-03 (confirmado), RIE-03 (confirmado).
 - Par v1/v2: X:43 (v1) y X:127 (v2, `replay_of`); las respuestas registradas del original difieren.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:44, X:72; v2: X:128, X:156).
 - Ejemplo oficial E:13 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
@@ -3261,7 +3266,7 @@ Es la base de comparación de v1; su repetición en v2 es X:128, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-15 (probable), MEM-05 (probable).
+- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-15 (confirmado), MEM-05 (probable), RIE-03 (confirmado).
 - Par v1/v2: X:44 (v1) y X:128 (v2, `replay_of`); las respuestas registradas del original difieren.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:43, X:72; v2: X:127, X:156).
 - Ejemplo oficial E:13 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
@@ -3308,7 +3313,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E401","mensaje":"cuenta inexistente"}
 ```
 
-Error E401 (HTTP 404): el servicio responde «cuenta inexistente». Según la especificación se produce cuando la cuenta consultada, de origen o de destino no existe (sección 5, fila E401, CMD-05, CMD-14).
+Error E401 (HTTP 404): el servicio responde «cuenta inexistente». Según la especificación se produce cuando la cuenta consultada, de origen o de destino no existe (ERR-13, CMD-05, CMD-14).
 
 **Respuesta de la réplica:** status 404 — coincide
 
@@ -3330,7 +3335,7 @@ Es la base de comparación de v1; su repetición en v2 es X:129, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-05 (confirmado), E401 (confirmado).
+- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-05 (confirmado), ERR-13 (confirmado), RIE-03 (confirmado).
 - Par v1/v2: X:45 (v1) y X:129 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Ejemplo oficial E:15 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
@@ -3375,7 +3380,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E507","mensaje":"saldo insuficiente"}
 ```
 
-Error E507 (HTTP 422): el servicio responde «saldo insuficiente». Según la especificación se produce cuando el saldo de la cuenta de origen es menor que el monto (sección 5, fila E507, CMD-12).
+Error E507 (HTTP 422): el servicio responde «saldo insuficiente». Según la especificación se produce cuando el saldo de la cuenta de origen es menor que el monto (ERR-16, CMD-12).
 
 **Respuesta de la réplica:** status 422 — coincide
 
@@ -3397,8 +3402,9 @@ Es la base de comparación de v1; su repetición en v2 es X:130, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-12 (probable; confirmado en v2 para el saldo exacto), E507 (probable).
+- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-12 (probable; confirmado en v2 para el saldo exacto y el saldo negativo), ERR-16 (probable), RIE-03 (confirmado).
 - Par v1/v2: X:46 (v1) y X:130 (v2, `replay_of`); las respuestas registradas del original son iguales.
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v2: X:324).
 - Ejemplo oficial E:16 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:47 — POST /msg DEPOSITO;AC-0002;700;5X
@@ -3442,7 +3448,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E201","mensaje":"control mal formado"}
 ```
 
-Error E201 (HTTP 400): el servicio responde «control mal formado». Según la especificación se produce cuando el control no es numérico o no tiene 1 o 2 dígitos (salvo en `PING`) (sección 5, fila E201, INT-02, INT-06).
+Error E201 (HTTP 400): el servicio responde «control mal formado». Según la especificación se produce cuando el control no es numérico o no tiene 1 o 2 dígitos (salvo en `PING`) (ERR-07, INT-02, INT-06).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -3464,7 +3470,7 @@ Es la base de comparación de v1; su repetición en v2 es X:131, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-01 (confirmado), INT-02 (probable), INT-03 (confirmado), E201 (probable).
+- Especificación: la citan las filas INT-01 (confirmado), INT-02 (probable), INT-03 (confirmado), ERR-07 (probable), RIE-03 (confirmado).
 - Par v1/v2: X:47 (v1) y X:131 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Ejemplo oficial E:17 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
@@ -3531,7 +3537,7 @@ Es la base de comparación de v1; su repetición en v2 es X:132, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-06 (confirmado), MEM-03 (probable).
+- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-06 (confirmado), MEM-03 (confirmado), RIE-03 (confirmado).
 - Par v1/v2: X:48 (v1) y X:132 (v2, `replay_of`); las respuestas registradas del original difieren.
 - Ejemplo oficial E:18 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
@@ -3598,9 +3604,9 @@ Es la base de comparación de v1; su repetición en v2 es X:133, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-17 (probable), MEM-04 (confirmado).
+- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-17 (probable), MEM-04 (confirmado), RIE-03 (confirmado).
 - Par v1/v2: X:49 (v1) y X:133 (v2, `replay_of`); las respuestas registradas del original difieren.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:67, X:73; v2: X:122, X:151, X:157, X:173, X:186, X:192, X:220, X:249).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:67, X:73; v2: X:122, X:151, X:157, X:173, X:186, X:192, X:220, X:249 y 1 más).
 - Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 - Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
@@ -3645,7 +3651,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E302","mensaje":"aridad inválida"}
 ```
 
-Error E302 (HTTP 400): el servicio responde «aridad inválida». Según la especificación se produce cuando el número de argumentos no es el del comando (sección 5, fila E302, CMD-20).
+Error E302 (HTTP 400): el servicio responde «aridad inválida». Según la especificación se produce cuando el número de argumentos no es el del comando (ERR-11, CMD-20).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -3667,7 +3673,7 @@ Es la base de comparación de v1; su repetición en v2 es X:134, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-20 (probable), E302 (probable).
+- Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-20 (probable), ERR-11 (probable), RIE-03 (confirmado).
 - Par v1/v2: X:50 (v1) y X:134 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Ejemplo oficial E:20 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
@@ -3678,7 +3684,7 @@ Secuencia de 10 solicitud(es) de v1, nombre base `ord`. Propósito: Orden: coman
 - Categorías de sus entradas: Sonda de orden de validación (10).
 - Comandos que envía: `SALDOS`, `ALTA`, `CONSULTA`, `PING`.
 - Errores que devuelve el original: E201 (3), E202 (3), E102 (1), E103 (1).
-- Filas de la especificación que citan sus líneas: ORD-04, INT-06, ENT-11, E102, INT-07, E103, ORD-04b.
+- Filas de la especificación que citan sus líneas: ORD-04, RIE-05, INT-06, ENT-11, ERR-04, INT-07, ERR-05, ORD-04b.
 
 Pasos y efecto sobre el estado (según las respuestas registradas del original):
 
@@ -3734,7 +3740,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E201","mensaje":"control mal formado"}
 ```
 
-Error E201 (HTTP 400): el servicio responde «control mal formado». Según la especificación se produce cuando el control no es numérico o no tiene 1 o 2 dígitos (salvo en `PING`) (sección 5, fila E201, INT-02, INT-06).
+Error E201 (HTTP 400): el servicio responde «control mal formado». Según la especificación se produce cuando el control no es numérico o no tiene 1 o 2 dígitos (salvo en `PING`) (ERR-07, INT-02, INT-06).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -3800,7 +3806,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E202","mensaje":"control inválido"}
 ```
 
-Error E202 (HTTP 400): el servicio responde «control inválido». Según la especificación se produce cuando el control es numérico pero no es el válido (salvo en `PING`) (sección 5, fila E202, INT-04, INT-06b).
+Error E202 (HTTP 400): el servicio responde «control inválido». Según la especificación se produce cuando el control es numérico pero no es el válido (salvo en `PING`) (ERR-08, INT-04, INT-06b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -3866,7 +3872,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E201","mensaje":"control mal formado"}
 ```
 
-Error E201 (HTTP 400): el servicio responde «control mal formado». Según la especificación se produce cuando el control no es numérico o no tiene 1 o 2 dígitos (salvo en `PING`) (sección 5, fila E201, INT-02, INT-06).
+Error E201 (HTTP 400): el servicio responde «control mal formado». Según la especificación se produce cuando el control no es numérico o no tiene 1 o 2 dígitos (salvo en `PING`) (ERR-07, INT-02, INT-06).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -3932,7 +3938,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E202","mensaje":"control inválido"}
 ```
 
-Error E202 (HTTP 400): el servicio responde «control inválido». Según la especificación se produce cuando el control es numérico pero no es el válido (salvo en `PING`) (sección 5, fila E202, INT-04, INT-06b).
+Error E202 (HTTP 400): el servicio responde «control inválido». Según la especificación se produce cuando el control es numérico pero no es el válido (salvo en `PING`) (ERR-08, INT-04, INT-06b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -3998,7 +4004,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E201","mensaje":"control mal formado"}
 ```
 
-Error E201 (HTTP 400): el servicio responde «control mal formado». Según la especificación se produce cuando el control no es numérico o no tiene 1 o 2 dígitos (salvo en `PING`) (sección 5, fila E201, INT-02, INT-06).
+Error E201 (HTTP 400): el servicio responde «control mal formado». Según la especificación se produce cuando el control no es numérico o no tiene 1 o 2 dígitos (salvo en `PING`) (ERR-07, INT-02, INT-06).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -4066,7 +4072,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E202","mensaje":"control inválido"}
 ```
 
-Error E202 (HTTP 400): el servicio responde «control inválido». Según la especificación se produce cuando el control es numérico pero no es el válido (salvo en `PING`) (sección 5, fila E202, INT-04, INT-06b).
+Error E202 (HTTP 400): el servicio responde «control inválido». Según la especificación se produce cuando el control es numérico pero no es el válido (salvo en `PING`) (ERR-08, INT-04, INT-06b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -4156,7 +4162,7 @@ Es la base de comparación de v1; su repetición en v2 es X:141, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: ninguna fila de `docs/specification.md` cita esta línea.
+- Especificación: la citan las filas RIE-05 (probable).
 - Par v1/v2: X:57 (v1) y X:141 (v2, `replay_of`); las respuestas registradas del original son iguales.
 
 #### X:58 — POST /msg PING;064
@@ -4260,7 +4266,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: no es
 {"error":"E102","mensaje":"falta m"}
 ```
 
-Error E102 (HTTP 400): el servicio responde «falta m». Según la especificación se produce cuando el JSON no trae `m`, o `m` no es un string (sección 5, fila E102, ENT-09, ENT-11).
+Error E102 (HTTP 400): el servicio responde «falta m». Según la especificación se produce cuando el JSON no trae `m`, o `m` no es un string (ERR-04, ENT-09, ENT-11).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -4282,7 +4288,7 @@ Es la base de comparación de v1; su repetición en v2 es X:143, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas ENT-11 (probable), E102 (confirmado).
+- Especificación: la citan las filas ENT-11 (probable), ERR-04 (confirmado).
 - Par v1/v2: X:59 (v1) y X:143 (v2, `replay_of`); las respuestas registradas del original son iguales.
 
 #### X:60 — POST /msg PING
@@ -4318,7 +4324,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E103","mensaje":"falta control"}
 ```
 
-Error E103 (HTTP 400): el servicio responde «falta control». Según la especificación se produce cuando el mensaje no contiene ningún `;` (sección 5, fila E103, INT-07).
+Error E103 (HTTP 400): el servicio responde «falta control». Según la especificación se produce cuando el mensaje no contiene ningún `;` (ERR-05, INT-07).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -4340,7 +4346,7 @@ Es la base de comparación de v1; su repetición en v2 es X:144, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-07 (confirmado), E103 (confirmado), ORD-04b (confirmado).
+- Especificación: la citan las filas INT-07 (confirmado), ERR-05 (confirmado), ORD-04b (confirmado).
 - Par v1/v2: X:60 (v1) y X:144 (v2, `replay_of`); las respuestas registradas del original son iguales.
 
 ### s-anu-01 — v1, X:61–X:73
@@ -4350,7 +4356,7 @@ Secuencia de 13 solicitud(es) de v1, nombre base `anu`. Propósito: Preparación
 - Categorías de sus entradas: Preparación (6); Sonda de efecto en el estado (7).
 - Comandos que envía: `ALTA`, `DEPOSITO`, `TRANSFER`, `ANULA`, `CONSULTA`.
 - Errores que devuelve el original: ninguno.
-- Filas de la especificación que citan sus líneas: CMD-18b, CMD-18, CMD-18c.
+- Filas de la especificación que citan sus líneas: CMD-18b, CMD-18, CMD-18c, RIE-06.
 
 Pasos y efecto sobre el estado (según las respuestas registradas del original):
 
@@ -4433,7 +4439,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:61 (v1) y X:145 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:74, X:83; v2: X:103, X:158, X:167, X:169, X:174, X:181, X:187, X:193 y 9 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:74, X:83; v2: X:103, X:158, X:167, X:169, X:174, X:181, X:187, X:193 y 11 más).
 
 #### X:62 — POST /msg ALTA;Beto;11
 
@@ -4500,7 +4506,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:62 (v1) y X:146 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:20; v2: X:104, X:170, X:182, X:188, X:216, X:224, X:244, X:274 y 1 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:20; v2: X:104, X:170, X:182, X:188, X:216, X:224, X:244, X:274 y 3 más).
 
 #### X:63 — POST /msg DEPOSITO;AC-0001;1000;35
 
@@ -4567,7 +4573,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 
 - Especificación: la citan las filas CMD-18b (probable).
 - Par v1/v2: X:63 (v1) y X:147 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v2: X:245, X:294).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v2: X:245, X:294, X:334).
 
 #### X:64 — POST /msg TRANSFER;AC-0001;AC-0002;300;6
 
@@ -4700,7 +4706,7 @@ Es la base de comparación de v1; su repetición en v2 es X:149, donde la respue
 
 - Especificación: la citan las filas CMD-18 (probable).
 - Par v1/v2: X:65 (v1) y X:149 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v2: X:248).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v2: X:248, X:325, X:327).
 
 #### X:66 — POST /msg CONSULTA;AC-0001;14
 
@@ -4769,7 +4775,7 @@ El texto registrado marca parte de la conclusión como inferida o supuesta: esa 
 
 - Especificación: la citan las filas CMD-18 (probable).
 - Par v1/v2: X:66 (v1) y X:150 (v2, `replay_of`); las respuestas registradas del original difieren.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:69, X:81; v2: X:119, X:153, X:165, X:176, X:178, X:228, X:234, X:236 y 2 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:69, X:81; v2: X:119, X:153, X:165, X:176, X:178, X:228, X:234, X:236 y 3 más).
 - Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 #### X:67 — POST /msg CONSULTA;AC-0002;11
@@ -4837,7 +4843,7 @@ Es la base de comparación de v1; su repetición en v2 es X:151, donde la respue
 
 - Especificación: la citan las filas CMD-18 (probable).
 - Par v1/v2: X:67 (v1) y X:151 (v2, `replay_of`); las respuestas registradas del original difieren.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:49, X:73; v2: X:122, X:133, X:157, X:173, X:186, X:192, X:220, X:249).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:49, X:73; v2: X:122, X:133, X:157, X:173, X:186, X:192, X:220, X:249 y 1 más).
 - Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 - Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
@@ -4906,7 +4912,7 @@ Es la base de comparación de v1; su repetición en v2 es X:152, donde la respue
 
 - Especificación: la citan las filas CMD-18b (probable).
 - Par v1/v2: X:68 (v1) y X:152 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v2: X:208, X:209, X:227).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v2: X:208, X:209, X:227, X:322).
 
 #### X:69 — POST /msg CONSULTA;AC-0001;14
 
@@ -4973,7 +4979,7 @@ Es la base de comparación de v1; su repetición en v2 es X:153, donde la respue
 
 - Especificación: la citan las filas CMD-18b (probable).
 - Par v1/v2: X:69 (v1) y X:153 (v2, `replay_of`); las respuestas registradas del original difieren.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:81; v2: X:119, X:150, X:165, X:176, X:178, X:228, X:234, X:236 y 2 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:81; v2: X:119, X:150, X:165, X:176, X:178, X:228, X:234, X:236 y 3 más).
 - Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:70 — POST /msg DEPOSITO;AC-0002;500;53
@@ -5039,7 +5045,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas CMD-18c (probable).
+- Especificación: la citan las filas CMD-18c (confirmado en v2), RIE-06 (confirmado).
 - Par v1/v2: X:70 (v1) y X:154 (v2, `replay_of`); las respuestas registradas del original son iguales.
 
 #### X:71 — POST /msg TRANSFER;AC-0002;AC-0001;500;73
@@ -5105,7 +5111,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas CMD-18c (probable).
+- Especificación: la citan las filas CMD-18c (confirmado en v2), RIE-06 (confirmado).
 - Par v1/v2: X:71 (v1) y X:155 (v2, `replay_of`); las respuestas registradas del original son iguales.
 
 #### X:72 — POST /msg ANULA;OP-0003;66
@@ -5171,7 +5177,7 @@ Es la base de comparación de v1; su repetición en v2 es X:156, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas CMD-18c (probable).
+- Especificación: la citan las filas CMD-18c (confirmado en v2), RIE-06 (confirmado).
 - Par v1/v2: X:72 (v1) y X:156 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:43, X:44; v2: X:127, X:128).
 - Ejemplo oficial E:13 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
@@ -5240,9 +5246,9 @@ Es la base de comparación de v1; su repetición en v2 es X:157, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas CMD-18c (probable).
+- Especificación: la citan las filas CMD-18c (confirmado en v2), RIE-06 (confirmado).
 - Par v1/v2: X:73 (v1) y X:157 (v2, `replay_of`); las respuestas registradas del original difieren.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:49, X:67; v2: X:122, X:133, X:151, X:173, X:186, X:192, X:220, X:249).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:49, X:67; v2: X:122, X:133, X:151, X:173, X:186, X:192, X:220, X:249 y 1 más).
 - Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 - Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
@@ -5253,7 +5259,7 @@ Secuencia de 11 solicitud(es) de v1, nombre base `tr`. Propósito: Preparación:
 - Categorías de sus entradas: Preparación (2); Sonda de efecto en el estado (9).
 - Comandos que envía: `ALTA`, `TRANSFER`, `DEPOSITO`, `CONSULTA`.
 - Errores que devuelve el original: E401 (4), E303 (2), E304 (1).
-- Filas de la especificación que citan sus líneas: CMD-03, CMD-14, E401, E303, ORD-06, ORD-07, ORD-08, CMD-14b, E304, CMD-05, CMD-07b.
+- Filas de la especificación que citan sus líneas: CMD-03, CMD-14, ERR-13, ERR-12, ORD-06, ORD-07, ORD-08, CMD-14b, ERR-10, CMD-05, CMD-07b.
 
 Pasos y efecto sobre el estado (según las respuestas registradas del original):
 
@@ -5334,7 +5340,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 
 - Especificación: la citan las filas CMD-03 (probable).
 - Par v1/v2: X:74 (v1) y X:158 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:83; v2: X:103, X:145, X:167, X:169, X:174, X:181, X:187, X:193 y 9 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:83; v2: X:103, X:145, X:167, X:169, X:174, X:181, X:187, X:193 y 11 más).
 
 #### X:75 — POST /msg TRANSFER;AC-0001;AC-0099;100;24
 
@@ -5377,7 +5383,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E401","mensaje":"cuenta inexistente"}
 ```
 
-Error E401 (HTTP 404): el servicio responde «cuenta inexistente». Según la especificación se produce cuando la cuenta consultada, de origen o de destino no existe (sección 5, fila E401, CMD-05, CMD-14).
+Error E401 (HTTP 404): el servicio responde «cuenta inexistente». Según la especificación se produce cuando la cuenta consultada, de origen o de destino no existe (ERR-13, CMD-05, CMD-14).
 
 **Respuesta de la réplica:** status 404 — coincide
 
@@ -5399,7 +5405,7 @@ Es la base de comparación de v1; su repetición en v2 es X:159, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas CMD-14 (probable), E401 (confirmado).
+- Especificación: la citan las filas CMD-14 (probable), ERR-13 (confirmado).
 - Par v1/v2: X:75 (v1) y X:159 (v2, `replay_of`); las respuestas registradas del original son iguales.
 
 #### X:76 — POST /msg TRANSFER;AC-0099;AC-0001;100;12
@@ -5443,7 +5449,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E401","mensaje":"cuenta inexistente"}
 ```
 
-Error E401 (HTTP 404): el servicio responde «cuenta inexistente». Según la especificación se produce cuando la cuenta consultada, de origen o de destino no existe (sección 5, fila E401, CMD-05, CMD-14).
+Error E401 (HTTP 404): el servicio responde «cuenta inexistente». Según la especificación se produce cuando la cuenta consultada, de origen o de destino no existe (ERR-13, CMD-05, CMD-14).
 
 **Respuesta de la réplica:** status 404 — coincide
 
@@ -5465,7 +5471,7 @@ Es la base de comparación de v1; su repetición en v2 es X:160, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas CMD-14 (probable), E401 (confirmado).
+- Especificación: la citan las filas CMD-14 (probable), ERR-13 (confirmado).
 - Par v1/v2: X:76 (v1) y X:160 (v2, `replay_of`); las respuestas registradas del original son iguales.
 
 #### X:77 — POST /msg TRANSFER;AC-0099;AC-0001;0;40
@@ -5509,7 +5515,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E303","mensaje":"monto inválido"}
 ```
 
-Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (sección 5, fila E303, CMD-07, CMD-07b, CMD-08b).
+Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (ERR-12, CMD-07, CMD-07b, CMD-08b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -5533,7 +5539,7 @@ El texto registrado marca parte de la conclusión como inferida o supuesta: esa 
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas E303 (confirmado), ORD-06 (confirmado).
+- Especificación: la citan las filas ERR-12 (confirmado), ORD-06 (confirmado).
 - Par v1/v2: X:77 (v1) y X:161 (v2, `replay_of`); las respuestas registradas del original son iguales.
 
 #### X:78 — POST /msg TRANSFER;AC-0001;AC-0099;200000;33
@@ -5577,7 +5583,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E401","mensaje":"cuenta inexistente"}
 ```
 
-Error E401 (HTTP 404): el servicio responde «cuenta inexistente». Según la especificación se produce cuando la cuenta consultada, de origen o de destino no existe (sección 5, fila E401, CMD-05, CMD-14).
+Error E401 (HTTP 404): el servicio responde «cuenta inexistente». Según la especificación se produce cuando la cuenta consultada, de origen o de destino no existe (ERR-13, CMD-05, CMD-14).
 
 **Respuesta de la réplica:** status 404 — coincide
 
@@ -5601,7 +5607,7 @@ El texto registrado marca parte de la conclusión como inferida o supuesta: esa 
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas E401 (confirmado), ORD-07 (probable), ORD-08 (confirmado en v2).
+- Especificación: la citan las filas ERR-13 (confirmado), ORD-07 (probable), ORD-08 (confirmado en v2).
 - Par v1/v2: X:78 (v1) y X:162 (v2, `replay_of`); las respuestas registradas del original son iguales.
 
 #### X:79 — POST /msg DEPOSITO;AC-0001;500;46
@@ -5667,7 +5673,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas CMD-14b (probable).
+- Especificación: la citan las filas CMD-14b (confirmado).
 - Par v1/v2: X:79 (v1) y X:163 (v2, `replay_of`); las respuestas registradas del original son iguales.
 
 #### X:80 — POST /msg TRANSFER;AC-0001;AC-0001;100;17
@@ -5711,7 +5717,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E304","mensaje":"origen y destino iguales"}
 ```
 
-Error E304 (HTTP 400): el servicio responde «origen y destino iguales». Según la especificación se produce cuando en `TRANSFER`, origen y destino son la misma cuenta (sección 5, fila E304, CMD-14b).
+Error E304 (HTTP 400): el servicio responde «origen y destino iguales». Según la especificación se produce cuando en `TRANSFER`, origen y destino son la misma cuenta (ERR-10, CMD-14b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -5733,9 +5739,9 @@ Es la base de comparación de v1; su repetición en v2 es X:164, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas CMD-14b (probable), E304 (confirmado).
+- Especificación: la citan las filas CMD-14b (confirmado), ERR-10 (confirmado).
 - Par v1/v2: X:80 (v1) y X:164 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v2: X:210).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v2: X:210, X:336).
 
 #### X:81 — POST /msg CONSULTA;AC-0001;14
 
@@ -5800,9 +5806,9 @@ Es la base de comparación de v1; su repetición en v2 es X:165, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas CMD-14b (probable).
+- Especificación: la citan las filas CMD-14b (confirmado).
 - Par v1/v2: X:81 (v1) y X:165 (v2, `replay_of`); las respuestas registradas del original difieren.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:69; v2: X:119, X:150, X:153, X:176, X:178, X:228, X:234, X:236 y 2 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:69; v2: X:119, X:150, X:153, X:176, X:178, X:228, X:234, X:236 y 3 más).
 - Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 #### X:82 — POST /msg CONSULTA;ac-0001;14
@@ -5846,7 +5852,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E401","mensaje":"cuenta inexistente"}
 ```
 
-Error E401 (HTTP 404): el servicio responde «cuenta inexistente». Según la especificación se produce cuando la cuenta consultada, de origen o de destino no existe (sección 5, fila E401, CMD-05, CMD-14).
+Error E401 (HTTP 404): el servicio responde «cuenta inexistente». Según la especificación se produce cuando la cuenta consultada, de origen o de destino no existe (ERR-13, CMD-05, CMD-14).
 
 **Respuesta de la réplica:** status 404 — coincide
 
@@ -5868,7 +5874,7 @@ Es la base de comparación de v1; su repetición en v2 es X:166, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas CMD-05 (confirmado), E401 (confirmado).
+- Especificación: la citan las filas CMD-05 (confirmado), ERR-13 (confirmado).
 - Par v1/v2: X:82 (v1) y X:166 (v2, `replay_of`); las respuestas registradas del original son iguales.
 
 #### X:83 — POST /msg ALTA;Ana;50
@@ -5936,7 +5942,7 @@ Es la base de comparación de v1; su repetición en v2 es X:167, donde la respue
 
 - Especificación: la citan las filas CMD-03 (probable).
 - Par v1/v2: X:83 (v1) y X:167 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74; v2: X:103, X:145, X:158, X:169, X:174, X:181, X:187, X:193 y 9 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74; v2: X:103, X:145, X:158, X:169, X:174, X:181, X:187, X:193 y 11 más).
 
 #### X:84 — POST /msg DEPOSITO;AC-0001;0500;80
 
@@ -5979,7 +5985,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E303","mensaje":"monto inválido"}
 ```
 
-Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (sección 5, fila E303, CMD-07, CMD-07b, CMD-08b).
+Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (ERR-12, CMD-07, CMD-07b, CMD-08b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -6001,7 +6007,7 @@ Es la base de comparación de v1; su repetición en v2 es X:168, donde la respue
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas CMD-07b (confirmado), E303 (confirmado).
+- Especificación: la citan las filas CMD-07b (confirmado), ERR-12 (confirmado).
 - Par v1/v2: X:84 (v1) y X:168 (v2, `replay_of`); las respuestas registradas del original son iguales.
 
 ### s-diag-01-v2 — v2, X:85
@@ -6063,7 +6069,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E001","mensaje":"no autorizado"}
 ```
 
-Error E001 (HTTP 401): el servicio responde «no autorizado». Según la especificación se produce cuando falta la cabecera `Authorization` o el token es incorrecto (sección 5, fila E001, ENT-05).
+Error E001 (HTTP 401): el servicio responde «no autorizado». Según la especificación se produce cuando falta la cabecera `Authorization` o el token es incorrecto (ERR-02, ENT-05).
 
 **Respuesta de la réplica:** status 401 — coincide
 
@@ -6291,7 +6297,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E202","mensaje":"control inválido"}
 ```
 
-Error E202 (HTTP 400): el servicio responde «control inválido». Según la especificación se produce cuando el control es numérico pero no es el válido (salvo en `PING`) (sección 5, fila E202, INT-04, INT-06b).
+Error E202 (HTTP 400): el servicio responde «control inválido». Según la especificación se produce cuando el control es numérico pero no es el válido (salvo en `PING`) (ERR-08, INT-04, INT-06b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -6427,7 +6433,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E202","mensaje":"control inválido"}
 ```
 
-Error E202 (HTTP 400): el servicio responde «control inválido». Según la especificación se produce cuando el control es numérico pero no es el válido (salvo en `PING`) (sección 5, fila E202, INT-04, INT-06b).
+Error E202 (HTTP 400): el servicio responde «control inválido». Según la especificación se produce cuando el control es numérico pero no es el válido (salvo en `PING`) (ERR-08, INT-04, INT-06b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -6510,7 +6516,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: no es
 {"error":"E404","mensaje":"ruta desconocida"}
 ```
 
-Error E404 (HTTP 404): el servicio responde «ruta desconocida». Según la especificación se produce cuando ruta inexistente o método no admitido en una ruta conocida (sección 5, fila E404, ENT-02, ENT-03).
+Error E404 (HTTP 404): el servicio responde «ruta desconocida». Según la especificación se produce cuando ruta inexistente o método no admitido en una ruta conocida (ERR-01, ENT-02, ENT-03).
 
 **Respuesta de la réplica:** status 404 — coincide
 
@@ -6580,7 +6586,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: no es
 {"error":"E404","mensaje":"ruta desconocida"}
 ```
 
-Error E404 (HTTP 404): el servicio responde «ruta desconocida». Según la especificación se produce cuando ruta inexistente o método no admitido en una ruta conocida (sección 5, fila E404, ENT-02, ENT-03).
+Error E404 (HTTP 404): el servicio responde «ruta desconocida». Según la especificación se produce cuando ruta inexistente o método no admitido en una ruta conocida (ERR-01, ENT-02, ENT-03).
 
 **Respuesta de la réplica:** status 404 — coincide
 
@@ -6640,7 +6646,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: no es
 {"error":"E404","mensaje":"ruta desconocida"}
 ```
 
-Error E404 (HTTP 404): el servicio responde «ruta desconocida». Según la especificación se produce cuando ruta inexistente o método no admitido en una ruta conocida (sección 5, fila E404, ENT-02, ENT-03).
+Error E404 (HTTP 404): el servicio responde «ruta desconocida». Según la especificación se produce cuando ruta inexistente o método no admitido en una ruta conocida (ERR-01, ENT-02, ENT-03).
 
 **Respuesta de la réplica:** status 404 — coincide
 
@@ -6709,7 +6715,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E001","mensaje":"no autorizado"}
 ```
 
-Error E001 (HTTP 401): el servicio responde «no autorizado». Según la especificación se produce cuando falta la cabecera `Authorization` o el token es incorrecto (sección 5, fila E001, ENT-05).
+Error E001 (HTTP 401): el servicio responde «no autorizado». Según la especificación se produce cuando falta la cabecera `Authorization` o el token es incorrecto (ERR-02, ENT-05).
 
 **Respuesta de la réplica:** status 401 — coincide
 
@@ -6781,7 +6787,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E001","mensaje":"no autorizado"}
 ```
 
-Error E001 (HTTP 401): el servicio responde «no autorizado». Según la especificación se produce cuando falta la cabecera `Authorization` o el token es incorrecto (sección 5, fila E001, ENT-05).
+Error E001 (HTTP 401): el servicio responde «no autorizado». Según la especificación se produce cuando falta la cabecera `Authorization` o el token es incorrecto (ERR-02, ENT-05).
 
 **Respuesta de la réplica:** status 401 — coincide
 
@@ -6840,7 +6846,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: no es
 {"error":"E404","mensaje":"ruta desconocida"}
 ```
 
-Error E404 (HTTP 404): el servicio responde «ruta desconocida». Según la especificación se produce cuando ruta inexistente o método no admitido en una ruta conocida (sección 5, fila E404, ENT-02, ENT-03).
+Error E404 (HTTP 404): el servicio responde «ruta desconocida». Según la especificación se produce cuando ruta inexistente o método no admitido en una ruta conocida (ERR-01, ENT-02, ENT-03).
 
 **Respuesta de la réplica:** status 404 — coincide
 
@@ -6897,7 +6903,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: no es
 {"error":"E001","mensaje":"no autorizado"}
 ```
 
-Error E001 (HTTP 401): el servicio responde «no autorizado». Según la especificación se produce cuando falta la cabecera `Authorization` o el token es incorrecto (sección 5, fila E001, ENT-05).
+Error E001 (HTTP 401): el servicio responde «no autorizado». Según la especificación se produce cuando falta la cabecera `Authorization` o el token es incorrecto (ERR-02, ENT-05).
 
 **Respuesta de la réplica:** status 401 — coincide
 
@@ -7015,7 +7021,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: no es
 {"error":"E100","mensaje":"json inválido"}
 ```
 
-Error E100 (HTTP 400): el servicio responde «json inválido». Según la especificación se produce cuando el cuerpo no es JSON (sección 5, fila E100, ENT-08).
+Error E100 (HTTP 400): el servicio responde «json inválido». Según la especificación se produce cuando el cuerpo no es JSON (ERR-03, ENT-08).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -7075,7 +7081,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: no es
 {"error":"E102","mensaje":"falta m"}
 ```
 
-Error E102 (HTTP 400): el servicio responde «falta m». Según la especificación se produce cuando el JSON no trae `m`, o `m` no es un string (sección 5, fila E102, ENT-09, ENT-11).
+Error E102 (HTTP 400): el servicio responde «falta m». Según la especificación se produce cuando el JSON no trae `m`, o `m` no es un string (ERR-04, ENT-09, ENT-11).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -7135,7 +7141,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: no es
 {"error":"E102","mensaje":"falta m"}
 ```
 
-Error E102 (HTTP 400): el servicio responde «falta m». Según la especificación se produce cuando el JSON no trae `m`, o `m` no es un string (sección 5, fila E102, ENT-09, ENT-11).
+Error E102 (HTTP 400): el servicio responde «falta m». Según la especificación se produce cuando el JSON no trae `m`, o `m` no es un string (ERR-04, ENT-09, ENT-11).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -7203,7 +7209,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E402","mensaje":"operación inexistente"}
 ```
 
-Error E402 (HTTP 404): el servicio responde «operación inexistente». Según la especificación se produce cuando la operación que se quiere anular no existe (sección 5, fila E402, CMD-16).
+Error E402 (HTTP 404): el servicio responde «operación inexistente». Según la especificación se produce cuando la operación que se quiere anular no existe (ERR-14, CMD-16).
 
 **Respuesta de la réplica:** status 404 — coincide
 
@@ -7320,7 +7326,7 @@ Repite X:19 y registra la misma respuesta: v2 no cambió este comportamiento.
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:19 (v1) y X:103 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:61, X:74, X:83; v2: X:145, X:158, X:167, X:169, X:174, X:181, X:187, X:193 y 9 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:61, X:74, X:83; v2: X:145, X:158, X:167, X:169, X:174, X:181, X:187, X:193 y 11 más).
 
 #### X:104 — POST /msg ALTA;Beto;11
 
@@ -7389,7 +7395,7 @@ Repite X:20 y registra la misma respuesta: v2 no cambió este comportamiento.
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:20 (v1) y X:104 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:62; v2: X:146, X:170, X:182, X:188, X:216, X:224, X:244, X:274 y 1 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:62; v2: X:146, X:170, X:182, X:188, X:216, X:224, X:244, X:274 y 3 más).
 
 #### X:105 — POST /msg DEPOSITO;AC-0001;0;31
 
@@ -7434,7 +7440,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E303","mensaje":"monto inválido"}
 ```
 
-Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (sección 5, fila E303, CMD-07, CMD-07b, CMD-08b).
+Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (ERR-12, CMD-07, CMD-07b, CMD-08b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -7502,7 +7508,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E303","mensaje":"monto inválido"}
 ```
 
-Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (sección 5, fila E303, CMD-07, CMD-07b, CMD-08b).
+Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (ERR-12, CMD-07, CMD-07b, CMD-08b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -7570,7 +7576,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E303","mensaje":"monto inválido"}
 ```
 
-Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (sección 5, fila E303, CMD-07, CMD-07b, CMD-08b).
+Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (ERR-12, CMD-07, CMD-07b, CMD-08b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -7638,7 +7644,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E303","mensaje":"monto inválido"}
 ```
 
-Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (sección 5, fila E303, CMD-07, CMD-07b, CMD-08b).
+Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (ERR-12, CMD-07, CMD-07b, CMD-08b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -7775,7 +7781,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E303","mensaje":"monto inválido"}
 ```
 
-Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (sección 5, fila E303, CMD-07, CMD-07b, CMD-08b).
+Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (ERR-12, CMD-07, CMD-07b, CMD-08b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -7843,7 +7849,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E506","mensaje":"límite excedido"}
 ```
 
-Error E506 (HTTP 422): el servicio responde «límite excedido». Según la especificación se produce cuando el monto de un `TRANSFER` supera el límite de la versión (sección 5, fila E506, CMD-10, CAM-02).
+Error E506 (HTTP 422): el servicio responde «límite excedido». Según la especificación se produce cuando el monto de un `TRANSFER` supera el límite de la versión (ERR-15, CMD-10, CAM-02).
 
 **Respuesta de la réplica:** status 422 — coincide
 
@@ -7911,7 +7917,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E506","mensaje":"límite excedido"}
 ```
 
-Error E506 (HTTP 422): el servicio responde «límite excedido». Según la especificación se produce cuando el monto de un `TRANSFER` supera el límite de la versión (sección 5, fila E506, CMD-10, CAM-02).
+Error E506 (HTTP 422): el servicio responde «límite excedido». Según la especificación se produce cuando el monto de un `TRANSFER` supera el límite de la versión (ERR-15, CMD-10, CAM-02).
 
 **Respuesta de la réplica:** status 422 — coincide
 
@@ -8050,7 +8056,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E506","mensaje":"límite excedido"}
 ```
 
-Error E506 (HTTP 422): el servicio responde «límite excedido». Según la especificación se produce cuando el monto de un `TRANSFER` supera el límite de la versión (sección 5, fila E506, CMD-10, CAM-02).
+Error E506 (HTTP 422): el servicio responde «límite excedido». Según la especificación se produce cuando el monto de un `TRANSFER` supera el límite de la versión (ERR-15, CMD-10, CAM-02).
 
 **Respuesta de la réplica:** status 422 — coincide
 
@@ -8083,7 +8089,7 @@ Secuencia de 20 solicitud(es) de v2, nombre base `ej`. Propósito: Replay v2 de 
 - Comandos que envía: `PING`, `ALTA`, `CONSULTA`, `DEPOSITO`, `TRANSFER`, `SALDOS`, `ANULA`.
 - Errores que devuelve el original: E202 (1), E506 (2), E301 (1), E402 (2), E401 (1), E507 (1), E201 (1), E302 (1).
 - Repite solicitud a solicitud la secuencia `s-ej-01` (v1) contra v2; 8 respuesta(s) cambiaron: X:119, X:122, X:124, X:125, X:127, X:128, X:132, X:133.
-- Filas de la especificación que citan sus líneas: CMD-01, CMD-04, CAM-01, CMD-19, E301, OBS-05.
+- Filas de la especificación que citan sus líneas: CMD-01, CMD-04, CAM-01, RIE-02, CMD-19, ERR-09, OBS-05.
 
 Pasos y efecto sobre el estado (según las respuestas registradas del original):
 
@@ -8223,7 +8229,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E202","mensaje":"control inválido"}
 ```
 
-Error E202 (HTTP 400): el servicio responde «control inválido». Según la especificación se produce cuando el control es numérico pero no es el válido (salvo en `PING`) (sección 5, fila E202, INT-04, INT-06b).
+Error E202 (HTTP 400): el servicio responde «control inválido». Según la especificación se produce cuando el control es numérico pero no es el válido (salvo en `PING`) (ERR-08, INT-04, INT-06b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -8452,9 +8458,9 @@ Es un cambio de versión probado por el par X:35 (v1: status 200) y X:119 (v2: s
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas CMD-04 (confirmado), CAM-01 (confirmado).
+- Especificación: la citan las filas CMD-04 (confirmado), CAM-01 (confirmado), RIE-02 (confirmado).
 - Par v1/v2: X:35 (v1) y X:119 (v2, `replay_of`); las respuestas registradas del original difieren.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:66, X:69, X:81; v2: X:150, X:153, X:165, X:176, X:178, X:228, X:234, X:236 y 2 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:66, X:69, X:81; v2: X:150, X:153, X:165, X:176, X:178, X:228, X:234, X:236 y 3 más).
 - Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 #### X:120 — POST /msg DEPOSITO;AC-0001;250000;86
@@ -8663,7 +8669,7 @@ Es un cambio de versión probado por el par X:38 (v1: status 200) y X:122 (v2: s
 
 - Especificación: la citan las filas CMD-04 (confirmado), CAM-01 (confirmado).
 - Par v1/v2: X:38 (v1) y X:122 (v2, `replay_of`); las respuestas registradas del original difieren.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:49, X:67, X:73; v2: X:133, X:151, X:157, X:173, X:186, X:192, X:220, X:249).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:49, X:67, X:73; v2: X:133, X:151, X:157, X:173, X:186, X:192, X:220, X:249 y 1 más).
 - Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 - Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
@@ -8710,7 +8716,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E506","mensaje":"límite excedido"}
 ```
 
-Error E506 (HTTP 422): el servicio responde «límite excedido». Según la especificación se produce cuando el monto de un `TRANSFER` supera el límite de la versión (sección 5, fila E506, CMD-10, CAM-02).
+Error E506 (HTTP 422): el servicio responde «límite excedido». Según la especificación se produce cuando el monto de un `TRANSFER` supera el límite de la versión (ERR-15, CMD-10, CAM-02).
 
 **Respuesta de la réplica:** status 422 — coincide
 
@@ -8779,7 +8785,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E506","mensaje":"límite excedido"}
 ```
 
-Error E506 (HTTP 422): el servicio responde «límite excedido». Según la especificación se produce cuando el monto de un `TRANSFER` supera el límite de la versión (sección 5, fila E506, CMD-10, CAM-02).
+Error E506 (HTTP 422): el servicio responde «límite excedido». Según la especificación se produce cuando el monto de un `TRANSFER` supera el límite de la versión (ERR-15, CMD-10, CAM-02).
 
 **Respuesta de la réplica:** status 422 — coincide
 
@@ -8918,7 +8924,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E301","mensaje":"comando desconocido "}
 ```
 
-Error E301 (HTTP 400): el servicio responde «comando desconocido ». Según la especificación se produce cuando el comando no existe; puede añadir `sugerencia` (sección 5, fila E301, CMD-19, OBS-05).
+Error E301 (HTTP 400): el servicio responde «comando desconocido ». Según la especificación se produce cuando el comando no existe; puede añadir `sugerencia` (ERR-09, CMD-19, OBS-05).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -8940,7 +8946,7 @@ Repite X:42 y registra la misma respuesta: v2 no cambió este comportamiento.
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas CMD-19 (probable), E301 (probable; variante confirmada en v2), OBS-05 (confirmado en v2 (umbral ≤ 2); supuesto: métrica exacta y desempate).
+- Especificación: la citan las filas CMD-19 (probable), ERR-09 (probable; variante confirmada en v2), OBS-05 (confirmado en v2 (umbral ≤ 2); supuesto: desempate).
 - Par v1/v2: X:42 (v1) y X:126 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Ejemplo oficial E:12 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
@@ -8987,7 +8993,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E402","mensaje":"operación inexistente"}
 ```
 
-Error E402 (HTTP 404): el servicio responde «operación inexistente». Según la especificación se produce cuando la operación que se quiere anular no existe (sección 5, fila E402, CMD-16).
+Error E402 (HTTP 404): el servicio responde «operación inexistente». Según la especificación se produce cuando la operación que se quiere anular no existe (ERR-14, CMD-16).
 
 **Respuesta de la réplica:** status 404 — coincide
 
@@ -9058,7 +9064,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E402","mensaje":"operación inexistente"}
 ```
 
-Error E402 (HTTP 404): el servicio responde «operación inexistente». Según la especificación se produce cuando la operación que se quiere anular no existe (sección 5, fila E402, CMD-16).
+Error E402 (HTTP 404): el servicio responde «operación inexistente». Según la especificación se produce cuando la operación que se quiere anular no existe (ERR-14, CMD-16).
 
 **Respuesta de la réplica:** status 404 — coincide
 
@@ -9129,7 +9135,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E401","mensaje":"cuenta inexistente"}
 ```
 
-Error E401 (HTTP 404): el servicio responde «cuenta inexistente». Según la especificación se produce cuando la cuenta consultada, de origen o de destino no existe (sección 5, fila E401, CMD-05, CMD-14).
+Error E401 (HTTP 404): el servicio responde «cuenta inexistente». Según la especificación se produce cuando la cuenta consultada, de origen o de destino no existe (ERR-13, CMD-05, CMD-14).
 
 **Respuesta de la réplica:** status 404 — coincide
 
@@ -9198,7 +9204,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E507","mensaje":"saldo insuficiente"}
 ```
 
-Error E507 (HTTP 422): el servicio responde «saldo insuficiente». Según la especificación se produce cuando el saldo de la cuenta de origen es menor que el monto (sección 5, fila E507, CMD-12).
+Error E507 (HTTP 422): el servicio responde «saldo insuficiente». Según la especificación se produce cuando el saldo de la cuenta de origen es menor que el monto (ERR-16, CMD-12).
 
 **Respuesta de la réplica:** status 422 — coincide
 
@@ -9222,6 +9228,7 @@ Repite X:46 y registra la misma respuesta: v2 no cambió este comportamiento.
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:46 (v1) y X:130 (v2, `replay_of`); las respuestas registradas del original son iguales.
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v2: X:324).
 - Ejemplo oficial E:16 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:131 — POST /msg DEPOSITO;AC-0002;700;5X
@@ -9267,7 +9274,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E201","mensaje":"control mal formado"}
 ```
 
-Error E201 (HTTP 400): el servicio responde «control mal formado». Según la especificación se produce cuando el control no es numérico o no tiene 1 o 2 dígitos (salvo en `PING`) (sección 5, fila E201, INT-02, INT-06).
+Error E201 (HTTP 400): el servicio responde «control mal formado». Según la especificación se produce cuando el control no es numérico o no tiene 1 o 2 dígitos (salvo en `PING`) (ERR-07, INT-02, INT-06).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -9429,7 +9436,7 @@ Es un cambio de versión probado por el par X:49 (v1: status 200) y X:133 (v2: s
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:49 (v1) y X:133 (v2, `replay_of`); las respuestas registradas del original difieren.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:67, X:73; v2: X:122, X:151, X:157, X:173, X:186, X:192, X:220, X:249).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:67, X:73; v2: X:122, X:151, X:157, X:173, X:186, X:192, X:220, X:249 y 1 más).
 - Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 - Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
@@ -9476,7 +9483,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E302","mensaje":"aridad inválida"}
 ```
 
-Error E302 (HTTP 400): el servicio responde «aridad inválida». Según la especificación se produce cuando el número de argumentos no es el del comando (sección 5, fila E302, CMD-20).
+Error E302 (HTTP 400): el servicio responde «aridad inválida». Según la especificación se produce cuando el número de argumentos no es el del comando (ERR-11, CMD-20).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -9510,7 +9517,7 @@ Secuencia de 10 solicitud(es) de v2, nombre base `ord`. Propósito: Replay v2 de
 - Comandos que envía: `SALDOS`, `ALTA`, `CONSULTA`, `PING`.
 - Errores que devuelve el original: E201 (3), E202 (3), E102 (1), E103 (1).
 - Repite solicitud a solicitud la secuencia `s-ord-02` (v1) contra v2; ninguna respuesta cambió.
-- Filas de la especificación que citan sus líneas: INT-07, E103.
+- Filas de la especificación que citan sus líneas: INT-07, ERR-05.
 
 Pasos y efecto sobre el estado (según las respuestas registradas del original):
 
@@ -9568,7 +9575,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E201","mensaje":"control mal formado"}
 ```
 
-Error E201 (HTTP 400): el servicio responde «control mal formado». Según la especificación se produce cuando el control no es numérico o no tiene 1 o 2 dígitos (salvo en `PING`) (sección 5, fila E201, INT-02, INT-06).
+Error E201 (HTTP 400): el servicio responde «control mal formado». Según la especificación se produce cuando el control no es numérico o no tiene 1 o 2 dígitos (salvo en `PING`) (ERR-07, INT-02, INT-06).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -9636,7 +9643,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E202","mensaje":"control inválido"}
 ```
 
-Error E202 (HTTP 400): el servicio responde «control inválido». Según la especificación se produce cuando el control es numérico pero no es el válido (salvo en `PING`) (sección 5, fila E202, INT-04, INT-06b).
+Error E202 (HTTP 400): el servicio responde «control inválido». Según la especificación se produce cuando el control es numérico pero no es el válido (salvo en `PING`) (ERR-08, INT-04, INT-06b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -9704,7 +9711,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E201","mensaje":"control mal formado"}
 ```
 
-Error E201 (HTTP 400): el servicio responde «control mal formado». Según la especificación se produce cuando el control no es numérico o no tiene 1 o 2 dígitos (salvo en `PING`) (sección 5, fila E201, INT-02, INT-06).
+Error E201 (HTTP 400): el servicio responde «control mal formado». Según la especificación se produce cuando el control no es numérico o no tiene 1 o 2 dígitos (salvo en `PING`) (ERR-07, INT-02, INT-06).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -9772,7 +9779,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E202","mensaje":"control inválido"}
 ```
 
-Error E202 (HTTP 400): el servicio responde «control inválido». Según la especificación se produce cuando el control es numérico pero no es el válido (salvo en `PING`) (sección 5, fila E202, INT-04, INT-06b).
+Error E202 (HTTP 400): el servicio responde «control inválido». Según la especificación se produce cuando el control es numérico pero no es el válido (salvo en `PING`) (ERR-08, INT-04, INT-06b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -9840,7 +9847,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E201","mensaje":"control mal formado"}
 ```
 
-Error E201 (HTTP 400): el servicio responde «control mal formado». Según la especificación se produce cuando el control no es numérico o no tiene 1 o 2 dígitos (salvo en `PING`) (sección 5, fila E201, INT-02, INT-06).
+Error E201 (HTTP 400): el servicio responde «control mal formado». Según la especificación se produce cuando el control no es numérico o no tiene 1 o 2 dígitos (salvo en `PING`) (ERR-07, INT-02, INT-06).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -9908,7 +9915,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E202","mensaje":"control inválido"}
 ```
 
-Error E202 (HTTP 400): el servicio responde «control inválido». Según la especificación se produce cuando el control es numérico pero no es el válido (salvo en `PING`) (sección 5, fila E202, INT-04, INT-06b).
+Error E202 (HTTP 400): el servicio responde «control inválido». Según la especificación se produce cuando el control es numérico pero no es el válido (salvo en `PING`) (ERR-08, INT-04, INT-06b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -10108,7 +10115,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: no es
 {"error":"E102","mensaje":"falta m"}
 ```
 
-Error E102 (HTTP 400): el servicio responde «falta m». Según la especificación se produce cuando el JSON no trae `m`, o `m` no es un string (sección 5, fila E102, ENT-09, ENT-11).
+Error E102 (HTTP 400): el servicio responde «falta m». Según la especificación se produce cuando el JSON no trae `m`, o `m` no es un string (ERR-04, ENT-09, ENT-11).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -10168,7 +10175,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E103","mensaje":"falta control"}
 ```
 
-Error E103 (HTTP 400): el servicio responde «falta control». Según la especificación se produce cuando el mensaje no contiene ningún `;` (sección 5, fila E103, INT-07).
+Error E103 (HTTP 400): el servicio responde «falta control». Según la especificación se produce cuando el mensaje no contiene ningún `;` (ERR-05, INT-07).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -10190,7 +10197,7 @@ Repite X:60 y registra la misma respuesta: v2 no cambió este comportamiento.
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-07 (confirmado), E103 (confirmado).
+- Especificación: la citan las filas INT-07 (confirmado), ERR-05 (confirmado).
 - Par v1/v2: X:60 (v1) y X:144 (v2, `replay_of`); las respuestas registradas del original son iguales.
 
 ### s-anu-01-v2 — v2, X:145–X:157
@@ -10286,7 +10293,7 @@ Repite X:61 y registra la misma respuesta: v2 no cambió este comportamiento.
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:61 (v1) y X:145 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:74, X:83; v2: X:103, X:158, X:167, X:169, X:174, X:181, X:187, X:193 y 9 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:74, X:83; v2: X:103, X:158, X:167, X:169, X:174, X:181, X:187, X:193 y 11 más).
 
 #### X:146 — POST /msg ALTA;Beto;11
 
@@ -10355,7 +10362,7 @@ Repite X:62 y registra la misma respuesta: v2 no cambió este comportamiento.
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:62 (v1) y X:146 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:20; v2: X:104, X:170, X:182, X:188, X:216, X:224, X:244, X:274 y 1 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:20; v2: X:104, X:170, X:182, X:188, X:216, X:224, X:244, X:274 y 3 más).
 
 #### X:147 — POST /msg DEPOSITO;AC-0001;1000;35
 
@@ -10424,7 +10431,7 @@ Repite X:63 y registra la misma respuesta: v2 no cambió este comportamiento.
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:63 (v1) y X:147 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v2: X:245, X:294).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v2: X:245, X:294, X:334).
 
 #### X:148 — POST /msg TRANSFER;AC-0001;AC-0002;300;6
 
@@ -10561,7 +10568,7 @@ Repite X:65 y registra la misma respuesta: v2 no cambió este comportamiento.
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:65 (v1) y X:149 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v2: X:248).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v2: X:248, X:325, X:327).
 
 #### X:150 — POST /msg CONSULTA;AC-0001;14
 
@@ -10630,7 +10637,7 @@ Es un cambio de versión probado por el par X:66 (v1: status 200) y X:150 (v2: s
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:66 (v1) y X:150 (v2, `replay_of`); las respuestas registradas del original difieren.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:69, X:81; v2: X:119, X:153, X:165, X:176, X:178, X:228, X:234, X:236 y 2 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:69, X:81; v2: X:119, X:153, X:165, X:176, X:178, X:228, X:234, X:236 y 3 más).
 - Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 #### X:151 — POST /msg CONSULTA;AC-0002;11
@@ -10700,7 +10707,7 @@ Es un cambio de versión probado por el par X:67 (v1: status 200) y X:151 (v2: s
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:67 (v1) y X:151 (v2, `replay_of`); las respuestas registradas del original difieren.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:49, X:73; v2: X:122, X:133, X:157, X:173, X:186, X:192, X:220, X:249).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:49, X:73; v2: X:122, X:133, X:157, X:173, X:186, X:192, X:220, X:249 y 1 más).
 - Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 - Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
@@ -10771,7 +10778,7 @@ Repite X:68 y registra la misma respuesta: v2 no cambió este comportamiento.
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:68 (v1) y X:152 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v2: X:208, X:209, X:227).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v2: X:208, X:209, X:227, X:322).
 
 #### X:153 — POST /msg CONSULTA;AC-0001;14
 
@@ -10840,7 +10847,7 @@ Es un cambio de versión probado por el par X:69 (v1: status 200) y X:153 (v2: s
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:69 (v1) y X:153 (v2, `replay_of`); las respuestas registradas del original difieren.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:81; v2: X:119, X:150, X:165, X:176, X:178, X:228, X:234, X:236 y 2 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:81; v2: X:119, X:150, X:165, X:176, X:178, X:228, X:234, X:236 y 3 más).
 - Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 #### X:154 — POST /msg DEPOSITO;AC-0002;500;53
@@ -11117,7 +11124,7 @@ Es un cambio de versión probado por el par X:73 (v1: status 200) y X:157 (v2: s
 
 - Especificación: la citan las filas CMD-04 (confirmado).
 - Par v1/v2: X:73 (v1) y X:157 (v2, `replay_of`); las respuestas registradas del original difieren.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:49, X:67; v2: X:122, X:133, X:151, X:173, X:186, X:192, X:220, X:249).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:49, X:67; v2: X:122, X:133, X:151, X:173, X:186, X:192, X:220, X:249 y 1 más).
 - Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 - Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
@@ -11212,7 +11219,7 @@ Repite X:74 y registra la misma respuesta: v2 no cambió este comportamiento.
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:74 (v1) y X:158 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:83; v2: X:103, X:145, X:167, X:169, X:174, X:181, X:187, X:193 y 9 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:83; v2: X:103, X:145, X:167, X:169, X:174, X:181, X:187, X:193 y 11 más).
 
 #### X:159 — POST /msg TRANSFER;AC-0001;AC-0099;100;24
 
@@ -11257,7 +11264,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E401","mensaje":"cuenta inexistente"}
 ```
 
-Error E401 (HTTP 404): el servicio responde «cuenta inexistente». Según la especificación se produce cuando la cuenta consultada, de origen o de destino no existe (sección 5, fila E401, CMD-05, CMD-14).
+Error E401 (HTTP 404): el servicio responde «cuenta inexistente». Según la especificación se produce cuando la cuenta consultada, de origen o de destino no existe (ERR-13, CMD-05, CMD-14).
 
 **Respuesta de la réplica:** status 404 — coincide
 
@@ -11325,7 +11332,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E401","mensaje":"cuenta inexistente"}
 ```
 
-Error E401 (HTTP 404): el servicio responde «cuenta inexistente». Según la especificación se produce cuando la cuenta consultada, de origen o de destino no existe (sección 5, fila E401, CMD-05, CMD-14).
+Error E401 (HTTP 404): el servicio responde «cuenta inexistente». Según la especificación se produce cuando la cuenta consultada, de origen o de destino no existe (ERR-13, CMD-05, CMD-14).
 
 **Respuesta de la réplica:** status 404 — coincide
 
@@ -11393,7 +11400,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E303","mensaje":"monto inválido"}
 ```
 
-Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (sección 5, fila E303, CMD-07, CMD-07b, CMD-08b).
+Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (ERR-12, CMD-07, CMD-07b, CMD-08b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -11461,7 +11468,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E401","mensaje":"cuenta inexistente"}
 ```
 
-Error E401 (HTTP 404): el servicio responde «cuenta inexistente». Según la especificación se produce cuando la cuenta consultada, de origen o de destino no existe (sección 5, fila E401, CMD-05, CMD-14).
+Error E401 (HTTP 404): el servicio responde «cuenta inexistente». Según la especificación se produce cuando la cuenta consultada, de origen o de destino no existe (ERR-13, CMD-05, CMD-14).
 
 **Respuesta de la réplica:** status 404 — coincide
 
@@ -11597,7 +11604,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E304","mensaje":"origen y destino iguales"}
 ```
 
-Error E304 (HTTP 400): el servicio responde «origen y destino iguales». Según la especificación se produce cuando en `TRANSFER`, origen y destino son la misma cuenta (sección 5, fila E304, CMD-14b).
+Error E304 (HTTP 400): el servicio responde «origen y destino iguales». Según la especificación se produce cuando en `TRANSFER`, origen y destino son la misma cuenta (ERR-10, CMD-14b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -11621,7 +11628,7 @@ Repite X:80 y registra la misma respuesta: v2 no cambió este comportamiento.
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:80 (v1) y X:164 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v2: X:210).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v2: X:210, X:336).
 
 #### X:165 — POST /msg CONSULTA;AC-0001;14
 
@@ -11690,7 +11697,7 @@ Es un cambio de versión probado por el par X:81 (v1: status 200) y X:165 (v2: s
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:81 (v1) y X:165 (v2, `replay_of`); las respuestas registradas del original difieren.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:69; v2: X:119, X:150, X:153, X:176, X:178, X:228, X:234, X:236 y 2 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:69; v2: X:119, X:150, X:153, X:176, X:178, X:228, X:234, X:236 y 3 más).
 - Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 #### X:166 — POST /msg CONSULTA;ac-0001;14
@@ -11736,7 +11743,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E401","mensaje":"cuenta inexistente"}
 ```
 
-Error E401 (HTTP 404): el servicio responde «cuenta inexistente». Según la especificación se produce cuando la cuenta consultada, de origen o de destino no existe (sección 5, fila E401, CMD-05, CMD-14).
+Error E401 (HTTP 404): el servicio responde «cuenta inexistente». Según la especificación se produce cuando la cuenta consultada, de origen o de destino no existe (ERR-13, CMD-05, CMD-14).
 
 **Respuesta de la réplica:** status 404 — coincide
 
@@ -11828,7 +11835,7 @@ Repite X:83 y registra la misma respuesta: v2 no cambió este comportamiento.
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:83 (v1) y X:167 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74; v2: X:103, X:145, X:158, X:169, X:174, X:181, X:187, X:193 y 9 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74; v2: X:103, X:145, X:158, X:169, X:174, X:181, X:187, X:193 y 11 más).
 
 #### X:168 — POST /msg DEPOSITO;AC-0001;0500;80
 
@@ -11873,7 +11880,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E303","mensaje":"monto inválido"}
 ```
 
-Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (sección 5, fila E303, CMD-07, CMD-07b, CMD-08b).
+Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (ERR-12, CMD-07, CMD-07b, CMD-08b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -11979,7 +11986,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74, X:83; v2: X:103, X:145, X:158, X:167, X:174, X:181, X:187, X:193 y 9 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74, X:83; v2: X:103, X:145, X:158, X:167, X:174, X:181, X:187, X:193 y 11 más).
 
 #### X:170 — POST /msg ALTA;Beto;11
 
@@ -12045,7 +12052,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:20, X:62; v2: X:104, X:146, X:182, X:188, X:216, X:224, X:244, X:274 y 1 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:20, X:62; v2: X:104, X:146, X:182, X:188, X:216, X:224, X:244, X:274 y 3 más).
 
 #### X:171 — POST /msg DEPOSITO;AC-0001;250000;86
 
@@ -12155,7 +12162,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E506","mensaje":"límite excedido"}
 ```
 
-Error E506 (HTTP 422): el servicio responde «límite excedido». Según la especificación se produce cuando el monto de un `TRANSFER` supera el límite de la versión (sección 5, fila E506, CMD-10, CAM-02).
+Error E506 (HTTP 422): el servicio responde «límite excedido». Según la especificación se produce cuando el monto de un `TRANSFER` supera el límite de la versión (ERR-15, CMD-10, CAM-02).
 
 **Respuesta de la réplica:** status 422 — coincide
 
@@ -12243,7 +12250,7 @@ Etiqueta: **Cambio de versión probado**.
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:49, X:67, X:73; v2: X:122, X:133, X:151, X:157, X:186, X:192, X:220, X:249).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:49, X:67, X:73; v2: X:122, X:133, X:151, X:157, X:186, X:192, X:220, X:249 y 1 más).
 - Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 - Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
@@ -12256,7 +12263,7 @@ Secuencia de 7 solicitud(es) de v2, nombre base `exp`. Propósito: Preparación:
 - Categorías de sus entradas: Preparación (1); Sonda de formato de campos (6).
 - Comandos que envía: `ALTA`, `DEPOSITO`, `CONSULTA`.
 - Errores que devuelve el original: E303 (1), E104 (1).
-- Filas de la especificación que citan sus líneas: CMD-04, CMD-07, INT-10, E104, CAM-03.
+- Filas de la especificación que citan sus líneas: CMD-04, CMD-07, INT-10, ERR-06, CAM-03, INT-08.
 
 Pasos y efecto sobre el estado (según las respuestas registradas del original):
 
@@ -12332,7 +12339,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74, X:83; v2: X:103, X:145, X:158, X:167, X:169, X:181, X:187, X:193 y 9 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74, X:83; v2: X:103, X:145, X:158, X:167, X:169, X:181, X:187, X:193 y 11 más).
 
 #### X:175 — POST /msg DEPOSITO;AC-0001;1;28
 
@@ -12463,7 +12470,7 @@ Etiqueta: **Cambio de versión probado**.
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: la citan las filas CMD-04 (confirmado).
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:69, X:81; v2: X:119, X:150, X:153, X:165, X:178, X:228, X:234, X:236 y 2 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:69, X:81; v2: X:119, X:150, X:153, X:165, X:178, X:228, X:234, X:236 y 3 más).
 - Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 **Limitación:** la conclusión habla de un cambio de versión, pero esta línea no tiene par v1/v2 ni cita otra línea: el registro no permite verificar el par.
@@ -12509,7 +12516,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E303","mensaje":"monto inválido"}
 ```
 
-Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (sección 5, fila E303, CMD-07, CMD-07b, CMD-08b).
+Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (ERR-12, CMD-07, CMD-07b, CMD-08b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -12597,7 +12604,7 @@ Es una observación puntual: la evidencia es el status y el cuerpo; cualquier ge
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:69, X:81; v2: X:119, X:150, X:153, X:165, X:176, X:228, X:234, X:236 y 2 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:69, X:81; v2: X:119, X:150, X:153, X:165, X:176, X:228, X:234, X:236 y 3 más).
 - Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 #### X:179 — POST /msg ALTA;;85
@@ -12643,7 +12650,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E104","mensaje":"segmento vacío"}
 ```
 
-Error E104 (HTTP 400): el servicio responde «segmento vacío». Según la especificación se produce cuando algún segmento de `m` al dividirlo por `;` está vacío (sección 5, fila E104, INT-10).
+Error E104 (HTTP 400): el servicio responde «segmento vacío». Según la especificación se produce cuando algún segmento de `m` al dividirlo por `;` está vacío (ERR-06, INT-10).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -12667,7 +12674,7 @@ La conclusión registrada habla de la réplica tal como estaba cuando se hizo el
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-10 (confirmado en v2), E104 (confirmado en v2), CAM-03 (candidato (diferencia no probada)).
+- Especificación: la citan las filas INT-10 (confirmado en v2), ERR-06 (confirmado en v2), CAM-03 (supuesto (candidato: diferencia no probada)).
 
 #### X:180 — POST /msg ALTA;Lucía;14
 
@@ -12734,9 +12741,7 @@ El texto registrado marca parte de la conclusión como inferida o supuesta: esa 
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-
-**Limitación:** ninguna fila de la especificación cita esta línea y no hay otras líneas ni ejemplos oficiales con la misma solicitud: el registro no permite relacionarla con las reglas más allá de su propia conclusión.
+- Especificación: la citan las filas INT-08 (confirmado).
 
 ### s-v2-lim-02 — v2, X:181–X:186
 
@@ -12820,7 +12825,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74, X:83; v2: X:103, X:145, X:158, X:167, X:169, X:174, X:187, X:193 y 9 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74, X:83; v2: X:103, X:145, X:158, X:167, X:169, X:174, X:187, X:193 y 11 más).
 
 #### X:182 — POST /msg ALTA;Beto;11
 
@@ -12886,7 +12891,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:20, X:62; v2: X:104, X:146, X:170, X:188, X:216, X:224, X:244, X:274 y 1 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:20, X:62; v2: X:104, X:146, X:170, X:188, X:216, X:224, X:244, X:274 y 3 más).
 
 #### X:183 — POST /msg DEPOSITO;AC-0001;250000;86
 
@@ -12996,7 +13001,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E506","mensaje":"límite excedido"}
 ```
 
-Error E506 (HTTP 422): el servicio responde «límite excedido». Según la especificación se produce cuando el monto de un `TRANSFER` supera el límite de la versión (sección 5, fila E506, CMD-10, CAM-02).
+Error E506 (HTTP 422): el servicio responde «límite excedido». Según la especificación se produce cuando el monto de un `TRANSFER` supera el límite de la versión (ERR-15, CMD-10, CAM-02).
 
 **Respuesta de la réplica:** status 422 — coincide
 
@@ -13063,7 +13068,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E506","mensaje":"límite excedido"}
 ```
 
-Error E506 (HTTP 422): el servicio responde «límite excedido». Según la especificación se produce cuando el monto de un `TRANSFER` supera el límite de la versión (sección 5, fila E506, CMD-10, CAM-02).
+Error E506 (HTTP 422): el servicio responde «límite excedido». Según la especificación se produce cuando el monto de un `TRANSFER` supera el límite de la versión (ERR-15, CMD-10, CAM-02).
 
 **Respuesta de la réplica:** status 422 — coincide
 
@@ -13153,7 +13158,7 @@ Es una observación puntual: la evidencia es el status y el cuerpo; cualquier ge
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:49, X:67, X:73; v2: X:122, X:133, X:151, X:157, X:173, X:192, X:220, X:249).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:49, X:67, X:73; v2: X:122, X:133, X:151, X:157, X:173, X:192, X:220, X:249 y 1 más).
 - Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 - Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
@@ -13164,7 +13169,7 @@ Secuencia de 6 solicitud(es) de v2, nombre base `lim`. Propósito: Preparación:
 - Categorías de sus entradas: Preparación (3); Sonda de límite o borde (3).
 - Comandos que envía: `ALTA`, `DEPOSITO`, `TRANSFER`, `CONSULTA`.
 - Errores que devuelve el original: E506 (1).
-- Filas de la especificación que citan sus líneas: CMD-08, CMD-10, CAM-02, E506.
+- Filas de la especificación que citan sus líneas: CMD-08, CMD-10, CAM-02, ERR-15.
 
 Pasos y efecto sobre el estado (según las respuestas registradas del original):
 
@@ -13239,7 +13244,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74, X:83; v2: X:103, X:145, X:158, X:167, X:169, X:174, X:181, X:193 y 9 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74, X:83; v2: X:103, X:145, X:158, X:167, X:169, X:174, X:181, X:193 y 11 más).
 
 #### X:188 — POST /msg ALTA;Beto;11
 
@@ -13305,7 +13310,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:20, X:62; v2: X:104, X:146, X:170, X:182, X:216, X:224, X:244, X:274 y 1 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:20, X:62; v2: X:104, X:146, X:170, X:182, X:216, X:224, X:244, X:274 y 3 más).
 
 #### X:189 — POST /msg DEPOSITO;AC-0001;250000;86
 
@@ -13436,6 +13441,7 @@ Etiqueta: **Cambio de versión probado**.
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: la citan las filas CMD-10 (confirmado), CAM-02 (confirmado).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v2: X:321).
 
 **Limitación:** la conclusión habla de un cambio de versión, pero esta línea no tiene par v1/v2 ni cita otra línea: el registro no permite verificar el par.
 
@@ -13480,7 +13486,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E506","mensaje":"límite excedido"}
 ```
 
-Error E506 (HTTP 422): el servicio responde «límite excedido». Según la especificación se produce cuando el monto de un `TRANSFER` supera el límite de la versión (sección 5, fila E506, CMD-10, CAM-02).
+Error E506 (HTTP 422): el servicio responde «límite excedido». Según la especificación se produce cuando el monto de un `TRANSFER` supera el límite de la versión (ERR-15, CMD-10, CAM-02).
 
 **Respuesta de la réplica:** status 422 — coincide
 
@@ -13502,7 +13508,8 @@ La conclusión habla de un cambio; esta línea no tiene par v1/v2 propio y remit
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas CMD-10 (confirmado), E506 (confirmado), CAM-02 (confirmado).
+- Especificación: la citan las filas CMD-10 (confirmado), ERR-15 (confirmado), CAM-02 (confirmado).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v2: X:320).
 
 #### X:192 — POST /msg CONSULTA;AC-0002;11
 
@@ -13566,7 +13573,7 @@ Etiqueta: **Cambio de versión probado**.
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:49, X:67, X:73; v2: X:122, X:133, X:151, X:157, X:173, X:186, X:220, X:249).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:49, X:67, X:73; v2: X:122, X:133, X:151, X:157, X:173, X:186, X:220, X:249 y 1 más).
 - Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 - Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
@@ -13579,7 +13586,7 @@ Secuencia de 4 solicitud(es) de v2, nombre base `e104`. Propósito: Preparación
 - Categorías de sus entradas: Preparación (1); Sonda de formato de campos (3).
 - Comandos que envía: `ALTA`, `CONSULTA`, `DEPOSITO`, `TRANSFER`.
 - Errores que devuelve el original: E104 (3).
-- Filas de la especificación que citan sus líneas: INT-10, E104, CAM-03.
+- Filas de la especificación que citan sus líneas: INT-10, ERR-06, CAM-03.
 
 Pasos y efecto sobre el estado (según las respuestas registradas del original):
 
@@ -13652,7 +13659,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74, X:83; v2: X:103, X:145, X:158, X:167, X:169, X:174, X:181, X:187 y 9 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74, X:83; v2: X:103, X:145, X:158, X:167, X:169, X:174, X:181, X:187 y 11 más).
 
 #### X:194 — POST /msg CONSULTA;;11
 
@@ -13697,7 +13704,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E104","mensaje":"segmento vacío"}
 ```
 
-Error E104 (HTTP 400): el servicio responde «segmento vacío». Según la especificación se produce cuando algún segmento de `m` al dividirlo por `;` está vacío (sección 5, fila E104, INT-10).
+Error E104 (HTTP 400): el servicio responde «segmento vacío». Según la especificación se produce cuando algún segmento de `m` al dividirlo por `;` está vacío (ERR-06, INT-10).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -13719,7 +13726,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-10 (confirmado en v2), E104 (confirmado en v2), CAM-03 (candidato (diferencia no probada)).
+- Especificación: la citan las filas INT-10 (confirmado en v2), ERR-06 (confirmado en v2), CAM-03 (supuesto (candidato: diferencia no probada)).
 
 #### X:195 — POST /msg DEPOSITO;AC-0001;;4
 
@@ -13764,7 +13771,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E104","mensaje":"segmento vacío"}
 ```
 
-Error E104 (HTTP 400): el servicio responde «segmento vacío». Según la especificación se produce cuando algún segmento de `m` al dividirlo por `;` está vacío (sección 5, fila E104, INT-10).
+Error E104 (HTTP 400): el servicio responde «segmento vacío». Según la especificación se produce cuando algún segmento de `m` al dividirlo por `;` está vacío (ERR-06, INT-10).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -13786,7 +13793,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-10 (confirmado en v2), E104 (confirmado en v2), CAM-03 (candidato (diferencia no probada)).
+- Especificación: la citan las filas INT-10 (confirmado en v2), ERR-06 (confirmado en v2), CAM-03 (supuesto (candidato: diferencia no probada)).
 
 #### X:196 — POST /msg TRANSFER;AC-0001;;100;27
 
@@ -13831,7 +13838,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E104","mensaje":"segmento vacío"}
 ```
 
-Error E104 (HTTP 400): el servicio responde «segmento vacío». Según la especificación se produce cuando algún segmento de `m` al dividirlo por `;` está vacío (sección 5, fila E104, INT-10).
+Error E104 (HTTP 400): el servicio responde «segmento vacío». Según la especificación se produce cuando algún segmento de `m` al dividirlo por `;` está vacío (ERR-06, INT-10).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -13853,7 +13860,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-10 (confirmado en v2), E104 (confirmado en v2), CAM-03 (candidato (diferencia no probada)).
+- Especificación: la citan las filas INT-10 (confirmado en v2), ERR-06 (confirmado en v2), CAM-03 (supuesto (candidato: diferencia no probada)).
 
 ### s-v2-seg-01 — v2, X:197–X:205
 
@@ -13862,7 +13869,7 @@ Secuencia de 9 solicitud(es) de v2, nombre base `seg`. Propósito: README.md:59-
 - Categorías de sus entradas: Sonda de formato de campos (9).
 - Comandos que envía: `PING`, `ALTA`, `SALDOS`.
 - Errores que devuelve el original: E104 (6), E103 (1).
-- Filas de la especificación que citan sus líneas: INT-09, CMD-01, ORD-04, CAM-03, OBS-01, INT-10, E104, ORD-04c, INT-07, E103, ORD-04b, OBS-04.
+- Filas de la especificación que citan sus líneas: INT-09, CMD-01, ORD-04, OBS-01, INT-10, ERR-06, ORD-04c, CAM-03, INT-07, ERR-05, ORD-04b, OBS-04.
 
 Pasos y efecto sobre el estado (según las respuestas registradas del original):
 
@@ -13945,7 +13952,7 @@ El texto registrado marca parte de la conclusión como inferida o supuesta: esa 
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-09 (confirmado), CMD-01 (confirmado), ORD-04 (probable), CAM-03 (candidato (diferencia no probada)), OBS-01 (confirmado en v2).
+- Especificación: la citan las filas INT-09 (confirmado), CMD-01 (confirmado), ORD-04 (probable), OBS-01 (confirmado en v2).
 
 #### X:198 — POST /msg ALTA;;86
 
@@ -13990,7 +13997,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E104","mensaje":"segmento vacío"}
 ```
 
-Error E104 (HTTP 400): el servicio responde «segmento vacío». Según la especificación se produce cuando algún segmento de `m` al dividirlo por `;` está vacío (sección 5, fila E104, INT-10).
+Error E104 (HTTP 400): el servicio responde «segmento vacío». Según la especificación se produce cuando algún segmento de `m` al dividirlo por `;` está vacío (ERR-06, INT-10).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -14012,7 +14019,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-10 (confirmado en v2), E104 (confirmado en v2), ORD-04c (confirmado en v2), CAM-03 (candidato (diferencia no probada)).
+- Especificación: la citan las filas INT-10 (confirmado en v2), ERR-06 (confirmado en v2), ORD-04c (confirmado en v2), CAM-03 (supuesto (candidato: diferencia no probada)).
 
 #### X:199 — POST /msg ALTA;Ana;
 
@@ -14057,7 +14064,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E104","mensaje":"segmento vacío"}
 ```
 
-Error E104 (HTTP 400): el servicio responde «segmento vacío». Según la especificación se produce cuando algún segmento de `m` al dividirlo por `;` está vacío (sección 5, fila E104, INT-10).
+Error E104 (HTTP 400): el servicio responde «segmento vacío». Según la especificación se produce cuando algún segmento de `m` al dividirlo por `;` está vacío (ERR-06, INT-10).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -14079,7 +14086,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-10 (confirmado en v2), E104 (confirmado en v2), ORD-04c (confirmado en v2), CAM-03 (candidato (diferencia no probada)).
+- Especificación: la citan las filas INT-10 (confirmado en v2), ERR-06 (confirmado en v2), ORD-04c (confirmado en v2), CAM-03 (supuesto (candidato: diferencia no probada)).
 
 #### X:200 — POST /msg PING;;64
 
@@ -14126,7 +14133,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E104","mensaje":"segmento vacío"}
 ```
 
-Error E104 (HTTP 400): el servicio responde «segmento vacío». Según la especificación se produce cuando algún segmento de `m` al dividirlo por `;` está vacío (sección 5, fila E104, INT-10).
+Error E104 (HTTP 400): el servicio responde «segmento vacío». Según la especificación se produce cuando algún segmento de `m` al dividirlo por `;` está vacío (ERR-06, INT-10).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -14148,7 +14155,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-10 (confirmado en v2), E104 (confirmado en v2), CAM-03 (candidato (diferencia no probada)).
+- Especificación: la citan las filas INT-10 (confirmado en v2), ERR-06 (confirmado en v2), CAM-03 (supuesto (candidato: diferencia no probada)).
 
 #### X:201 — POST /msg SALDOS;;55
 
@@ -14193,7 +14200,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E104","mensaje":"segmento vacío"}
 ```
 
-Error E104 (HTTP 400): el servicio responde «segmento vacío». Según la especificación se produce cuando algún segmento de `m` al dividirlo por `;` está vacío (sección 5, fila E104, INT-10).
+Error E104 (HTTP 400): el servicio responde «segmento vacío». Según la especificación se produce cuando algún segmento de `m` al dividirlo por `;` está vacío (ERR-06, INT-10).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -14215,7 +14222,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-10 (confirmado en v2), E104 (confirmado en v2), ORD-04c (confirmado en v2), CAM-03 (candidato (diferencia no probada)).
+- Especificación: la citan las filas INT-10 (confirmado en v2), ERR-06 (confirmado en v2), ORD-04c (confirmado en v2), CAM-03 (supuesto (candidato: diferencia no probada)).
 
 #### X:202 — POST /msg ALTA;;;85
 
@@ -14260,7 +14267,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E104","mensaje":"segmento vacío"}
 ```
 
-Error E104 (HTTP 400): el servicio responde «segmento vacío». Según la especificación se produce cuando algún segmento de `m` al dividirlo por `;` está vacío (sección 5, fila E104, INT-10).
+Error E104 (HTTP 400): el servicio responde «segmento vacío». Según la especificación se produce cuando algún segmento de `m` al dividirlo por `;` está vacío (ERR-06, INT-10).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -14282,7 +14289,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-10 (confirmado en v2), E104 (confirmado en v2), CAM-03 (candidato (diferencia no probada)).
+- Especificación: la citan las filas INT-10 (confirmado en v2), ERR-06 (confirmado en v2), CAM-03 (supuesto (candidato: diferencia no probada)).
 
 #### X:203 — POST /msg ALTA; ;85
 
@@ -14347,7 +14354,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-10 (confirmado en v2), CAM-03 (candidato (diferencia no probada)).
+- Especificación: la citan las filas INT-10 (confirmado en v2).
 
 #### X:204 — POST /msg 
 
@@ -14382,7 +14389,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E103","mensaje":"falta control"}
 ```
 
-Error E103 (HTTP 400): el servicio responde «falta control». Según la especificación se produce cuando el mensaje no contiene ningún `;` (sección 5, fila E103, INT-07).
+Error E103 (HTTP 400): el servicio responde «falta control». Según la especificación se produce cuando el mensaje no contiene ningún `;` (ERR-05, INT-07).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -14406,7 +14413,7 @@ La conclusión registrada habla de la réplica tal como estaba cuando se hizo el
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-07 (confirmado), E103 (confirmado), ORD-04b (confirmado), CAM-03 (candidato (diferencia no probada)), OBS-04 (confirmado en v2).
+- Especificación: la citan las filas INT-07 (confirmado), ERR-05 (confirmado), ORD-04b (confirmado), OBS-04 (confirmado en v2).
 
 #### X:205 — POST /msg ;PING;64
 
@@ -14451,7 +14458,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E104","mensaje":"segmento vacío"}
 ```
 
-Error E104 (HTTP 400): el servicio responde «segmento vacío». Según la especificación se produce cuando algún segmento de `m` al dividirlo por `;` está vacío (sección 5, fila E104, INT-10).
+Error E104 (HTTP 400): el servicio responde «segmento vacío». Según la especificación se produce cuando algún segmento de `m` al dividirlo por `;` está vacío (ERR-06, INT-10).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -14473,7 +14480,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-10 (confirmado en v2), E104 (confirmado en v2), CAM-03 (candidato (diferencia no probada)).
+- Especificación: la citan las filas INT-10 (confirmado en v2), ERR-06 (confirmado en v2), CAM-03 (supuesto (candidato: diferencia no probada)).
 
 ### s-v2-anu-01 — v2, X:206–X:209
 
@@ -14555,7 +14562,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74, X:83; v2: X:103, X:145, X:158, X:167, X:169, X:174, X:181, X:187 y 9 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74, X:83; v2: X:103, X:145, X:158, X:167, X:169, X:174, X:181, X:187 y 11 más).
 
 #### X:207 — POST /msg DEPOSITO;AC-0001;100;82
 
@@ -14687,7 +14694,7 @@ Es una observación puntual: la evidencia es el status y el cuerpo; cualquier ge
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:68; v2: X:152, X:209, X:227).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:68; v2: X:152, X:209, X:227, X:322).
 
 #### X:209 — POST /msg ANULA;OP-0001;72
 
@@ -14753,7 +14760,7 @@ Es una observación puntual: la evidencia es el status y el cuerpo; cualquier ge
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:68; v2: X:152, X:208, X:227).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:68; v2: X:152, X:208, X:227, X:322).
 
 ### s-v2-ord-01 — v2, X:210
 
@@ -14762,7 +14769,7 @@ Secuencia de 1 solicitud(es) de v2, nombre base `ord`. Propósito: Estado vacío
 - Categorías de sus entradas: Sonda de orden de validación (1).
 - Comandos que envía: `TRANSFER`.
 - Errores que devuelve el original: E304 (1).
-- Filas de la especificación que citan sus líneas: CMD-14d, E304, ORD-08, OBS-02.
+- Filas de la especificación que citan sus líneas: CMD-14d, ERR-10, ORD-08, OBS-02.
 
 Pasos y efecto sobre el estado (según las respuestas registradas del original):
 
@@ -14809,7 +14816,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E304","mensaje":"origen y destino iguales"}
 ```
 
-Error E304 (HTTP 400): el servicio responde «origen y destino iguales». Según la especificación se produce cuando en `TRANSFER`, origen y destino son la misma cuenta (sección 5, fila E304, CMD-14b).
+Error E304 (HTTP 400): el servicio responde «origen y destino iguales». Según la especificación se produce cuando en `TRANSFER`, origen y destino son la misma cuenta (ERR-10, CMD-14b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -14833,8 +14840,8 @@ La conclusión registrada habla de la réplica tal como estaba cuando se hizo el
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas CMD-14d (confirmado en v2), E304 (confirmado), ORD-08 (confirmado en v2), OBS-02 (confirmado en v2).
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:80; v2: X:164).
+- Especificación: la citan las filas CMD-14d (confirmado en v2), ERR-10 (confirmado), ORD-08 (confirmado en v2), OBS-02 (confirmado en v2).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:80; v2: X:164, X:336).
 
 ### s-v2-ord-02 — v2, X:211
 
@@ -14843,7 +14850,7 @@ Secuencia de 1 solicitud(es) de v2, nombre base `ord`. Propósito: Estado vacío
 - Categorías de sus entradas: Sonda de orden de validación (1).
 - Comandos que envía: `DEPOSITO`.
 - Errores que devuelve el original: E303 (1).
-- Filas de la especificación que citan sus líneas: E303, ORD-09, OBS-02.
+- Filas de la especificación que citan sus líneas: ERR-12, ORD-09, OBS-02.
 
 Pasos y efecto sobre el estado (según las respuestas registradas del original):
 
@@ -14890,7 +14897,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E303","mensaje":"monto inválido"}
 ```
 
-Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (sección 5, fila E303, CMD-07, CMD-07b, CMD-08b).
+Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (ERR-12, CMD-07, CMD-07b, CMD-08b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -14914,7 +14921,7 @@ La conclusión registrada habla de la réplica tal como estaba cuando se hizo el
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas E303 (confirmado), ORD-09 (confirmado en v2), OBS-02 (confirmado en v2).
+- Especificación: la citan las filas ERR-12 (confirmado), ORD-09 (confirmado en v2), OBS-02 (confirmado en v2).
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:24; v2: X:108).
 
 ### s-v2-ping-01 — v2, X:212–X:214
@@ -15042,7 +15049,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E302","mensaje":"aridad inválida"}
 ```
 
-Error E302 (HTTP 400): el servicio responde «aridad inválida». Según la especificación se produce cuando el número de argumentos no es el del comando (sección 5, fila E302, CMD-20).
+Error E302 (HTTP 400): el servicio responde «aridad inválida». Según la especificación se produce cuando el número de argumentos no es el del comando (ERR-11, CMD-20).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -15107,7 +15114,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E201","mensaje":"control mal formado"}
 ```
 
-Error E201 (HTTP 400): el servicio responde «control mal formado». Según la especificación se produce cuando el control no es numérico o no tiene 1 o 2 dígitos (salvo en `PING`) (sección 5, fila E201, INT-02, INT-06).
+Error E201 (HTTP 400): el servicio responde «control mal formado». Según la especificación se produce cuando el control no es numérico o no tiene 1 o 2 dígitos (salvo en `PING`) (ERR-07, INT-02, INT-06).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -15215,7 +15222,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74, X:83; v2: X:103, X:145, X:158, X:167, X:169, X:174, X:181, X:187 y 9 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74, X:83; v2: X:103, X:145, X:158, X:167, X:169, X:174, X:181, X:187 y 11 más).
 
 #### X:216 — POST /msg ALTA;Beto;11
 
@@ -15281,7 +15288,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:20, X:62; v2: X:104, X:146, X:170, X:182, X:188, X:224, X:244, X:274 y 1 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:20, X:62; v2: X:104, X:146, X:170, X:182, X:188, X:224, X:244, X:274 y 3 más).
 
 #### X:217 — POST /msg DEPOSITO;AC-0001;250000;86
 
@@ -15546,7 +15553,7 @@ Es una observación puntual: la evidencia es el status y el cuerpo; cualquier ge
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: la citan las filas CMD-11 (confirmado).
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:49, X:67, X:73; v2: X:122, X:133, X:151, X:157, X:173, X:186, X:192, X:249).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:49, X:67, X:73; v2: X:122, X:133, X:151, X:157, X:173, X:186, X:192, X:249 y 1 más).
 - Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 - Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
@@ -15557,7 +15564,7 @@ Secuencia de 2 solicitud(es) de v2, nombre base `ord`. Propósito: Estado vacío
 - Categorías de sus entradas: Sonda de orden de validación (2).
 - Comandos que envía: `TRANSFER`.
 - Errores que devuelve el original: E303 (1), E304 (1).
-- Filas de la especificación que citan sus líneas: E303, ORD-06, ORD-08, OBS-02, CMD-14d, E304.
+- Filas de la especificación que citan sus líneas: ERR-12, ORD-06, ORD-08, OBS-02, CMD-14d, ERR-10.
 
 Pasos y efecto sobre el estado (según las respuestas registradas del original):
 
@@ -15605,7 +15612,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E303","mensaje":"monto inválido"}
 ```
 
-Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (sección 5, fila E303, CMD-07, CMD-07b, CMD-08b).
+Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (ERR-12, CMD-07, CMD-07b, CMD-08b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -15627,7 +15634,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas E303 (confirmado), ORD-06 (confirmado), ORD-08 (confirmado en v2), OBS-02 (confirmado en v2).
+- Especificación: la citan las filas ERR-12 (confirmado), ORD-06 (confirmado), ORD-08 (confirmado en v2), OBS-02 (confirmado en v2).
 
 #### X:222 — POST /msg TRANSFER;AC-0001;AC-0001;60000;11
 
@@ -15670,7 +15677,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E304","mensaje":"origen y destino iguales"}
 ```
 
-Error E304 (HTTP 400): el servicio responde «origen y destino iguales». Según la especificación se produce cuando en `TRANSFER`, origen y destino son la misma cuenta (sección 5, fila E304, CMD-14b).
+Error E304 (HTTP 400): el servicio responde «origen y destino iguales». Según la especificación se produce cuando en `TRANSFER`, origen y destino son la misma cuenta (ERR-10, CMD-14b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -15692,7 +15699,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas CMD-14d (confirmado en v2), E304 (confirmado), ORD-08 (confirmado en v2), OBS-02 (confirmado en v2).
+- Especificación: la citan las filas CMD-14d (confirmado en v2), ERR-10 (confirmado), ORD-08 (confirmado en v2), OBS-02 (confirmado en v2).
 
 ### s-v2-neg-01 — v2, X:223–X:228
 
@@ -15776,7 +15783,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74, X:83; v2: X:103, X:145, X:158, X:167, X:169, X:174, X:181, X:187 y 9 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74, X:83; v2: X:103, X:145, X:158, X:167, X:169, X:174, X:181, X:187 y 11 más).
 
 #### X:224 — POST /msg ALTA;Beto;11
 
@@ -15842,7 +15849,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:20, X:62; v2: X:104, X:146, X:170, X:182, X:188, X:216, X:244, X:274 y 1 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:20, X:62; v2: X:104, X:146, X:170, X:182, X:188, X:216, X:244, X:274 y 3 más).
 
 #### X:225 — POST /msg DEPOSITO;AC-0001;5;16
 
@@ -16038,7 +16045,7 @@ Es una observación puntual: la evidencia es el status y el cuerpo; cualquier ge
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:68; v2: X:152, X:208, X:209).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:68; v2: X:152, X:208, X:209, X:322).
 
 #### X:228 — POST /msg CONSULTA;AC-0001;14
 
@@ -16102,7 +16109,7 @@ Etiqueta: **Cambio de versión probado**.
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: la citan las filas CMD-04 (confirmado).
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:69, X:81; v2: X:119, X:150, X:153, X:165, X:176, X:178, X:234, X:236 y 2 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:69, X:81; v2: X:119, X:150, X:153, X:165, X:176, X:178, X:234, X:236 y 3 más).
 - Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 **Limitación:** la conclusión habla de un cambio de versión, pero esta línea no tiene par v1/v2 ni cita otra línea: el registro no permite verificar el par.
@@ -16114,7 +16121,7 @@ Secuencia de 8 solicitud(es) de v2, nombre base `amt`. Propósito: Preparación:
 - Categorías de sus entradas: Preparación (1); Sonda de montos (7).
 - Comandos que envía: `ALTA`, `DEPOSITO`, `CONSULTA`.
 - Errores que devuelve el original: E303 (5).
-- Filas de la especificación que citan sus líneas: CMD-07.
+- Filas de la especificación que citan sus líneas: CMD-07, CMD-08b.
 
 Pasos y efecto sobre el estado (según las respuestas registradas del original):
 
@@ -16191,7 +16198,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74, X:83; v2: X:103, X:145, X:158, X:167, X:169, X:174, X:181, X:187 y 9 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74, X:83; v2: X:103, X:145, X:158, X:167, X:169, X:174, X:181, X:187 y 11 más).
 
 #### X:230 — POST /msg DEPOSITO;AC-0001;+5;16
 
@@ -16234,7 +16241,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E303","mensaje":"monto inválido"}
 ```
 
-Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (sección 5, fila E303, CMD-07, CMD-07b, CMD-08b).
+Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (ERR-12, CMD-07, CMD-07b, CMD-08b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -16299,7 +16306,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E303","mensaje":"monto inválido"}
 ```
 
-Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (sección 5, fila E303, CMD-07, CMD-07b, CMD-08b).
+Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (ERR-12, CMD-07, CMD-07b, CMD-08b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -16364,7 +16371,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E303","mensaje":"monto inválido"}
 ```
 
-Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (sección 5, fila E303, CMD-07, CMD-07b, CMD-08b).
+Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (ERR-12, CMD-07, CMD-07b, CMD-08b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -16429,7 +16436,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E303","mensaje":"monto inválido"}
 ```
 
-Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (sección 5, fila E303, CMD-07, CMD-07b, CMD-08b).
+Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (ERR-12, CMD-07, CMD-07b, CMD-08b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -16451,9 +16458,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-
-**Limitación:** ninguna fila de la especificación cita esta línea y no hay otras líneas ni ejemplos oficiales con la misma solicitud: el registro no permite relacionarla con las reglas más allá de su propia conclusión.
+- Especificación: la citan las filas CMD-08b (confirmado en v2).
 
 #### X:234 — POST /msg CONSULTA;AC-0001;14
 
@@ -16519,7 +16524,7 @@ Es una observación puntual: la evidencia es el status y el cuerpo; cualquier ge
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:69, X:81; v2: X:119, X:150, X:153, X:165, X:176, X:178, X:228, X:236 y 2 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:69, X:81; v2: X:119, X:150, X:153, X:165, X:176, X:178, X:228, X:236 y 3 más).
 - Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 #### X:235 — POST /msg DEPOSITO;AC-0001;100000000000;39
@@ -16563,7 +16568,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E303","mensaje":"monto inválido"}
 ```
 
-Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (sección 5, fila E303, CMD-07, CMD-07b, CMD-08b).
+Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (ERR-12, CMD-07, CMD-07b, CMD-08b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -16585,9 +16590,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-
-**Limitación:** ninguna fila de la especificación cita esta línea y no hay otras líneas ni ejemplos oficiales con la misma solicitud: el registro no permite relacionarla con las reglas más allá de su propia conclusión.
+- Especificación: la citan las filas CMD-08b (confirmado en v2).
 
 #### X:236 — POST /msg CONSULTA;AC-0001;14
 
@@ -16653,7 +16656,7 @@ Es una observación puntual: la evidencia es el status y el cuerpo; cualquier ge
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:69, X:81; v2: X:119, X:150, X:153, X:165, X:176, X:178, X:228, X:234 y 2 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:69, X:81; v2: X:119, X:150, X:153, X:165, X:176, X:178, X:228, X:234 y 3 más).
 - Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 ### s-v2-ids-01 — v2, X:237–X:242
@@ -16663,7 +16666,7 @@ Secuencia de 6 solicitud(es) de v2, nombre base `ids`. Propósito: Preparación:
 - Categorías de sus entradas: Preparación (2); Sonda de formato de campos (4).
 - Comandos que envía: `ALTA`, `DEPOSITO`, `ANULA`, `CONSULTA`, `PING`.
 - Errores que devuelve el original: E402 (2), E401 (1), E104 (1).
-- Filas de la especificación que citan sus líneas: INT-10, E104, CAM-03.
+- Filas de la especificación que citan sus líneas: CMD-16, ERR-14, CMD-16b, INT-10, ERR-06, CAM-03.
 
 Pasos y efecto sobre el estado (según las respuestas registradas del original):
 
@@ -16738,7 +16741,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74, X:83; v2: X:103, X:145, X:158, X:167, X:169, X:174, X:181, X:187 y 9 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74, X:83; v2: X:103, X:145, X:158, X:167, X:169, X:174, X:181, X:187 y 11 más).
 
 #### X:238 — POST /msg DEPOSITO;AC-0001;100;82
 
@@ -16847,7 +16850,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E402","mensaje":"operación inexistente"}
 ```
 
-Error E402 (HTTP 404): el servicio responde «operación inexistente». Según la especificación se produce cuando la operación que se quiere anular no existe (sección 5, fila E402, CMD-16).
+Error E402 (HTTP 404): el servicio responde «operación inexistente». Según la especificación se produce cuando la operación que se quiere anular no existe (ERR-14, CMD-16).
 
 **Respuesta de la réplica:** status 404 — coincide
 
@@ -16869,9 +16872,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-
-**Limitación:** ninguna fila de la especificación cita esta línea y no hay otras líneas ni ejemplos oficiales con la misma solicitud: el registro no permite relacionarla con las reglas más allá de su propia conclusión.
+- Especificación: la citan las filas CMD-16 (confirmado), ERR-14 (confirmado).
 
 #### X:240 — POST /msg ANULA;OP-1;91
 
@@ -16914,7 +16915,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E402","mensaje":"operación inexistente"}
 ```
 
-Error E402 (HTTP 404): el servicio responde «operación inexistente». Según la especificación se produce cuando la operación que se quiere anular no existe (sección 5, fila E402, CMD-16).
+Error E402 (HTTP 404): el servicio responde «operación inexistente». Según la especificación se produce cuando la operación que se quiere anular no existe (ERR-14, CMD-16).
 
 **Respuesta de la réplica:** status 404 — coincide
 
@@ -16936,9 +16937,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-
-**Limitación:** ninguna fila de la especificación cita esta línea y no hay otras líneas ni ejemplos oficiales con la misma solicitud: el registro no permite relacionarla con las reglas más allá de su propia conclusión.
+- Especificación: la citan las filas CMD-16 (confirmado), ERR-14 (confirmado).
 
 #### X:241 — POST /msg CONSULTA;AC-1;5
 
@@ -16981,7 +16980,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E401","mensaje":"cuenta inexistente"}
 ```
 
-Error E401 (HTTP 404): el servicio responde «cuenta inexistente». Según la especificación se produce cuando la cuenta consultada, de origen o de destino no existe (sección 5, fila E401, CMD-05, CMD-14).
+Error E401 (HTTP 404): el servicio responde «cuenta inexistente». Según la especificación se produce cuando la cuenta consultada, de origen o de destino no existe (ERR-13, CMD-05, CMD-14).
 
 **Respuesta de la réplica:** status 404 — coincide
 
@@ -17003,9 +17002,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-
-**Limitación:** ninguna fila de la especificación cita esta línea y no hay otras líneas ni ejemplos oficiales con la misma solicitud: el registro no permite relacionarla con las reglas más allá de su propia conclusión.
+- Especificación: la citan las filas CMD-16b (confirmado).
 
 #### X:242 — POST /msg PING;
 
@@ -17052,7 +17049,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E104","mensaje":"segmento vacío"}
 ```
 
-Error E104 (HTTP 400): el servicio responde «segmento vacío». Según la especificación se produce cuando algún segmento de `m` al dividirlo por `;` está vacío (sección 5, fila E104, INT-10).
+Error E104 (HTTP 400): el servicio responde «segmento vacío». Según la especificación se produce cuando algún segmento de `m` al dividirlo por `;` está vacío (ERR-06, INT-10).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -17074,7 +17071,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-10 (confirmado en v2), E104 (confirmado en v2), CAM-03 (candidato (diferencia no probada)).
+- Especificación: la citan las filas INT-10 (confirmado en v2), ERR-06 (confirmado en v2), CAM-03 (supuesto (candidato: diferencia no probada)).
 
 ### s-v2-anu-02 — v2, X:243–X:249
 
@@ -17159,7 +17156,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74, X:83; v2: X:103, X:145, X:158, X:167, X:169, X:174, X:181, X:187 y 9 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74, X:83; v2: X:103, X:145, X:158, X:167, X:169, X:174, X:181, X:187 y 11 más).
 
 #### X:244 — POST /msg ALTA;Beto;11
 
@@ -17225,7 +17222,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:20, X:62; v2: X:104, X:146, X:170, X:182, X:188, X:216, X:224, X:274 y 1 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:20, X:62; v2: X:104, X:146, X:170, X:182, X:188, X:216, X:224, X:274 y 3 más).
 
 #### X:245 — POST /msg DEPOSITO;AC-0001;1000;35
 
@@ -17291,7 +17288,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:63; v2: X:147, X:294).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:63; v2: X:147, X:294, X:334).
 
 #### X:246 — POST /msg TRANSFER;AC-0001;AC-0002;1000;37
 
@@ -17488,7 +17485,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:65; v2: X:149).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:65; v2: X:149, X:325, X:327).
 
 #### X:249 — POST /msg CONSULTA;AC-0002;11
 
@@ -17554,7 +17551,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: la citan las filas CMD-04 (confirmado).
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:49, X:67, X:73; v2: X:122, X:133, X:151, X:157, X:173, X:186, X:192, X:220).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:49, X:67, X:73; v2: X:122, X:133, X:151, X:157, X:173, X:186, X:192, X:220 y 1 más).
 - Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 - Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
@@ -17562,10 +17559,10 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 Secuencia de 15 solicitud(es) de v2, nombre base `http`. Propósito: Ruta con barra final /msg/: ¿404 E404 o se acepta?
 
-- Categorías de sus entradas: Sonda de forma HTTP (15).
+- Categorías de sus entradas: Sonda de forma HTTP (13); Preparación (2).
 - Comandos que envía: `PING`.
 - Errores que devuelve el original: E404 (3), E001 (3), E102 (4), E100 (1).
-- Filas de la especificación que citan sus líneas: ninguna.
+- Filas de la especificación que citan sus líneas: ENT-14, ENT-15, ENT-12, ERR-04, ENT-13, ERR-03.
 
 Pasos y efecto sobre el estado (según las respuestas registradas del original):
 
@@ -17574,7 +17571,7 @@ Pasos y efecto sobre el estado (según las respuestas registradas del original):
 - X:252 `HEAD /health` → status 404: no es un mensaje de `POST /msg`: no modifica cuentas ni operaciones.
 - X:253 `POST /health` → status 404: no es un mensaje de `POST /msg`: no modifica cuentas ni operaciones.
 - X:254 `GET /__reset` → status 404: no es un mensaje de `POST /msg`: no modifica cuentas ni operaciones.
-- X:255 `POST /__reset` → status 401: no es un mensaje de `POST /msg`: no modifica cuentas ni operaciones.
+- X:255 `POST /__reset` → status 401: vuelve el estado al inicial: borra cuentas, operaciones y contadores (MEM-01).
 - X:256 `PING;64` → status 401: rechazada con E001: no modifica el estado y no consume número de cuenta ni de operación (MEM-02).
 - X:257 `PING;64` → status 401: rechazada con E001: no modifica el estado y no consume número de cuenta ni de operación (MEM-02).
 - X:258 `POST /msg` → status 400: no es un mensaje de `POST /msg`: no modifica cuentas ni operaciones.
@@ -17628,7 +17625,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: no es
 {"error":"E404","mensaje":"ruta desconocida"}
 ```
 
-Error E404 (HTTP 404): el servicio responde «ruta desconocida». Según la especificación se produce cuando ruta inexistente o método no admitido en una ruta conocida (sección 5, fila E404, ENT-02, ENT-03).
+Error E404 (HTTP 404): el servicio responde «ruta desconocida». Según la especificación se produce cuando ruta inexistente o método no admitido en una ruta conocida (ERR-01, ENT-02, ENT-03).
 
 **Respuesta de la réplica:** status 404 — coincide
 
@@ -17650,7 +17647,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: ninguna fila de `docs/specification.md` cita esta línea.
+- Especificación: la citan las filas ENT-14 (confirmado).
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:1, X:2, X:8, X:10, X:11, X:31; v2: X:85, X:86, X:92, X:94, X:95, X:115, X:251, X:256 y 5 más).
 - Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): mismo mensaje `m`, pero con otra ruta (los ejemplos oficiales son `POST /msg` con el token del equipo); las respuestas no son comparables directamente.
 
@@ -17719,7 +17716,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: ninguna fila de `docs/specification.md` cita esta línea.
+- Especificación: la citan las filas ENT-14 (confirmado).
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:1, X:2, X:8, X:10, X:11, X:31; v2: X:85, X:86, X:92, X:94, X:95, X:115, X:250, X:256 y 5 más).
 - Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): mismo mensaje `m`, pero con otra ruta (los ejemplos oficiales son `POST /msg` con el token del equipo); las respuestas no son comparables directamente.
 
@@ -17776,9 +17773,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-
-**Limitación:** ninguna fila de la especificación cita esta línea y no hay otras líneas ni ejemplos oficiales con la misma solicitud: el registro no permite relacionarla con las reglas más allá de su propia conclusión.
+- Especificación: la citan las filas ENT-14 (confirmado).
 
 #### X:253 — POST /health
 
@@ -17811,7 +17806,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: no es
 {"error":"E404","mensaje":"ruta desconocida"}
 ```
 
-Error E404 (HTTP 404): el servicio responde «ruta desconocida». Según la especificación se produce cuando ruta inexistente o método no admitido en una ruta conocida (sección 5, fila E404, ENT-02, ENT-03).
+Error E404 (HTTP 404): el servicio responde «ruta desconocida». Según la especificación se produce cuando ruta inexistente o método no admitido en una ruta conocida (ERR-01, ENT-02, ENT-03).
 
 **Respuesta de la réplica:** status 404 — coincide
 
@@ -17833,15 +17828,13 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-
-**Limitación:** ninguna fila de la especificación cita esta línea y no hay otras líneas ni ejemplos oficiales con la misma solicitud: el registro no permite relacionarla con las reglas más allá de su propia conclusión.
+- Especificación: la citan las filas ENT-14 (confirmado).
 
 #### X:254 — GET /__reset
 
 **Qué se quería saber y por qué importa:** pregunta registrada: «GET /__reset: ¿404 o resetea?»
 
-Categoría: Sonda de forma HTTP. Pertenece a una secuencia que sondea la forma HTTP: cómo responde el servicio según la ruta, el método, la cabecera de autenticación o el cuerpo, antes de interpretar el contenido del mensaje (especificación, sección 1).
+Categoría: Preparación. Es un paso de preparación: deja las cuentas u operaciones en el estado que necesitan las solicitudes siguientes de la misma secuencia y por sí mismo no pone a prueba ninguna regla.
 
 **Estado previo y cómo se construye:** Posición 5 de 15 en `s-v2-http-01`. La secuencia empieza con `POST /__reset` (MEM-01) y sigue con las solicitudes X:250–X:253, en orden; el efecto de cada una está en los pasos de la secuencia. Estado previo, reconstruido con las respuestas registradas del original: sin cuentas ni operaciones.
 
@@ -17868,7 +17861,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: no es
 {"error":"E404","mensaje":"ruta desconocida"}
 ```
 
-Error E404 (HTTP 404): el servicio responde «ruta desconocida». Según la especificación se produce cuando ruta inexistente o método no admitido en una ruta conocida (sección 5, fila E404, ENT-02, ENT-03).
+Error E404 (HTTP 404): el servicio responde «ruta desconocida». Según la especificación se produce cuando ruta inexistente o método no admitido en una ruta conocida (ERR-01, ENT-02, ENT-03).
 
 **Respuesta de la réplica:** status 404 — coincide
 
@@ -17890,15 +17883,13 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-
-**Limitación:** ninguna fila de la especificación cita esta línea y no hay otras líneas ni ejemplos oficiales con la misma solicitud: el registro no permite relacionarla con las reglas más allá de su propia conclusión.
+- Especificación: la citan las filas ENT-14 (confirmado).
 
 #### X:255 — POST /__reset
 
 **Qué se quería saber y por qué importa:** pregunta registrada: «POST /__reset con token incorrecto: ¿401?»
 
-Categoría: Sonda de forma HTTP. Pertenece a una secuencia que sondea la forma HTTP: cómo responde el servicio según la ruta, el método, la cabecera de autenticación o el cuerpo, antes de interpretar el contenido del mensaje (especificación, sección 1).
+Categoría: Preparación. Es un paso de preparación: deja las cuentas u operaciones en el estado que necesitan las solicitudes siguientes de la misma secuencia y por sí mismo no pone a prueba ninguna regla.
 
 **Estado previo y cómo se construye:** Posición 6 de 15 en `s-v2-http-01`. La secuencia empieza con `POST /__reset` (MEM-01) y sigue con las solicitudes X:250–X:254, en orden; el efecto de cada una está en los pasos de la secuencia. Estado previo, reconstruido con las respuestas registradas del original: sin cuentas ni operaciones.
 
@@ -17917,7 +17908,7 @@ curl -sS -i \
   -H "Authorization: Bearer wrong-token"
 ```
 
-Efecto esperado en el estado, según la respuesta registrada del original: no es un mensaje de `POST /msg`: no modifica cuentas ni operaciones.
+Efecto esperado en el estado, según la respuesta registrada del original: vuelve el estado al inicial: borra cuentas, operaciones y contadores (MEM-01).
 
 **Respuesta observada del original:** versión v2, status 401
 
@@ -17925,7 +17916,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: no es
 {"error":"E001","mensaje":"no autorizado"}
 ```
 
-Error E001 (HTTP 401): el servicio responde «no autorizado». Según la especificación se produce cuando falta la cabecera `Authorization` o el token es incorrecto (sección 5, fila E001, ENT-05).
+Error E001 (HTTP 401): el servicio responde «no autorizado». Según la especificación se produce cuando falta la cabecera `Authorization` o el token es incorrecto (ERR-02, ENT-05).
 
 **Respuesta de la réplica:** status 401 — coincide
 
@@ -17947,9 +17938,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-
-**Limitación:** ninguna fila de la especificación cita esta línea y no hay otras líneas ni ejemplos oficiales con la misma solicitud: el registro no permite relacionarla con las reglas más allá de su propia conclusión.
+- Especificación: la citan las filas ENT-15 (confirmado).
 
 #### X:256 — POST /msg PING;64
 
@@ -17994,7 +17983,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E001","mensaje":"no autorizado"}
 ```
 
-Error E001 (HTTP 401): el servicio responde «no autorizado». Según la especificación se produce cuando falta la cabecera `Authorization` o el token es incorrecto (sección 5, fila E001, ENT-05).
+Error E001 (HTTP 401): el servicio responde «no autorizado». Según la especificación se produce cuando falta la cabecera `Authorization` o el token es incorrecto (ERR-02, ENT-05).
 
 **Respuesta de la réplica:** status 401 — coincide
 
@@ -18016,7 +18005,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: ninguna fila de `docs/specification.md` cita esta línea.
+- Especificación: la citan las filas ENT-15 (confirmado).
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:1, X:2, X:8, X:10, X:11, X:31; v2: X:85, X:86, X:92, X:94, X:95, X:115, X:250, X:251 y 5 más).
 - Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): mismo mensaje `m`, pero con otra autenticación (los ejemplos oficiales son `POST /msg` con el token del equipo); las respuestas no son comparables directamente.
 
@@ -18063,7 +18052,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E001","mensaje":"no autorizado"}
 ```
 
-Error E001 (HTTP 401): el servicio responde «no autorizado». Según la especificación se produce cuando falta la cabecera `Authorization` o el token es incorrecto (sección 5, fila E001, ENT-05).
+Error E001 (HTTP 401): el servicio responde «no autorizado». Según la especificación se produce cuando falta la cabecera `Authorization` o el token es incorrecto (ERR-02, ENT-05).
 
 **Respuesta de la réplica:** status 401 — coincide
 
@@ -18085,7 +18074,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: ninguna fila de `docs/specification.md` cita esta línea.
+- Especificación: la citan las filas ENT-15 (confirmado).
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:1, X:2, X:8, X:10, X:11, X:31; v2: X:85, X:86, X:92, X:94, X:95, X:115, X:250, X:251 y 5 más).
 - Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): mismo mensaje `m`, pero con otra autenticación (los ejemplos oficiales son `POST /msg` con el token del equipo); las respuestas no son comparables directamente.
 
@@ -18122,7 +18111,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: no es
 {"error":"E102","mensaje":"falta m"}
 ```
 
-Error E102 (HTTP 400): el servicio responde «falta m». Según la especificación se produce cuando el JSON no trae `m`, o `m` no es un string (sección 5, fila E102, ENT-09, ENT-11).
+Error E102 (HTTP 400): el servicio responde «falta m». Según la especificación se produce cuando el JSON no trae `m`, o `m` no es un string (ERR-04, ENT-09, ENT-11).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -18144,9 +18133,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-
-**Limitación:** ninguna fila de la especificación cita esta línea y no hay otras líneas ni ejemplos oficiales con la misma solicitud: el registro no permite relacionarla con las reglas más allá de su propia conclusión.
+- Especificación: la citan las filas ENT-12 (confirmado), ERR-04 (confirmado).
 
 #### X:259 — POST /msg 5
 
@@ -18181,7 +18168,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: no es
 {"error":"E102","mensaje":"falta m"}
 ```
 
-Error E102 (HTTP 400): el servicio responde «falta m». Según la especificación se produce cuando el JSON no trae `m`, o `m` no es un string (sección 5, fila E102, ENT-09, ENT-11).
+Error E102 (HTTP 400): el servicio responde «falta m». Según la especificación se produce cuando el JSON no trae `m`, o `m` no es un string (ERR-04, ENT-09, ENT-11).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -18203,9 +18190,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-
-**Limitación:** ninguna fila de la especificación cita esta línea y no hay otras líneas ni ejemplos oficiales con la misma solicitud: el registro no permite relacionarla con las reglas más allá de su propia conclusión.
+- Especificación: la citan las filas ENT-12 (confirmado), ERR-04 (confirmado).
 
 #### X:260 — POST /msg "PING;64"
 
@@ -18240,7 +18225,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: no es
 {"error":"E102","mensaje":"falta m"}
 ```
 
-Error E102 (HTTP 400): el servicio responde «falta m». Según la especificación se produce cuando el JSON no trae `m`, o `m` no es un string (sección 5, fila E102, ENT-09, ENT-11).
+Error E102 (HTTP 400): el servicio responde «falta m». Según la especificación se produce cuando el JSON no trae `m`, o `m` no es un string (ERR-04, ENT-09, ENT-11).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -18262,9 +18247,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-
-**Limitación:** ninguna fila de la especificación cita esta línea y no hay otras líneas ni ejemplos oficiales con la misma solicitud: el registro no permite relacionarla con las reglas más allá de su propia conclusión.
+- Especificación: la citan las filas ENT-12 (confirmado), ERR-04 (confirmado).
 
 #### X:261 — POST /msg {"m":null}
 
@@ -18299,7 +18282,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: no es
 {"error":"E102","mensaje":"falta m"}
 ```
 
-Error E102 (HTTP 400): el servicio responde «falta m». Según la especificación se produce cuando el JSON no trae `m`, o `m` no es un string (sección 5, fila E102, ENT-09, ENT-11).
+Error E102 (HTTP 400): el servicio responde «falta m». Según la especificación se produce cuando el JSON no trae `m`, o `m` no es un string (ERR-04, ENT-09, ENT-11).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -18321,9 +18304,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-
-**Limitación:** ninguna fila de la especificación cita esta línea y no hay otras líneas ni ejemplos oficiales con la misma solicitud: el registro no permite relacionarla con las reglas más allá de su propia conclusión.
+- Especificación: la citan las filas ENT-13 (confirmado), ERR-04 (confirmado).
 
 #### X:262 — POST /msg PING;64
 
@@ -18390,7 +18371,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: ninguna fila de `docs/specification.md` cita esta línea.
+- Especificación: la citan las filas ENT-13 (confirmado).
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:1, X:2, X:8, X:10, X:11, X:31; v2: X:85, X:86, X:92, X:94, X:95, X:115, X:250, X:251 y 5 más).
 
 #### X:263 — POST /msg 
@@ -18426,7 +18407,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: no es
 {"error":"E100","mensaje":"json inválido"}
 ```
 
-Error E100 (HTTP 400): el servicio responde «json inválido». Según la especificación se produce cuando el cuerpo no es JSON (sección 5, fila E100, ENT-08).
+Error E100 (HTTP 400): el servicio responde «json inválido». Según la especificación se produce cuando el cuerpo no es JSON (ERR-03, ENT-08).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -18448,9 +18429,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-
-**Limitación:** ninguna fila de la especificación cita esta línea y no hay otras líneas ni ejemplos oficiales con la misma solicitud: el registro no permite relacionarla con las reglas más allá de su propia conclusión.
+- Especificación: la citan las filas ENT-12 (confirmado), ERR-03 (probable).
 
 #### X:264 — POST /msg PING;64
 
@@ -18517,7 +18496,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: ninguna fila de `docs/specification.md` cita esta línea.
+- Especificación: la citan las filas ENT-13 (confirmado).
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:1, X:2, X:8, X:10, X:11, X:31; v2: X:85, X:86, X:92, X:94, X:95, X:115, X:250, X:251 y 5 más).
 - Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
@@ -18528,7 +18507,7 @@ Secuencia de 12 solicitud(es) de v2, nombre base `max`. Propósito: Preparación
 - Categorías de sus entradas: Preparación (2); Sonda de límite o borde (10).
 - Comandos que envía: `ALTA`, `DEPOSITO`, `TRANSFER`.
 - Errores que devuelve el original: E303 (4), E506 (1).
-- Filas de la especificación que citan sus líneas: CMD-08b, E303, OBS-03, E506.
+- Filas de la especificación que citan sus líneas: CMD-08b, ERR-12, OBS-03, ERR-15.
 
 Pasos y efecto sobre el estado (según las respuestas registradas del original):
 
@@ -18609,7 +18588,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74, X:83; v2: X:103, X:145, X:158, X:167, X:169, X:174, X:181, X:187 y 9 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74, X:83; v2: X:103, X:145, X:158, X:167, X:169, X:174, X:181, X:187 y 11 más).
 
 #### X:266 — POST /msg DEPOSITO;AC-0001;999999;4
 
@@ -18987,7 +18966,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E303","mensaje":"monto inválido"}
 ```
 
-Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (sección 5, fila E303, CMD-07, CMD-07b, CMD-08b).
+Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (ERR-12, CMD-07, CMD-07b, CMD-08b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -19054,7 +19033,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E303","mensaje":"monto inválido"}
 ```
 
-Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (sección 5, fila E303, CMD-07, CMD-07b, CMD-08b).
+Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (ERR-12, CMD-07, CMD-07b, CMD-08b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -19121,7 +19100,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E303","mensaje":"monto inválido"}
 ```
 
-Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (sección 5, fila E303, CMD-07, CMD-07b, CMD-08b).
+Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (ERR-12, CMD-07, CMD-07b, CMD-08b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -19211,7 +19190,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:20, X:62; v2: X:104, X:146, X:170, X:182, X:188, X:216, X:224, X:244 y 1 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:20, X:62; v2: X:104, X:146, X:170, X:182, X:188, X:216, X:224, X:244 y 3 más).
 
 #### X:275 — POST /msg TRANSFER;AC-0001;AC-0002;100000000000;7
 
@@ -19254,7 +19233,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E303","mensaje":"monto inválido"}
 ```
 
-Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (sección 5, fila E303, CMD-07, CMD-07b, CMD-08b).
+Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (ERR-12, CMD-07, CMD-07b, CMD-08b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -19276,7 +19255,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas CMD-08b (confirmado en v2), E303 (confirmado), OBS-03 (confirmado en v2).
+- Especificación: la citan las filas CMD-08b (confirmado en v2), ERR-12 (confirmado), OBS-03 (confirmado en v2).
 
 #### X:276 — POST /msg TRANSFER;AC-0001;AC-0002;1000001;11
 
@@ -19319,7 +19298,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E506","mensaje":"límite excedido"}
 ```
 
-Error E506 (HTTP 422): el servicio responde «límite excedido». Según la especificación se produce cuando el monto de un `TRANSFER` supera el límite de la versión (sección 5, fila E506, CMD-10, CAM-02).
+Error E506 (HTTP 422): el servicio responde «límite excedido». Según la especificación se produce cuando el monto de un `TRANSFER` supera el límite de la versión (ERR-15, CMD-10, CAM-02).
 
 **Respuesta de la réplica:** status 422 — coincide
 
@@ -19341,7 +19320,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas CMD-08b (confirmado en v2), E506 (confirmado), OBS-03 (confirmado en v2).
+- Especificación: la citan las filas CMD-08b (confirmado en v2), ERR-15 (confirmado), OBS-03 (confirmado en v2).
 
 ### s-v2-max-02 — v2, X:277–X:281
 
@@ -19350,7 +19329,7 @@ Secuencia de 5 solicitud(es) de v2, nombre base `max`. Propósito: Preparación:
 - Categorías de sus entradas: Preparación (1); Sonda de límite o borde (4).
 - Comandos que envía: `ALTA`, `DEPOSITO`, `CONSULTA`.
 - Errores que devuelve el original: E303 (1).
-- Filas de la especificación que citan sus líneas: CMD-08b, E303, OBS-03, CMD-04.
+- Filas de la especificación que citan sus líneas: CMD-08b, ERR-12, OBS-03, CMD-04.
 
 Pasos y efecto sobre el estado (según las respuestas registradas del original):
 
@@ -19424,7 +19403,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74, X:83; v2: X:103, X:145, X:158, X:167, X:169, X:174, X:181, X:187 y 9 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74, X:83; v2: X:103, X:145, X:158, X:167, X:169, X:174, X:181, X:187 y 11 más).
 
 #### X:278 — POST /msg DEPOSITO;AC-0001;10000000000;63
 
@@ -19467,7 +19446,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E303","mensaje":"monto inválido"}
 ```
 
-Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (sección 5, fila E303, CMD-07, CMD-07b, CMD-08b).
+Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (ERR-12, CMD-07, CMD-07b, CMD-08b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -19489,7 +19468,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas CMD-08b (confirmado en v2), E303 (confirmado), OBS-03 (confirmado en v2).
+- Especificación: la citan las filas CMD-08b (confirmado en v2), ERR-12 (confirmado), OBS-03 (confirmado en v2).
 
 #### X:279 — POST /msg DEPOSITO;AC-0001;9999999999;4
 
@@ -19685,7 +19664,7 @@ Etiqueta: **Cambio de versión probado**.
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: la citan las filas CMD-04 (confirmado), CMD-08b (confirmado en v2), OBS-03 (confirmado en v2).
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:69, X:81; v2: X:119, X:150, X:153, X:165, X:176, X:178, X:228, X:234 y 2 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:69, X:81; v2: X:119, X:150, X:153, X:165, X:176, X:178, X:228, X:234 y 3 más).
 - Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 **Limitación:** la conclusión habla de un cambio de versión, pero esta línea no tiene par v1/v2 ni cita otra línea: el registro no permite verificar el par.
@@ -19697,7 +19676,7 @@ Secuencia de 10 solicitud(es) de v2, nombre base `ctl`. Propósito: Control con 
 - Categorías de sus entradas: Sonda del dígito de control (10).
 - Comandos que envía: `ALTA`, ` PING`, `ALTA `, `ANULA`.
 - Errores que devuelve el original: E201 (4), E301 (2), E302 (1).
-- Filas de la especificación que citan sus líneas: INT-06, OBS-06, E301, OBS-05, CMD-03b, CMD-20.
+- Filas de la especificación que citan sus líneas: INT-06, OBS-06, ERR-09, OBS-05, CMD-03b, INT-08, CMD-20.
 
 Pasos y efecto sobre el estado (según las respuestas registradas del original):
 
@@ -19753,7 +19732,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E201","mensaje":"control mal formado"}
 ```
 
-Error E201 (HTTP 400): el servicio responde «control mal formado». Según la especificación se produce cuando el control no es numérico o no tiene 1 o 2 dígitos (salvo en `PING`) (sección 5, fila E201, INT-02, INT-06).
+Error E201 (HTTP 400): el servicio responde «control mal formado». Según la especificación se produce cuando el control no es numérico o no tiene 1 o 2 dígitos (salvo en `PING`) (ERR-07, INT-02, INT-06).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -19818,7 +19797,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E201","mensaje":"control mal formado"}
 ```
 
-Error E201 (HTTP 400): el servicio responde «control mal formado». Según la especificación se produce cuando el control no es numérico o no tiene 1 o 2 dígitos (salvo en `PING`) (sección 5, fila E201, INT-02, INT-06).
+Error E201 (HTTP 400): el servicio responde «control mal formado». Según la especificación se produce cuando el control no es numérico o no tiene 1 o 2 dígitos (salvo en `PING`) (ERR-07, INT-02, INT-06).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -19883,7 +19862,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E201","mensaje":"control mal formado"}
 ```
 
-Error E201 (HTTP 400): el servicio responde «control mal formado». Según la especificación se produce cuando el control no es numérico o no tiene 1 o 2 dígitos (salvo en `PING`) (sección 5, fila E201, INT-02, INT-06).
+Error E201 (HTTP 400): el servicio responde «control mal formado». Según la especificación se produce cuando el control no es numérico o no tiene 1 o 2 dígitos (salvo en `PING`) (ERR-07, INT-02, INT-06).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -19948,7 +19927,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E201","mensaje":"control mal formado"}
 ```
 
-Error E201 (HTTP 400): el servicio responde «control mal formado». Según la especificación se produce cuando el control no es numérico o no tiene 1 o 2 dígitos (salvo en `PING`) (sección 5, fila E201, INT-02, INT-06).
+Error E201 (HTTP 400): el servicio responde «control mal formado». Según la especificación se produce cuando el control no es numérico o no tiene 1 o 2 dígitos (salvo en `PING`) (ERR-07, INT-02, INT-06).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -20013,7 +19992,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E301","mensaje":"comando desconocido ","sugerencia":"PING"}
 ```
 
-Error E301 (HTTP 400): el servicio responde «comando desconocido ». Según la especificación se produce cuando el comando no existe; puede añadir `sugerencia` (sección 5, fila E301, CMD-19, OBS-05). El campo `sugerencia` nombra el comando conocido más cercano (OBS-05).
+Error E301 (HTTP 400): el servicio responde «comando desconocido ». Según la especificación se produce cuando el comando no existe; puede añadir `sugerencia` (ERR-09, CMD-19, OBS-05). El campo `sugerencia` nombra el comando conocido más cercano (OBS-05).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -20035,7 +20014,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas E301 (probable; variante confirmada en v2), OBS-05 (confirmado en v2 (umbral ≤ 2); supuesto: métrica exacta y desempate).
+- Especificación: la citan las filas ERR-09 (probable; variante confirmada en v2), OBS-05 (confirmado en v2 (umbral ≤ 2); supuesto: desempate).
 
 #### X:287 — POST /msg ALTA ;Ana;50
 
@@ -20078,7 +20057,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E301","mensaje":"comando desconocido ","sugerencia":"ALTA"}
 ```
 
-Error E301 (HTTP 400): el servicio responde «comando desconocido ». Según la especificación se produce cuando el comando no existe; puede añadir `sugerencia` (sección 5, fila E301, CMD-19, OBS-05). El campo `sugerencia` nombra el comando conocido más cercano (OBS-05).
+Error E301 (HTTP 400): el servicio responde «comando desconocido ». Según la especificación se produce cuando el comando no existe; puede añadir `sugerencia` (ERR-09, CMD-19, OBS-05). El campo `sugerencia` nombra el comando conocido más cercano (OBS-05).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -20100,7 +20079,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas E301 (probable; variante confirmada en v2), OBS-05 (confirmado en v2 (umbral ≤ 2); supuesto: métrica exacta y desempate).
+- Especificación: la citan las filas ERR-09 (probable; variante confirmada en v2), OBS-05 (confirmado en v2 (umbral ≤ 2); supuesto: desempate).
 
 #### X:288 — POST /msg ALTA;Ana2;97
 
@@ -20230,7 +20209,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas CMD-03b (confirmado para esos casos; supuesto: el resto).
+- Especificación: la citan las filas INT-08 (confirmado), CMD-03b (confirmado para esos casos; supuesto: el resto).
 
 #### X:290 — POST /msg ALTA;AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA;86
 
@@ -20338,7 +20317,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E302","mensaje":"aridad inválida"}
 ```
 
-Error E302 (HTTP 400): el servicio responde «aridad inválida». Según la especificación se produce cuando el número de argumentos no es el del comando (sección 5, fila E302, CMD-20).
+Error E302 (HTTP 400): el servicio responde «aridad inválida». Según la especificación se produce cuando el número de argumentos no es el del comando (ERR-11, CMD-20).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -20443,7 +20422,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74, X:83; v2: X:103, X:145, X:158, X:167, X:169, X:174, X:181, X:187 y 9 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74, X:83; v2: X:103, X:145, X:158, X:167, X:169, X:174, X:181, X:187 y 11 más).
 
 #### X:293 — POST /msg ALTA;Beto;11
 
@@ -20509,7 +20488,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:20, X:62; v2: X:104, X:146, X:170, X:182, X:188, X:216, X:224, X:244 y 1 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:20, X:62; v2: X:104, X:146, X:170, X:182, X:188, X:216, X:224, X:244 y 3 más).
 
 #### X:294 — POST /msg DEPOSITO;AC-0001;1000;35
 
@@ -20575,7 +20554,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:63; v2: X:147, X:245).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:63; v2: X:147, X:245, X:334).
 
 #### X:295 — POST /msg TRANSFER;AC-0001;AC-0002;1000;37
 
@@ -20640,7 +20619,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas CMD-12 (probable; confirmado en v2 para el saldo exacto).
+- Especificación: la citan las filas CMD-12 (probable; confirmado en v2 para el saldo exacto y el saldo negativo).
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v2: X:246).
 
 #### X:296 — POST /msg CONSULTA;AC-0001;14
@@ -20707,14 +20686,14 @@ Es una observación puntual: la evidencia es el status y el cuerpo; cualquier ge
 **Relación con otros experimentos y con la especificación:**
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
-- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:69, X:81; v2: X:119, X:150, X:153, X:165, X:176, X:178, X:228, X:234 y 2 más).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:69, X:81; v2: X:119, X:150, X:153, X:165, X:176, X:178, X:228, X:234 y 3 más).
 - Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 ### s-v2-http-02 — v2, X:297–X:299
 
 Secuencia de 3 solicitud(es) de v2, nombre base `http`. Propósito: PUT /msg: ¿404 E404?
 
-- Categorías de sus entradas: Sonda de forma HTTP (3).
+- Categorías de sus entradas: Sonda de forma HTTP (2); Preparación (1).
 - Comandos que envía: `PING`.
 - Errores que devuelve el original: E404 (2).
 - Filas de la especificación que citan sus líneas: ENT-03, ENT-07.
@@ -20723,7 +20702,7 @@ Pasos y efecto sobre el estado (según las respuestas registradas del original):
 
 - X:297 `PING;64` → status 404: no es un mensaje de `POST /msg`: no modifica cuentas ni operaciones.
 - X:298 `PING;64` → status 404: no es un mensaje de `POST /msg`: no modifica cuentas ni operaciones.
-- X:299 `POST /__reset` → status 200: no es un mensaje de `POST /msg`: no modifica cuentas ni operaciones.
+- X:299 `POST /__reset` → status 200: vuelve el estado al inicial: borra cuentas, operaciones y contadores (MEM-01).
 
 #### X:297 — PUT /msg PING;64
 
@@ -20768,7 +20747,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: no es
 {"error":"E404","mensaje":"ruta desconocida"}
 ```
 
-Error E404 (HTTP 404): el servicio responde «ruta desconocida». Según la especificación se produce cuando ruta inexistente o método no admitido en una ruta conocida (sección 5, fila E404, ENT-02, ENT-03).
+Error E404 (HTTP 404): el servicio responde «ruta desconocida». Según la especificación se produce cuando ruta inexistente o método no admitido en una ruta conocida (ERR-01, ENT-02, ENT-03).
 
 **Respuesta de la réplica:** status 404 — coincide
 
@@ -20837,7 +20816,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: no es
 {"error":"E404","mensaje":"ruta desconocida"}
 ```
 
-Error E404 (HTTP 404): el servicio responde «ruta desconocida». Según la especificación se produce cuando ruta inexistente o método no admitido en una ruta conocida (sección 5, fila E404, ENT-02, ENT-03).
+Error E404 (HTTP 404): el servicio responde «ruta desconocida». Según la especificación se produce cuando ruta inexistente o método no admitido en una ruta conocida (ERR-01, ENT-02, ENT-03).
 
 **Respuesta de la réplica:** status 404 — coincide
 
@@ -20867,7 +20846,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Qué se quería saber y por qué importa:** pregunta registrada: «POST /__reset con el token del equipo: status y cuerpo de la respuesta»
 
-Categoría: Sonda de forma HTTP. Pertenece a una secuencia que sondea la forma HTTP: cómo responde el servicio según la ruta, el método, la cabecera de autenticación o el cuerpo, antes de interpretar el contenido del mensaje (especificación, sección 1).
+Categoría: Preparación. Es un paso de preparación: deja las cuentas u operaciones en el estado que necesitan las solicitudes siguientes de la misma secuencia y por sí mismo no pone a prueba ninguna regla.
 
 **Estado previo y cómo se construye:** Posición 3 de 3 en `s-v2-http-02`. La secuencia empieza con `POST /__reset` (MEM-01) y sigue con las solicitudes X:297–X:298, en orden; el efecto de cada una está en los pasos de la secuencia. Estado previo, reconstruido con las respuestas registradas del original: sin cuentas ni operaciones.
 
@@ -20886,7 +20865,7 @@ curl -sS -i \
   -H "Authorization: Bearer $TEAM_TOKEN"
 ```
 
-Efecto esperado en el estado, según la respuesta registrada del original: no es un mensaje de `POST /msg`: no modifica cuentas ni operaciones.
+Efecto esperado en el estado, según la respuesta registrada del original: vuelve el estado al inicial: borra cuentas, operaciones y contadores (MEM-01).
 
 **Respuesta observada del original:** versión v2, status 200
 
@@ -20916,7 +20895,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas ENT-07 (probable).
+- Especificación: la citan las filas ENT-07 (confirmado).
 
 ### s-v2-sug-01 — v2, X:300–X:310
 
@@ -20925,7 +20904,7 @@ Secuencia de 11 solicitud(es) de v2, nombre base `sug`. Propósito: Sugerencia: 
 - Categorías de sus entradas: Sonda del nombre de comando (11).
 - Comandos que envía: `PIN`, `PINGG`, `DEPOSITOS`, `CONSULT`, `PING `, `AL TA`, ` PING`, `XYZ`, `ALTA`.
 - Errores que devuelve el original: E301 (7), E201 (1), E202 (3).
-- Filas de la especificación que citan sus líneas: E301, OBS-05, INT-06b, CMD-19, OBS-06.
+- Filas de la especificación que citan sus líneas: ERR-09, OBS-05, INT-06b, CMD-19, OBS-06.
 
 Pasos y efecto sobre el estado (según las respuestas registradas del original):
 
@@ -20982,7 +20961,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E301","mensaje":"comando desconocido ","sugerencia":"PING"}
 ```
 
-Error E301 (HTTP 400): el servicio responde «comando desconocido ». Según la especificación se produce cuando el comando no existe; puede añadir `sugerencia` (sección 5, fila E301, CMD-19, OBS-05). El campo `sugerencia` nombra el comando conocido más cercano (OBS-05).
+Error E301 (HTTP 400): el servicio responde «comando desconocido ». Según la especificación se produce cuando el comando no existe; puede añadir `sugerencia` (ERR-09, CMD-19, OBS-05). El campo `sugerencia` nombra el comando conocido más cercano (OBS-05).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -21004,7 +20983,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas E301 (probable; variante confirmada en v2), OBS-05 (confirmado en v2 (umbral ≤ 2); supuesto: métrica exacta y desempate).
+- Especificación: la citan las filas ERR-09 (probable; variante confirmada en v2), OBS-05 (confirmado en v2 (umbral ≤ 2); supuesto: desempate).
 
 #### X:301 — POST /msg PINGG;28
 
@@ -21047,7 +21026,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E301","mensaje":"comando desconocido ","sugerencia":"PING"}
 ```
 
-Error E301 (HTTP 400): el servicio responde «comando desconocido ». Según la especificación se produce cuando el comando no existe; puede añadir `sugerencia` (sección 5, fila E301, CMD-19, OBS-05). El campo `sugerencia` nombra el comando conocido más cercano (OBS-05).
+Error E301 (HTTP 400): el servicio responde «comando desconocido ». Según la especificación se produce cuando el comando no existe; puede añadir `sugerencia` (ERR-09, CMD-19, OBS-05). El campo `sugerencia` nombra el comando conocido más cercano (OBS-05).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -21069,7 +21048,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas E301 (probable; variante confirmada en v2), OBS-05 (confirmado en v2 (umbral ≤ 2); supuesto: métrica exacta y desempate).
+- Especificación: la citan las filas ERR-09 (probable; variante confirmada en v2), OBS-05 (confirmado en v2 (umbral ≤ 2); supuesto: desempate).
 
 #### X:302 — POST /msg DEPOSITOS;AC-0001;100;67
 
@@ -21112,7 +21091,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E301","mensaje":"comando desconocido ","sugerencia":"DEPOSITO"}
 ```
 
-Error E301 (HTTP 400): el servicio responde «comando desconocido ». Según la especificación se produce cuando el comando no existe; puede añadir `sugerencia` (sección 5, fila E301, CMD-19, OBS-05). El campo `sugerencia` nombra el comando conocido más cercano (OBS-05).
+Error E301 (HTTP 400): el servicio responde «comando desconocido ». Según la especificación se produce cuando el comando no existe; puede añadir `sugerencia` (ERR-09, CMD-19, OBS-05). El campo `sugerencia` nombra el comando conocido más cercano (OBS-05).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -21134,7 +21113,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas E301 (probable; variante confirmada en v2), OBS-05 (confirmado en v2 (umbral ≤ 2); supuesto: métrica exacta y desempate).
+- Especificación: la citan las filas ERR-09 (probable; variante confirmada en v2), OBS-05 (confirmado en v2 (umbral ≤ 2); supuesto: desempate).
 
 #### X:303 — POST /msg CONSULT;AC-0001;41
 
@@ -21177,7 +21156,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E301","mensaje":"comando desconocido ","sugerencia":"CONSULTA"}
 ```
 
-Error E301 (HTTP 400): el servicio responde «comando desconocido ». Según la especificación se produce cuando el comando no existe; puede añadir `sugerencia` (sección 5, fila E301, CMD-19, OBS-05). El campo `sugerencia` nombra el comando conocido más cercano (OBS-05).
+Error E301 (HTTP 400): el servicio responde «comando desconocido ». Según la especificación se produce cuando el comando no existe; puede añadir `sugerencia` (ERR-09, CMD-19, OBS-05). El campo `sugerencia` nombra el comando conocido más cercano (OBS-05).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -21199,7 +21178,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas E301 (probable; variante confirmada en v2), OBS-05 (confirmado en v2 (umbral ≤ 2); supuesto: métrica exacta y desempate).
+- Especificación: la citan las filas ERR-09 (probable; variante confirmada en v2), OBS-05 (confirmado en v2 (umbral ≤ 2); supuesto: desempate).
 
 #### X:304 — POST /msg ping ;64
 
@@ -21242,7 +21221,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E301","mensaje":"comando desconocido ","sugerencia":"PING"}
 ```
 
-Error E301 (HTTP 400): el servicio responde «comando desconocido ». Según la especificación se produce cuando el comando no existe; puede añadir `sugerencia` (sección 5, fila E301, CMD-19, OBS-05). El campo `sugerencia` nombra el comando conocido más cercano (OBS-05).
+Error E301 (HTTP 400): el servicio responde «comando desconocido ». Según la especificación se produce cuando el comando no existe; puede añadir `sugerencia` (ERR-09, CMD-19, OBS-05). El campo `sugerencia` nombra el comando conocido más cercano (OBS-05).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -21264,7 +21243,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas E301 (probable; variante confirmada en v2), OBS-05 (confirmado en v2 (umbral ≤ 2); supuesto: métrica exacta y desempate).
+- Especificación: la citan las filas ERR-09 (probable; variante confirmada en v2), OBS-05 (confirmado en v2 (umbral ≤ 2); supuesto: desempate).
 
 #### X:305 — POST /msg AL TA;Ana;50
 
@@ -21307,7 +21286,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E301","mensaje":"comando desconocido ","sugerencia":"ALTA"}
 ```
 
-Error E301 (HTTP 400): el servicio responde «comando desconocido ». Según la especificación se produce cuando el comando no existe; puede añadir `sugerencia` (sección 5, fila E301, CMD-19, OBS-05). El campo `sugerencia` nombra el comando conocido más cercano (OBS-05).
+Error E301 (HTTP 400): el servicio responde «comando desconocido ». Según la especificación se produce cuando el comando no existe; puede añadir `sugerencia` (ERR-09, CMD-19, OBS-05). El campo `sugerencia` nombra el comando conocido más cercano (OBS-05).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -21329,7 +21308,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas E301 (probable; variante confirmada en v2), OBS-05 (confirmado en v2 (umbral ≤ 2); supuesto: métrica exacta y desempate).
+- Especificación: la citan las filas ERR-09 (probable; variante confirmada en v2), OBS-05 (confirmado en v2 (umbral ≤ 2); supuesto: desempate).
 
 #### X:306 — POST /msg  PING;XX
 
@@ -21372,7 +21351,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E201","mensaje":"control mal formado"}
 ```
 
-Error E201 (HTTP 400): el servicio responde «control mal formado». Según la especificación se produce cuando el control no es numérico o no tiene 1 o 2 dígitos (salvo en `PING`) (sección 5, fila E201, INT-02, INT-06).
+Error E201 (HTTP 400): el servicio responde «control mal formado». Según la especificación se produce cuando el control no es numérico o no tiene 1 o 2 dígitos (salvo en `PING`) (ERR-07, INT-02, INT-06).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -21394,7 +21373,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-06b (confirmado en v2), OBS-05 (confirmado en v2 (umbral ≤ 2); supuesto: métrica exacta y desempate).
+- Especificación: la citan las filas INT-06b (confirmado en v2), OBS-05 (confirmado en v2 (umbral ≤ 2); supuesto: desempate).
 
 #### X:307 — POST /msg  PING;63
 
@@ -21437,7 +21416,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E202","mensaje":"control inválido"}
 ```
 
-Error E202 (HTTP 400): el servicio responde «control inválido». Según la especificación se produce cuando el control es numérico pero no es el válido (salvo en `PING`) (sección 5, fila E202, INT-04, INT-06b).
+Error E202 (HTTP 400): el servicio responde «control inválido». Según la especificación se produce cuando el control es numérico pero no es el válido (salvo en `PING`) (ERR-08, INT-04, INT-06b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -21459,7 +21438,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas INT-06b (confirmado en v2), OBS-05 (confirmado en v2 (umbral ≤ 2); supuesto: métrica exacta y desempate).
+- Especificación: la citan las filas INT-06b (confirmado en v2), OBS-05 (confirmado en v2 (umbral ≤ 2); supuesto: desempate).
 
 #### X:308 — POST /msg XYZ;20
 
@@ -21502,7 +21481,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E301","mensaje":"comando desconocido "}
 ```
 
-Error E301 (HTTP 400): el servicio responde «comando desconocido ». Según la especificación se produce cuando el comando no existe; puede añadir `sugerencia` (sección 5, fila E301, CMD-19, OBS-05).
+Error E301 (HTTP 400): el servicio responde «comando desconocido ». Según la especificación se produce cuando el comando no existe; puede añadir `sugerencia` (ERR-09, CMD-19, OBS-05).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -21524,7 +21503,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas CMD-19 (probable), E301 (probable; variante confirmada en v2), OBS-05 (confirmado en v2 (umbral ≤ 2); supuesto: métrica exacta y desempate).
+- Especificación: la citan las filas CMD-19 (probable), ERR-09 (probable; variante confirmada en v2), OBS-05 (confirmado en v2 (umbral ≤ 2); supuesto: desempate).
 
 #### X:309 — POST /msg ALTA;Mateo;03
 
@@ -21567,7 +21546,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E202","mensaje":"control inválido"}
 ```
 
-Error E202 (HTTP 400): el servicio responde «control inválido». Según la especificación se produce cuando el control es numérico pero no es el válido (salvo en `PING`) (sección 5, fila E202, INT-04, INT-06b).
+Error E202 (HTTP 400): el servicio responde «control inválido». Según la especificación se produce cuando el control es numérico pero no es el válido (salvo en `PING`) (ERR-08, INT-04, INT-06b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -21632,7 +21611,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E202","mensaje":"control inválido"}
 ```
 
-Error E202 (HTTP 400): el servicio responde «control inválido». Según la especificación se produce cuando el control es numérico pero no es el válido (salvo en `PING`) (sección 5, fila E202, INT-04, INT-06b).
+Error E202 (HTTP 400): el servicio responde «control inválido». Según la especificación se produce cuando el control es numérico pero no es el válido (salvo en `PING`) (ERR-08, INT-04, INT-06b).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -21663,7 +21642,7 @@ Secuencia de 3 solicitud(es) de v2, nombre base `sug`. Propósito: Umbral de sug
 - Categorías de sus entradas: Sonda del nombre de comando (3).
 - Comandos que envía: `CONSUL`, `PIGN`, `DEPOS`.
 - Errores que devuelve el original: E301 (3).
-- Filas de la especificación que citan sus líneas: E301, OBS-05.
+- Filas de la especificación que citan sus líneas: ERR-09, OBS-05.
 
 Pasos y efecto sobre el estado (según las respuestas registradas del original):
 
@@ -21712,7 +21691,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E301","mensaje":"comando desconocido ","sugerencia":"CONSULTA"}
 ```
 
-Error E301 (HTTP 400): el servicio responde «comando desconocido ». Según la especificación se produce cuando el comando no existe; puede añadir `sugerencia` (sección 5, fila E301, CMD-19, OBS-05). El campo `sugerencia` nombra el comando conocido más cercano (OBS-05).
+Error E301 (HTTP 400): el servicio responde «comando desconocido ». Según la especificación se produce cuando el comando no existe; puede añadir `sugerencia` (ERR-09, CMD-19, OBS-05). El campo `sugerencia` nombra el comando conocido más cercano (OBS-05).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -21734,7 +21713,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas E301 (probable; variante confirmada en v2), OBS-05 (confirmado en v2 (umbral ≤ 2); supuesto: métrica exacta y desempate).
+- Especificación: la citan las filas ERR-09 (probable; variante confirmada en v2), OBS-05 (confirmado en v2 (umbral ≤ 2); supuesto: desempate).
 
 #### X:312 — POST /msg PIGN;12
 
@@ -21777,7 +21756,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E301","mensaje":"comando desconocido ","sugerencia":"PING"}
 ```
 
-Error E301 (HTTP 400): el servicio responde «comando desconocido ». Según la especificación se produce cuando el comando no existe; puede añadir `sugerencia` (sección 5, fila E301, CMD-19, OBS-05). El campo `sugerencia` nombra el comando conocido más cercano (OBS-05).
+Error E301 (HTTP 400): el servicio responde «comando desconocido ». Según la especificación se produce cuando el comando no existe; puede añadir `sugerencia` (ERR-09, CMD-19, OBS-05). El campo `sugerencia` nombra el comando conocido más cercano (OBS-05).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -21799,7 +21778,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas E301 (probable; variante confirmada en v2), OBS-05 (confirmado en v2 (umbral ≤ 2); supuesto: métrica exacta y desempate).
+- Especificación: la citan las filas ERR-09 (probable; variante confirmada en v2), OBS-05 (confirmado en v2 (umbral ≤ 2); supuesto: desempate).
 
 #### X:313 — POST /msg DEPOS;AC-0001;100;8
 
@@ -21842,7 +21821,7 @@ Efecto esperado en el estado, según la respuesta registrada del original: recha
 {"error":"E301","mensaje":"comando desconocido "}
 ```
 
-Error E301 (HTTP 400): el servicio responde «comando desconocido ». Según la especificación se produce cuando el comando no existe; puede añadir `sugerencia` (sección 5, fila E301, CMD-19, OBS-05).
+Error E301 (HTTP 400): el servicio responde «comando desconocido ». Según la especificación se produce cuando el comando no existe; puede añadir `sugerencia` (ERR-09, CMD-19, OBS-05).
 
 **Respuesta de la réplica:** status 400 — coincide
 
@@ -21864,4 +21843,1616 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 **Relación con otros experimentos y con la especificación:**
 
-- Especificación: la citan las filas OBS-05 (confirmado en v2 (umbral ≤ 2); supuesto: métrica exacta y desempate).
+- Especificación: la citan las filas OBS-05 (confirmado en v2 (umbral ≤ 2); supuesto: desempate).
+
+### s-v2-final-p1 — v2, X:314–X:315
+
+Secuencia de 2 solicitud(es) de v2, nombre base `final`. Propósito: Reset previo de P1; además verifica que el original responde y que el token es válido
+
+- Categorías de sus entradas: Preparación (1); Sonda de la campaña final (1).
+- Comandos que envía: `ANLUA`.
+- Errores que devuelve el original: E301 (1).
+- Filas de la especificación que citan sus líneas: ENT-07, MEM-01, CMD-19c, ERR-09, OBS-07.
+
+Pasos y efecto sobre el estado (según las respuestas registradas del original):
+
+- X:314 `POST /__reset` → status 200: vuelve el estado al inicial: borra cuentas, operaciones y contadores (MEM-01).
+- X:315 `ANLUA;OP-0001;65` → status 400: rechazada con E301: no modifica el estado y no consume número de cuenta ni de operación (MEM-02).
+
+#### X:314 — POST /__reset
+
+**Qué se quería saber y por qué importa:** pregunta registrada: «Reset previo de P1; además verifica que el original responde y que el token es válido»
+
+Categoría: Preparación. Es un paso de preparación: deja las cuentas u operaciones en el estado que necesitan las solicitudes siguientes de la misma secuencia y por sí mismo no pone a prueba ninguna regla.
+
+**Estado previo y cómo se construye:** Posición 1 de 2 en `s-v2-final-p1`. La secuencia empieza con `POST /__reset`, que borra cuentas, operaciones y contadores (MEM-01); no hay solicitudes previas. Estado previo, reconstruido con las respuestas registradas del original: sin cuentas ni operaciones.
+
+**Qué hace la solicitud:**
+
+`POST /__reset` es una ruta conocida (ENT-01) que vuelve el estado al inicial (MEM-01).
+
+Autenticación: `Authorization: Bearer $TEAM_TOKEN`, con el token del equipo (ENT-05).
+
+No lleva cuerpo.
+
+```bash
+curl -sS -i \
+  -X POST \
+  "$BASE_URL/__reset" \
+  -H "Authorization: Bearer $TEAM_TOKEN"
+```
+
+Efecto esperado en el estado, según la respuesta registrada del original: vuelve el estado al inicial: borra cuentas, operaciones y contadores (MEM-01).
+
+**Respuesta observada del original:** versión v2, status 200
+
+```
+{"ok":true}
+```
+
+Respuesta de `GET /health` y de `POST /__reset` (ENT-06, ENT-07).
+
+**Respuesta de la réplica:** status 200 — coincide
+
+```
+{"ok":true}
+```
+
+Coinciden el status y el JSON del original.
+
+**Qué permite concluir y qué sigue siendo hipótesis:**
+
+Evidencia: el original (v2) respondió status 200 con el cuerpo mostrado arriba; es lo único observado directamente.
+
+Conclusión registrada en el log (interpretación nuestra): «Reset previo de P1: 200 {"ok": true}; confirma que el original responde y que el token es válido.»
+
+Etiqueta: **Observación**.
+
+Es una observación puntual: la evidencia es el status y el cuerpo; cualquier generalización que haga la conclusión es inferencia.
+
+**Relación con otros experimentos y con la especificación:**
+
+- Especificación: la citan las filas ENT-07 (confirmado), MEM-01 (confirmado).
+
+#### X:315 — POST /msg ANLUA;OP-0001;65
+
+**Qué se quería saber y por qué importa:** pregunta registrada: «P1: transposición de ANULA (Levenshtein 2 de ALTA y de ANULA, Damerau 1 de ANULA): ¿sugerencia ALTA, ANULA o ninguna?»
+
+Categoría: Sonda de la campaña final. Pertenece a la campaña final de experimentos (secuencias `final-*`): sondea un punto concreto, el que enuncia la hipótesis registrada.
+
+**Estado previo y cómo se construye:** Posición 2 de 2 en `s-v2-final-p1`. La secuencia empieza con `POST /__reset` (MEM-01) y sigue con las solicitudes X:314, en orden; el efecto de cada una está en los pasos de la secuencia. Estado previo, reconstruido con las respuestas registradas del original: sin cuentas ni operaciones.
+
+**Qué hace la solicitud:**
+
+`POST /msg` es la ruta de los mensajes (ENT-01).
+
+Autenticación: `Authorization: Bearer $TEAM_TOKEN`, con el token del equipo (ENT-05).
+
+El mensaje `m` se divide por `;` en 3 campos (INT-01): comando `ANLUA`, argumentos: argumento 1=`OP-0001`; control `65`.
+
+`ANLUA` no es uno de los comandos conocidos (`PING`, `ALTA`, `CONSULTA`, `DEPOSITO`, `TRANSFER`, `ANULA`); ver CMD-19.
+
+El último campo del mensaje es el dígito de control y todo lo anterior es el payload (INT-01). El control válido es `98 − (N·100 mod 97)` (ISO 7064 MOD 97-10), donde N se forma con el payload en mayúsculas: los dígitos se conservan, las letras valen A=1…Z=26 sin relleno y los demás símbolos se descartan (INT-03).
+
+Para el payload `ANLUA;OP-0001` el cálculo da `65`; el control enviado es `65`, que coincide con ese valor.
+
+El control detecta errores de tipeo; no autentica ni protege la integridad ante un atacante (RIE-03).
+
+```bash
+curl -sS -i \
+  -X POST \
+  "$BASE_URL/msg" \
+  -H "Authorization: Bearer $TEAM_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data-raw '{"m":"ANLUA;OP-0001;65"}'
+```
+
+Efecto esperado en el estado, según la respuesta registrada del original: rechazada con E301: no modifica el estado y no consume número de cuenta ni de operación (MEM-02).
+
+**Respuesta observada del original:** versión v2, status 400
+
+```
+{"error":"E301","mensaje":"comando desconocido ","sugerencia":"ALTA"}
+```
+
+Error E301 (HTTP 400): el servicio responde «comando desconocido ». Según la especificación se produce cuando el comando no existe; puede añadir `sugerencia` (ERR-09, CMD-19, OBS-05). El campo `sugerencia` nombra el comando conocido más cercano (OBS-05).
+
+**Respuesta de la réplica:** status 400 — coincide
+
+```
+{"error":"E301","mensaje":"comando desconocido ","sugerencia":"ALTA"}
+```
+
+Coinciden el status y el JSON del original.
+
+**Qué permite concluir y qué sigue siendo hipótesis:**
+
+Evidencia: el original (v2) respondió status 400 con el cuerpo mostrado arriba; es lo único observado directamente.
+
+Conclusión registrada en el log (interpretación nuestra): «Comportamiento de v2: 'ANLUA' (Levenshtein 2 de ALTA y de ANULA; Damerau 1 de ANULA) da E301 con sugerencia ALTA. Si el original usara Damerau habría sugerido ANULA (estrictamente más cercano); con Levenshtein hay empate y gana ALTA. Coincide con la réplica (Levenshtein, desempate por orden). No distingue el orden de comandos del orden alfabético (ALTA precede a ANULA en ambos).»
+
+Etiqueta: **Comportamiento de v2 sin línea base en v1**.
+
+Se observó en v2 y no existe una solicitud equivalente en v1, así que no está probado como cambio de versión (especificación, sección 6.2); queda como comportamiento observado.
+
+La conclusión registrada habla de la réplica tal como estaba cuando se hizo el experimento; al generar este documento la réplica coincide con el original en esta línea.
+
+**Relación con otros experimentos y con la especificación:**
+
+- Especificación: la citan las filas CMD-19c (confirmado), ERR-09 (probable; variante confirmada en v2), OBS-07 (confirmado en v2 (no es Damerau); supuesto: regla de desempate).
+
+### s-v2-final-sb — v2, X:316–X:328
+
+Secuencia de 13 solicitud(es) de v2, nombre base `final`. Propósito: Reset previo de la secuencia S-B
+
+- Categorías de sus entradas: Preparación (4); Sonda de la campaña final (9).
+- Comandos que envía: `ALTA`, `DEPOSITO`, `TRANSFER`, `ANULA`, `CONSULTA`.
+- Errores que devuelve el original: E506 (1), E507 (1).
+- Filas de la especificación que citan sus líneas: ENT-07, MEM-01, CMD-10, ERR-15, ORD-05, CMD-12, CMD-18c, MEM-03, RIE-06, MEM-02, ERR-16, CMD-18d, CMD-15.
+
+Pasos y efecto sobre el estado (según las respuestas registradas del original):
+
+- X:316 `POST /__reset` → status 200: vuelve el estado al inicial: borra cuentas, operaciones y contadores (MEM-01).
+- X:317 `ALTA;Ana;50` → status 201: crea la cuenta AC-0001 («Ana») con saldo 0 (CMD-02).
+- X:318 `ALTA;Beto;11` → status 201: crea la cuenta AC-0002 («Beto») con saldo 0 (CMD-02).
+- X:319 `DEPOSITO;AC-0001;50000;39` → status 200: registra OP-0001: suma 50000 a AC-0001, que queda con saldo 50000 (CMD-06).
+- X:320 `TRANSFER;AC-0001;AC-0002;50001;56` → status 422: rechazada con E506: no modifica el estado y no consume número de cuenta ni de operación (MEM-02).
+- X:321 `TRANSFER;AC-0001;AC-0002;50000;59` → status 200: registra OP-0002: mueve 50000 de AC-0001 (saldo 0) a AC-0002 (saldo 50000) (CMD-09).
+- X:322 `ANULA;OP-0001;72` → status 200: anula OP-0001 y revierte su efecto en los saldos (CMD-17, CMD-18, CMD-18b).
+- X:323 `TRANSFER;AC-0001;AC-0002;1;41` → status 422: rechazada con E507: no modifica el estado y no consume número de cuenta ni de operación (MEM-02).
+- X:324 `TRANSFER;AC-0002;AC-0001;50000;23` → status 200: registra OP-0003: mueve 50000 de AC-0002 (saldo 0) a AC-0001 (saldo 0) (CMD-09).
+- X:325 `ANULA;OP-0002;69` → status 200: anula OP-0002 y revierte su efecto en los saldos (CMD-17, CMD-18, CMD-18b).
+- X:326 `CONSULTA;AC-0002;11` → status 200: no modifica el estado; observa que AC-0002 tiene saldo -50000 (centavos, CMD-04).
+- X:327 `ANULA;OP-0002;69` → status 200: la operación ya estaba anulada: no modifica el estado (CMD-15).
+- X:328 `CONSULTA;AC-0001;14` → status 200: no modifica el estado; observa que AC-0001 tiene saldo 50000 (centavos, CMD-04).
+
+#### X:316 — POST /__reset
+
+**Qué se quería saber y por qué importa:** pregunta registrada: «Reset previo de la secuencia S-B»
+
+Categoría: Preparación. Es un paso de preparación: deja las cuentas u operaciones en el estado que necesitan las solicitudes siguientes de la misma secuencia y por sí mismo no pone a prueba ninguna regla.
+
+**Estado previo y cómo se construye:** Posición 1 de 13 en `s-v2-final-sb`. La secuencia empieza con `POST /__reset`, que borra cuentas, operaciones y contadores (MEM-01); no hay solicitudes previas. Estado previo, reconstruido con las respuestas registradas del original: sin cuentas ni operaciones.
+
+**Qué hace la solicitud:**
+
+`POST /__reset` es una ruta conocida (ENT-01) que vuelve el estado al inicial (MEM-01).
+
+Autenticación: `Authorization: Bearer $TEAM_TOKEN`, con el token del equipo (ENT-05).
+
+No lleva cuerpo.
+
+```bash
+curl -sS -i \
+  -X POST \
+  "$BASE_URL/__reset" \
+  -H "Authorization: Bearer $TEAM_TOKEN"
+```
+
+Efecto esperado en el estado, según la respuesta registrada del original: vuelve el estado al inicial: borra cuentas, operaciones y contadores (MEM-01).
+
+**Respuesta observada del original:** versión v2, status 200
+
+```
+{"ok":true}
+```
+
+Respuesta de `GET /health` y de `POST /__reset` (ENT-06, ENT-07).
+
+**Respuesta de la réplica:** status 200 — coincide
+
+```
+{"ok":true}
+```
+
+Coinciden el status y el JSON del original.
+
+**Qué permite concluir y qué sigue siendo hipótesis:**
+
+Evidencia: el original (v2) respondió status 200 con el cuerpo mostrado arriba; es lo único observado directamente.
+
+Conclusión registrada en el log (interpretación nuestra): «Reset previo de la secuencia S-B: 200 {"ok": true}.»
+
+Etiqueta: **Observación**.
+
+Es una observación puntual: la evidencia es el status y el cuerpo; cualquier generalización que haga la conclusión es inferencia.
+
+**Relación con otros experimentos y con la especificación:**
+
+- Especificación: la citan las filas ENT-07 (confirmado), MEM-01 (confirmado).
+
+#### X:317 — POST /msg ALTA;Ana;50
+
+**Qué se quería saber y por qué importa:** pregunta registrada: «S-B.1 preparación: AC-0001»
+
+Categoría: Preparación. Es un paso de preparación: deja las cuentas u operaciones en el estado que necesitan las solicitudes siguientes de la misma secuencia y por sí mismo no pone a prueba ninguna regla.
+
+**Estado previo y cómo se construye:** Posición 2 de 13 en `s-v2-final-sb`. La secuencia empieza con `POST /__reset` (MEM-01) y sigue con las solicitudes X:316, en orden; el efecto de cada una está en los pasos de la secuencia. Estado previo, reconstruido con las respuestas registradas del original: sin cuentas ni operaciones.
+
+**Qué hace la solicitud:**
+
+`POST /msg` es la ruta de los mensajes (ENT-01).
+
+Autenticación: `Authorization: Bearer $TEAM_TOKEN`, con el token del equipo (ENT-05).
+
+El mensaje `m` se divide por `;` en 3 campos (INT-01): comando `ALTA`, argumentos: nombre=`Ana`; control `50`.
+
+`ALTA` crea una cuenta con saldo 0 y devuelve su `cuentaId`, secuencial desde `AC-0001` (CMD-02). Aridad: 1 argumento(s): nombre.
+
+El último campo del mensaje es el dígito de control y todo lo anterior es el payload (INT-01). El control válido es `98 − (N·100 mod 97)` (ISO 7064 MOD 97-10), donde N se forma con el payload en mayúsculas: los dígitos se conservan, las letras valen A=1…Z=26 sin relleno y los demás símbolos se descartan (INT-03).
+
+Para el payload `ALTA;Ana` el cálculo da `50`; el control enviado es `50`, que coincide con ese valor.
+
+El control detecta errores de tipeo; no autentica ni protege la integridad ante un atacante (RIE-03).
+
+```bash
+curl -sS -i \
+  -X POST \
+  "$BASE_URL/msg" \
+  -H "Authorization: Bearer $TEAM_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data-raw '{"m":"ALTA;Ana;50"}'
+```
+
+Efecto esperado en el estado, según la respuesta registrada del original: crea la cuenta AC-0001 («Ana») con saldo 0 (CMD-02).
+
+**Respuesta observada del original:** versión v2, status 201
+
+```
+{"cuentaId":"AC-0001"}
+```
+
+Cuenta creada por `ALTA`; el id es secuencial desde `AC-0001` (CMD-02).
+
+**Respuesta de la réplica:** status 201 — coincide
+
+```
+{"cuentaId":"AC-0001"}
+```
+
+Coinciden el status y el JSON del original.
+
+**Qué permite concluir y qué sigue siendo hipótesis:**
+
+Evidencia: el original (v2) respondió status 201 con el cuerpo mostrado arriba; es lo único observado directamente.
+
+Conclusión registrada en el log (interpretación nuestra): «Preparación (201 AC-0001).»
+
+Etiqueta: **Preparación**.
+
+Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado para las líneas siguientes.
+
+**Relación con otros experimentos y con la especificación:**
+
+- Especificación: la citan las filas MEM-01 (confirmado).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74, X:83; v2: X:103, X:145, X:158, X:167, X:169, X:174, X:181, X:187 y 11 más).
+
+#### X:318 — POST /msg ALTA;Beto;11
+
+**Qué se quería saber y por qué importa:** pregunta registrada: «S-B.2 preparación: AC-0002»
+
+Categoría: Preparación. Es un paso de preparación: deja las cuentas u operaciones en el estado que necesitan las solicitudes siguientes de la misma secuencia y por sí mismo no pone a prueba ninguna regla.
+
+**Estado previo y cómo se construye:** Posición 3 de 13 en `s-v2-final-sb`. La secuencia empieza con `POST /__reset` (MEM-01) y sigue con las solicitudes X:316–X:317, en orden; el efecto de cada una está en los pasos de la secuencia. Estado previo, reconstruido con las respuestas registradas del original: cuentas: AC-0001 («Ana», saldo 0).
+
+**Qué hace la solicitud:**
+
+`POST /msg` es la ruta de los mensajes (ENT-01).
+
+Autenticación: `Authorization: Bearer $TEAM_TOKEN`, con el token del equipo (ENT-05).
+
+El mensaje `m` se divide por `;` en 3 campos (INT-01): comando `ALTA`, argumentos: nombre=`Beto`; control `11`.
+
+`ALTA` crea una cuenta con saldo 0 y devuelve su `cuentaId`, secuencial desde `AC-0001` (CMD-02). Aridad: 1 argumento(s): nombre.
+
+El último campo del mensaje es el dígito de control y todo lo anterior es el payload (INT-01). El control válido es `98 − (N·100 mod 97)` (ISO 7064 MOD 97-10), donde N se forma con el payload en mayúsculas: los dígitos se conservan, las letras valen A=1…Z=26 sin relleno y los demás símbolos se descartan (INT-03).
+
+Para el payload `ALTA;Beto` el cálculo da `11`; el control enviado es `11`, que coincide con ese valor.
+
+El control detecta errores de tipeo; no autentica ni protege la integridad ante un atacante (RIE-03).
+
+```bash
+curl -sS -i \
+  -X POST \
+  "$BASE_URL/msg" \
+  -H "Authorization: Bearer $TEAM_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data-raw '{"m":"ALTA;Beto;11"}'
+```
+
+Efecto esperado en el estado, según la respuesta registrada del original: crea la cuenta AC-0002 («Beto») con saldo 0 (CMD-02).
+
+**Respuesta observada del original:** versión v2, status 201
+
+```
+{"cuentaId":"AC-0002"}
+```
+
+Cuenta creada por `ALTA`; el id es secuencial desde `AC-0001` (CMD-02).
+
+**Respuesta de la réplica:** status 201 — coincide
+
+```
+{"cuentaId":"AC-0002"}
+```
+
+Coinciden el status y el JSON del original.
+
+**Qué permite concluir y qué sigue siendo hipótesis:**
+
+Evidencia: el original (v2) respondió status 201 con el cuerpo mostrado arriba; es lo único observado directamente.
+
+Conclusión registrada en el log (interpretación nuestra): «Preparación (201 AC-0002).»
+
+Etiqueta: **Preparación**.
+
+Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado para las líneas siguientes.
+
+**Relación con otros experimentos y con la especificación:**
+
+- Especificación: ninguna fila de `docs/specification.md` cita esta línea.
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:20, X:62; v2: X:104, X:146, X:170, X:182, X:188, X:216, X:224, X:244 y 3 más).
+
+#### X:319 — POST /msg DEPOSITO;AC-0001;50000;39
+
+**Qué se quería saber y por qué importa:** pregunta registrada: «S-B.3 preparación: AC-0001 = 50000»
+
+Categoría: Preparación. Es un paso de preparación: deja las cuentas u operaciones en el estado que necesitan las solicitudes siguientes de la misma secuencia y por sí mismo no pone a prueba ninguna regla.
+
+**Estado previo y cómo se construye:** Posición 4 de 13 en `s-v2-final-sb`. La secuencia empieza con `POST /__reset` (MEM-01) y sigue con las solicitudes X:316–X:318, en orden; el efecto de cada una está en los pasos de la secuencia. Estado previo, reconstruido con las respuestas registradas del original: cuentas: AC-0001 («Ana», saldo 0); AC-0002 («Beto», saldo 0).
+
+**Qué hace la solicitud:**
+
+`POST /msg` es la ruta de los mensajes (ENT-01).
+
+Autenticación: `Authorization: Bearer $TEAM_TOKEN`, con el token del equipo (ENT-05).
+
+El mensaje `m` se divide por `;` en 4 campos (INT-01): comando `DEPOSITO`, argumentos: cuenta=`AC-0001`, monto=`50000`; control `39`.
+
+`DEPOSITO` suma el monto al saldo de la cuenta y devuelve un `operacionId` (CMD-06). Aridad: 2 argumento(s): cuenta, monto.
+
+El último campo del mensaje es el dígito de control y todo lo anterior es el payload (INT-01). El control válido es `98 − (N·100 mod 97)` (ISO 7064 MOD 97-10), donde N se forma con el payload en mayúsculas: los dígitos se conservan, las letras valen A=1…Z=26 sin relleno y los demás símbolos se descartan (INT-03).
+
+Para el payload `DEPOSITO;AC-0001;50000` el cálculo da `39`; el control enviado es `39`, que coincide con ese valor.
+
+El control detecta errores de tipeo; no autentica ni protege la integridad ante un atacante (RIE-03).
+
+```bash
+curl -sS -i \
+  -X POST \
+  "$BASE_URL/msg" \
+  -H "Authorization: Bearer $TEAM_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data-raw '{"m":"DEPOSITO;AC-0001;50000;39"}'
+```
+
+Efecto esperado en el estado, según la respuesta registrada del original: registra OP-0001: suma 50000 a AC-0001, que queda con saldo 50000 (CMD-06).
+
+**Respuesta observada del original:** versión v2, status 200
+
+```
+{"status":"recieved","operacionId":"OP-0001"}
+```
+
+Operación aceptada y registrada por `DEPOSITO` o `TRANSFER` (el texto `recieved` es el del original) (CMD-06, CMD-09, RIE-01).
+
+**Respuesta de la réplica:** status 200 — coincide
+
+```
+{"status":"recieved","operacionId":"OP-0001"}
+```
+
+Coinciden el status y el JSON del original.
+
+**Qué permite concluir y qué sigue siendo hipótesis:**
+
+Evidencia: el original (v2) respondió status 200 con el cuerpo mostrado arriba; es lo único observado directamente.
+
+Conclusión registrada en el log (interpretación nuestra): «Preparación: AC-0001 = 50000 (200 OP-0001).»
+
+Etiqueta: **Preparación**.
+
+Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado para las líneas siguientes.
+
+**Relación con otros experimentos y con la especificación:**
+
+- Especificación: la citan las filas MEM-01 (confirmado).
+
+#### X:320 — POST /msg TRANSFER;AC-0001;AC-0002;50001;56
+
+**Qué se quería saber y por qué importa:** pregunta registrada: «S-B.4 marcador de deriva del límite y E506 antes que E507 (50001 supera límite y saldo)»
+
+Categoría: Sonda de la campaña final. Pertenece a la campaña final de experimentos (secuencias `final-*`): sondea un punto concreto, el que enuncia la hipótesis registrada.
+
+**Estado previo y cómo se construye:** Posición 5 de 13 en `s-v2-final-sb`. La secuencia empieza con `POST /__reset` (MEM-01) y sigue con las solicitudes X:316–X:319, en orden; el efecto de cada una está en los pasos de la secuencia. Estado previo, reconstruido con las respuestas registradas del original: cuentas: AC-0001 («Ana», saldo 50000); AC-0002 («Beto», saldo 0). operaciones: OP-0001 (depósito de 50000 en AC-0001).
+
+**Qué hace la solicitud:**
+
+`POST /msg` es la ruta de los mensajes (ENT-01).
+
+Autenticación: `Authorization: Bearer $TEAM_TOKEN`, con el token del equipo (ENT-05).
+
+El mensaje `m` se divide por `;` en 5 campos (INT-01): comando `TRANSFER`, argumentos: origen=`AC-0001`, destino=`AC-0002`, monto=`50001`; control `56`.
+
+`TRANSFER` resta el monto de la cuenta de origen, lo suma a la de destino y devuelve un `operacionId` (CMD-09). Aridad: 3 argumento(s): origen, destino, monto.
+
+El último campo del mensaje es el dígito de control y todo lo anterior es el payload (INT-01). El control válido es `98 − (N·100 mod 97)` (ISO 7064 MOD 97-10), donde N se forma con el payload en mayúsculas: los dígitos se conservan, las letras valen A=1…Z=26 sin relleno y los demás símbolos se descartan (INT-03).
+
+Para el payload `TRANSFER;AC-0001;AC-0002;50001` el cálculo da `56`; el control enviado es `56`, que coincide con ese valor.
+
+El control detecta errores de tipeo; no autentica ni protege la integridad ante un atacante (RIE-03).
+
+```bash
+curl -sS -i \
+  -X POST \
+  "$BASE_URL/msg" \
+  -H "Authorization: Bearer $TEAM_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data-raw '{"m":"TRANSFER;AC-0001;AC-0002;50001;56"}'
+```
+
+Efecto esperado en el estado, según la respuesta registrada del original: rechazada con E506: no modifica el estado y no consume número de cuenta ni de operación (MEM-02).
+
+**Respuesta observada del original:** versión v2, status 422
+
+```
+{"error":"E506","mensaje":"límite excedido"}
+```
+
+Error E506 (HTTP 422): el servicio responde «límite excedido». Según la especificación se produce cuando el monto de un `TRANSFER` supera el límite de la versión (ERR-15, CMD-10, CAM-02).
+
+**Respuesta de la réplica:** status 422 — coincide
+
+```
+{"error":"E506","mensaje":"límite excedido"}
+```
+
+Coinciden el status y el JSON del original.
+
+**Qué permite concluir y qué sigue siendo hipótesis:**
+
+Evidencia: el original (v2) respondió status 422 con el cuerpo mostrado arriba; es lo único observado directamente.
+
+Conclusión registrada en el log (interpretación nuestra): «Comportamiento de v2: TRANSFER de 50001 con saldo 50000 da 422 E506: el límite se evalúa antes que el saldo (E506 antes que E507), igual que X:30 en v1.»
+
+Etiqueta: **Comportamiento de v2 sin línea base en v1**.
+
+Se observó en v2 y no existe una solicitud equivalente en v1, así que no está probado como cambio de versión (especificación, sección 6.2); queda como comportamiento observado.
+
+**Relación con otros experimentos y con la especificación:**
+
+- Especificación: la citan las filas CMD-10 (confirmado), ERR-15 (confirmado), ORD-05 (confirmado en v2).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v2: X:191).
+
+#### X:321 — POST /msg TRANSFER;AC-0001;AC-0002;50000;59
+
+**Qué se quería saber y por qué importa:** pregunta registrada: «S-B.5 50000 inclusivo con el saldo exacto»
+
+Categoría: Sonda de la campaña final. Pertenece a la campaña final de experimentos (secuencias `final-*`): sondea un punto concreto, el que enuncia la hipótesis registrada.
+
+**Estado previo y cómo se construye:** Posición 6 de 13 en `s-v2-final-sb`. La secuencia empieza con `POST /__reset` (MEM-01) y sigue con las solicitudes X:316–X:320, en orden; el efecto de cada una está en los pasos de la secuencia. Estado previo, reconstruido con las respuestas registradas del original: cuentas: AC-0001 («Ana», saldo 50000); AC-0002 («Beto», saldo 0). operaciones: OP-0001 (depósito de 50000 en AC-0001).
+
+**Qué hace la solicitud:**
+
+`POST /msg` es la ruta de los mensajes (ENT-01).
+
+Autenticación: `Authorization: Bearer $TEAM_TOKEN`, con el token del equipo (ENT-05).
+
+El mensaje `m` se divide por `;` en 5 campos (INT-01): comando `TRANSFER`, argumentos: origen=`AC-0001`, destino=`AC-0002`, monto=`50000`; control `59`.
+
+`TRANSFER` resta el monto de la cuenta de origen, lo suma a la de destino y devuelve un `operacionId` (CMD-09). Aridad: 3 argumento(s): origen, destino, monto.
+
+El último campo del mensaje es el dígito de control y todo lo anterior es el payload (INT-01). El control válido es `98 − (N·100 mod 97)` (ISO 7064 MOD 97-10), donde N se forma con el payload en mayúsculas: los dígitos se conservan, las letras valen A=1…Z=26 sin relleno y los demás símbolos se descartan (INT-03).
+
+Para el payload `TRANSFER;AC-0001;AC-0002;50000` el cálculo da `59`; el control enviado es `59`, que coincide con ese valor.
+
+El control detecta errores de tipeo; no autentica ni protege la integridad ante un atacante (RIE-03).
+
+```bash
+curl -sS -i \
+  -X POST \
+  "$BASE_URL/msg" \
+  -H "Authorization: Bearer $TEAM_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data-raw '{"m":"TRANSFER;AC-0001;AC-0002;50000;59"}'
+```
+
+Efecto esperado en el estado, según la respuesta registrada del original: registra OP-0002: mueve 50000 de AC-0001 (saldo 0) a AC-0002 (saldo 50000) (CMD-09).
+
+**Respuesta observada del original:** versión v2, status 200
+
+```
+{"status":"recieved","operacionId":"OP-0002"}
+```
+
+Operación aceptada y registrada por `DEPOSITO` o `TRANSFER` (el texto `recieved` es el del original) (CMD-06, CMD-09, RIE-01).
+
+**Respuesta de la réplica:** status 200 — coincide
+
+```
+{"status":"recieved","operacionId":"OP-0002"}
+```
+
+Coinciden el status y el JSON del original.
+
+**Qué permite concluir y qué sigue siendo hipótesis:**
+
+Evidencia: el original (v2) respondió status 200 con el cuerpo mostrado arriba; es lo único observado directamente.
+
+Conclusión registrada en el log (interpretación nuestra): «Comportamiento de v2: TRANSFER de 50000 con saldo exacto 50000 da 200 OP-0002 (límite inclusivo, saldo exacto suficiente).»
+
+Etiqueta: **Comportamiento de v2 sin línea base en v1**.
+
+Se observó en v2 y no existe una solicitud equivalente en v1, así que no está probado como cambio de versión (especificación, sección 6.2); queda como comportamiento observado.
+
+**Relación con otros experimentos y con la especificación:**
+
+- Especificación: la citan las filas CMD-10 (confirmado), CMD-12 (probable; confirmado en v2 para el saldo exacto y el saldo negativo).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v2: X:190).
+
+#### X:322 — POST /msg ANULA;OP-0001;72
+
+**Qué se quería saber y por qué importa:** pregunta registrada: «S-B.6 ANULA del depósito ya gastado (AC-0001 quedaría en -50000)»
+
+Categoría: Sonda de la campaña final. Pertenece a la campaña final de experimentos (secuencias `final-*`): sondea un punto concreto, el que enuncia la hipótesis registrada.
+
+**Estado previo y cómo se construye:** Posición 7 de 13 en `s-v2-final-sb`. La secuencia empieza con `POST /__reset` (MEM-01) y sigue con las solicitudes X:316–X:321, en orden; el efecto de cada una está en los pasos de la secuencia. Estado previo, reconstruido con las respuestas registradas del original: cuentas: AC-0001 («Ana», saldo 0); AC-0002 («Beto», saldo 50000). operaciones: OP-0001 (depósito de 50000 en AC-0001); OP-0002 (transferencia de 50000 de AC-0001 a AC-0002).
+
+**Qué hace la solicitud:**
+
+`POST /msg` es la ruta de los mensajes (ENT-01).
+
+Autenticación: `Authorization: Bearer $TEAM_TOKEN`, con el token del equipo (ENT-05).
+
+El mensaje `m` se divide por `;` en 3 campos (INT-01): comando `ANULA`, argumentos: operacion=`OP-0001`; control `72`.
+
+`ANULA` anula una operación (primera vez `ok:true`; segunda vez `ok:false` con motivo `ya anulada`) (CMD-15). Aridad: 1 argumento(s): operacion.
+
+El último campo del mensaje es el dígito de control y todo lo anterior es el payload (INT-01). El control válido es `98 − (N·100 mod 97)` (ISO 7064 MOD 97-10), donde N se forma con el payload en mayúsculas: los dígitos se conservan, las letras valen A=1…Z=26 sin relleno y los demás símbolos se descartan (INT-03).
+
+Para el payload `ANULA;OP-0001` el cálculo da `72`; el control enviado es `72`, que coincide con ese valor.
+
+El control detecta errores de tipeo; no autentica ni protege la integridad ante un atacante (RIE-03).
+
+```bash
+curl -sS -i \
+  -X POST \
+  "$BASE_URL/msg" \
+  -H "Authorization: Bearer $TEAM_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data-raw '{"m":"ANULA;OP-0001;72"}'
+```
+
+Efecto esperado en el estado, según la respuesta registrada del original: anula OP-0001 y revierte su efecto en los saldos (CMD-17, CMD-18, CMD-18b).
+
+**Respuesta observada del original:** versión v2, status 200
+
+```
+{"ok":true,"anulada":"OP-0001"}
+```
+
+Primera anulación de una operación (CMD-15).
+
+**Respuesta de la réplica:** status 200 — coincide
+
+```
+{"ok":true,"anulada":"OP-0001"}
+```
+
+Coinciden el status y el JSON del original.
+
+**Qué permite concluir y qué sigue siendo hipótesis:**
+
+Evidencia: el original (v2) respondió status 200 con el cuerpo mostrado arriba; es lo único observado directamente.
+
+Conclusión registrada en el log (interpretación nuestra): «Comportamiento de v2: ANULA del depósito ya transferido da 200 ok:true; AC-0001 queda en -50000 (igual que X:227 y X:248).»
+
+Etiqueta: **Comportamiento de v2 sin línea base en v1**.
+
+Se observó en v2 y no existe una solicitud equivalente en v1, así que no está probado como cambio de versión (especificación, sección 6.2); queda como comportamiento observado.
+
+**Relación con otros experimentos y con la especificación:**
+
+- Especificación: la citan las filas CMD-18c (confirmado en v2), MEM-03 (confirmado), RIE-06 (confirmado).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:68; v2: X:152, X:208, X:209, X:227).
+
+#### X:323 — POST /msg TRANSFER;AC-0001;AC-0002;1;41
+
+**Qué se quería saber y por qué importa:** pregunta registrada: «S-B.7 TRANSFER desde saldo negativo: ¿E507?»
+
+Categoría: Sonda de la campaña final. Pertenece a la campaña final de experimentos (secuencias `final-*`): sondea un punto concreto, el que enuncia la hipótesis registrada.
+
+**Estado previo y cómo se construye:** Posición 8 de 13 en `s-v2-final-sb`. La secuencia empieza con `POST /__reset` (MEM-01) y sigue con las solicitudes X:316–X:322, en orden; el efecto de cada una está en los pasos de la secuencia. Estado previo, reconstruido con las respuestas registradas del original: cuentas: AC-0001 («Ana», saldo -50000); AC-0002 («Beto», saldo 50000). operaciones: OP-0001 (depósito de 50000 en AC-0001, anulada); OP-0002 (transferencia de 50000 de AC-0001 a AC-0002).
+
+**Qué hace la solicitud:**
+
+`POST /msg` es la ruta de los mensajes (ENT-01).
+
+Autenticación: `Authorization: Bearer $TEAM_TOKEN`, con el token del equipo (ENT-05).
+
+El mensaje `m` se divide por `;` en 5 campos (INT-01): comando `TRANSFER`, argumentos: origen=`AC-0001`, destino=`AC-0002`, monto=`1`; control `41`.
+
+`TRANSFER` resta el monto de la cuenta de origen, lo suma a la de destino y devuelve un `operacionId` (CMD-09). Aridad: 3 argumento(s): origen, destino, monto.
+
+El último campo del mensaje es el dígito de control y todo lo anterior es el payload (INT-01). El control válido es `98 − (N·100 mod 97)` (ISO 7064 MOD 97-10), donde N se forma con el payload en mayúsculas: los dígitos se conservan, las letras valen A=1…Z=26 sin relleno y los demás símbolos se descartan (INT-03).
+
+Para el payload `TRANSFER;AC-0001;AC-0002;1` el cálculo da `41`; el control enviado es `41`, que coincide con ese valor.
+
+El control detecta errores de tipeo; no autentica ni protege la integridad ante un atacante (RIE-03).
+
+```bash
+curl -sS -i \
+  -X POST \
+  "$BASE_URL/msg" \
+  -H "Authorization: Bearer $TEAM_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data-raw '{"m":"TRANSFER;AC-0001;AC-0002;1;41"}'
+```
+
+Efecto esperado en el estado, según la respuesta registrada del original: rechazada con E507: no modifica el estado y no consume número de cuenta ni de operación (MEM-02).
+
+**Respuesta observada del original:** versión v2, status 422
+
+```
+{"error":"E507","mensaje":"saldo insuficiente"}
+```
+
+Error E507 (HTTP 422): el servicio responde «saldo insuficiente». Según la especificación se produce cuando el saldo de la cuenta de origen es menor que el monto (ERR-16, CMD-12).
+
+**Respuesta de la réplica:** status 422 — coincide
+
+```
+{"error":"E507","mensaje":"saldo insuficiente"}
+```
+
+Coinciden el status y el JSON del original.
+
+**Qué permite concluir y qué sigue siendo hipótesis:**
+
+Evidencia: el original (v2) respondió status 422 con el cuerpo mostrado arriba; es lo único observado directamente.
+
+Conclusión registrada en el log (interpretación nuestra): «Comportamiento de v2: TRANSFER de 1 desde AC-0001 con saldo negativo da 422 E507 saldo insuficiente.»
+
+Etiqueta: **Comportamiento de v2 sin línea base en v1**.
+
+Se observó en v2 y no existe una solicitud equivalente en v1, así que no está probado como cambio de versión (especificación, sección 6.2); queda como comportamiento observado.
+
+**Relación con otros experimentos y con la especificación:**
+
+- Especificación: la citan las filas CMD-12 (probable; confirmado en v2 para el saldo exacto y el saldo negativo), CMD-18c (confirmado en v2), MEM-02 (confirmado), ERR-16 (probable).
+
+#### X:324 — POST /msg TRANSFER;AC-0002;AC-0001;50000;23
+
+**Qué se quería saber y por qué importa:** pregunta registrada: «S-B.8 devolución; el número de OP confirma si ANULA consume número»
+
+Categoría: Sonda de la campaña final. Pertenece a la campaña final de experimentos (secuencias `final-*`): sondea un punto concreto, el que enuncia la hipótesis registrada.
+
+**Estado previo y cómo se construye:** Posición 9 de 13 en `s-v2-final-sb`. La secuencia empieza con `POST /__reset` (MEM-01) y sigue con las solicitudes X:316–X:323, en orden; el efecto de cada una está en los pasos de la secuencia. Estado previo, reconstruido con las respuestas registradas del original: cuentas: AC-0001 («Ana», saldo -50000); AC-0002 («Beto», saldo 50000). operaciones: OP-0001 (depósito de 50000 en AC-0001, anulada); OP-0002 (transferencia de 50000 de AC-0001 a AC-0002).
+
+**Qué hace la solicitud:**
+
+`POST /msg` es la ruta de los mensajes (ENT-01).
+
+Autenticación: `Authorization: Bearer $TEAM_TOKEN`, con el token del equipo (ENT-05).
+
+El mensaje `m` se divide por `;` en 5 campos (INT-01): comando `TRANSFER`, argumentos: origen=`AC-0002`, destino=`AC-0001`, monto=`50000`; control `23`.
+
+`TRANSFER` resta el monto de la cuenta de origen, lo suma a la de destino y devuelve un `operacionId` (CMD-09). Aridad: 3 argumento(s): origen, destino, monto.
+
+El último campo del mensaje es el dígito de control y todo lo anterior es el payload (INT-01). El control válido es `98 − (N·100 mod 97)` (ISO 7064 MOD 97-10), donde N se forma con el payload en mayúsculas: los dígitos se conservan, las letras valen A=1…Z=26 sin relleno y los demás símbolos se descartan (INT-03).
+
+Para el payload `TRANSFER;AC-0002;AC-0001;50000` el cálculo da `23`; el control enviado es `23`, que coincide con ese valor.
+
+El control detecta errores de tipeo; no autentica ni protege la integridad ante un atacante (RIE-03).
+
+```bash
+curl -sS -i \
+  -X POST \
+  "$BASE_URL/msg" \
+  -H "Authorization: Bearer $TEAM_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data-raw '{"m":"TRANSFER;AC-0002;AC-0001;50000;23"}'
+```
+
+Efecto esperado en el estado, según la respuesta registrada del original: registra OP-0003: mueve 50000 de AC-0002 (saldo 0) a AC-0001 (saldo 0) (CMD-09).
+
+**Respuesta observada del original:** versión v2, status 200
+
+```
+{"status":"recieved","operacionId":"OP-0003"}
+```
+
+Operación aceptada y registrada por `DEPOSITO` o `TRANSFER` (el texto `recieved` es el del original) (CMD-06, CMD-09, RIE-01).
+
+**Respuesta de la réplica:** status 200 — coincide
+
+```
+{"status":"recieved","operacionId":"OP-0003"}
+```
+
+Coinciden el status y el JSON del original.
+
+**Qué permite concluir y qué sigue siendo hipótesis:**
+
+Evidencia: el original (v2) respondió status 200 con el cuerpo mostrado arriba; es lo único observado directamente.
+
+Conclusión registrada en el log (interpretación nuestra): «Comportamiento de v2: la devolución recibe OP-0003. Tras OP-0002 hubo una ANULA (X:322) y un rechazo (X:323): ANULA no consume número de operación.»
+
+Etiqueta: **Comportamiento de v2 sin línea base en v1**.
+
+Se observó en v2 y no existe una solicitud equivalente en v1, así que no está probado como cambio de versión (especificación, sección 6.2); queda como comportamiento observado.
+
+**Relación con otros experimentos y con la especificación:**
+
+- Especificación: la citan las filas MEM-02 (confirmado), MEM-03 (confirmado).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:46; v2: X:130).
+- Ejemplo oficial E:16 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
+
+#### X:325 — POST /msg ANULA;OP-0002;69
+
+**Qué se quería saber y por qué importa:** pregunta registrada: «S-B.9 ANULA de una transferencia ya compensada»
+
+Categoría: Sonda de la campaña final. Pertenece a la campaña final de experimentos (secuencias `final-*`): sondea un punto concreto, el que enuncia la hipótesis registrada.
+
+**Estado previo y cómo se construye:** Posición 10 de 13 en `s-v2-final-sb`. La secuencia empieza con `POST /__reset` (MEM-01) y sigue con las solicitudes X:316–X:324, en orden; el efecto de cada una está en los pasos de la secuencia. Estado previo, reconstruido con las respuestas registradas del original: cuentas: AC-0001 («Ana», saldo 0); AC-0002 («Beto», saldo 0). operaciones: OP-0001 (depósito de 50000 en AC-0001, anulada); OP-0002 (transferencia de 50000 de AC-0001 a AC-0002); OP-0003 (transferencia de 50000 de AC-0002 a AC-0001).
+
+**Qué hace la solicitud:**
+
+`POST /msg` es la ruta de los mensajes (ENT-01).
+
+Autenticación: `Authorization: Bearer $TEAM_TOKEN`, con el token del equipo (ENT-05).
+
+El mensaje `m` se divide por `;` en 3 campos (INT-01): comando `ANULA`, argumentos: operacion=`OP-0002`; control `69`.
+
+`ANULA` anula una operación (primera vez `ok:true`; segunda vez `ok:false` con motivo `ya anulada`) (CMD-15). Aridad: 1 argumento(s): operacion.
+
+El último campo del mensaje es el dígito de control y todo lo anterior es el payload (INT-01). El control válido es `98 − (N·100 mod 97)` (ISO 7064 MOD 97-10), donde N se forma con el payload en mayúsculas: los dígitos se conservan, las letras valen A=1…Z=26 sin relleno y los demás símbolos se descartan (INT-03).
+
+Para el payload `ANULA;OP-0002` el cálculo da `69`; el control enviado es `69`, que coincide con ese valor.
+
+El control detecta errores de tipeo; no autentica ni protege la integridad ante un atacante (RIE-03).
+
+```bash
+curl -sS -i \
+  -X POST \
+  "$BASE_URL/msg" \
+  -H "Authorization: Bearer $TEAM_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data-raw '{"m":"ANULA;OP-0002;69"}'
+```
+
+Efecto esperado en el estado, según la respuesta registrada del original: anula OP-0002 y revierte su efecto en los saldos (CMD-17, CMD-18, CMD-18b).
+
+**Respuesta observada del original:** versión v2, status 200
+
+```
+{"ok":true,"anulada":"OP-0002"}
+```
+
+Primera anulación de una operación (CMD-15).
+
+**Respuesta de la réplica:** status 200 — coincide
+
+```
+{"ok":true,"anulada":"OP-0002"}
+```
+
+Coinciden el status y el JSON del original.
+
+**Qué permite concluir y qué sigue siendo hipótesis:**
+
+Evidencia: el original (v2) respondió status 200 con el cuerpo mostrado arriba; es lo único observado directamente.
+
+Conclusión registrada en el log (interpretación nuestra): «Comportamiento de v2: ANULA de una TRANSFER cuyo destino ya devolvió el dinero da 200 ok:true.»
+
+Etiqueta: **Comportamiento de v2 sin línea base en v1**.
+
+Se observó en v2 y no existe una solicitud equivalente en v1, así que no está probado como cambio de versión (especificación, sección 6.2); queda como comportamiento observado.
+
+**Relación con otros experimentos y con la especificación:**
+
+- Especificación: la citan las filas CMD-18d (confirmado).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:65; v2: X:149, X:248, X:327).
+
+#### X:326 — POST /msg CONSULTA;AC-0002;11
+
+**Qué se quería saber y por qué importa:** pregunta registrada: «S-B.10 formato de saldo negativo grande»
+
+Categoría: Sonda de la campaña final. Pertenece a la campaña final de experimentos (secuencias `final-*`): sondea un punto concreto, el que enuncia la hipótesis registrada.
+
+**Estado previo y cómo se construye:** Posición 11 de 13 en `s-v2-final-sb`. La secuencia empieza con `POST /__reset` (MEM-01) y sigue con las solicitudes X:316–X:325, en orden; el efecto de cada una está en los pasos de la secuencia. Estado previo, reconstruido con las respuestas registradas del original: cuentas: AC-0001 («Ana», saldo 50000); AC-0002 («Beto», saldo -50000). operaciones: OP-0001 (depósito de 50000 en AC-0001, anulada); OP-0002 (transferencia de 50000 de AC-0001 a AC-0002, anulada); OP-0003 (transferencia de 50000 de AC-0002 a AC-0001).
+
+**Qué hace la solicitud:**
+
+`POST /msg` es la ruta de los mensajes (ENT-01).
+
+Autenticación: `Authorization: Bearer $TEAM_TOKEN`, con el token del equipo (ENT-05).
+
+El mensaje `m` se divide por `;` en 3 campos (INT-01): comando `CONSULTA`, argumentos: cuenta=`AC-0002`; control `11`.
+
+`CONSULTA` devuelve `cuenta_id` y `saldo` (CMD-04). Aridad: 1 argumento(s): cuenta.
+
+El último campo del mensaje es el dígito de control y todo lo anterior es el payload (INT-01). El control válido es `98 − (N·100 mod 97)` (ISO 7064 MOD 97-10), donde N se forma con el payload en mayúsculas: los dígitos se conservan, las letras valen A=1…Z=26 sin relleno y los demás símbolos se descartan (INT-03).
+
+Para el payload `CONSULTA;AC-0002` el cálculo da `11`; el control enviado es `11`, que coincide con ese valor.
+
+El control detecta errores de tipeo; no autentica ni protege la integridad ante un atacante (RIE-03).
+
+```bash
+curl -sS -i \
+  -X POST \
+  "$BASE_URL/msg" \
+  -H "Authorization: Bearer $TEAM_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data-raw '{"m":"CONSULTA;AC-0002;11"}'
+```
+
+Efecto esperado en el estado, según la respuesta registrada del original: no modifica el estado; observa que AC-0002 tiene saldo -50000 (centavos, CMD-04).
+
+**Respuesta observada del original:** versión v2, status 200
+
+```
+{"cuenta_id":"AC-0002","saldo":"-500.00"}
+```
+
+Respuesta de `CONSULTA`; en v1 el saldo era un número y en v2 es un string con dos decimales (CMD-04, CAM-01).
+
+**Respuesta de la réplica:** status 200 — coincide
+
+```
+{"cuenta_id":"AC-0002","saldo":"-500.00"}
+```
+
+Coinciden el status y el JSON del original.
+
+**Qué permite concluir y qué sigue siendo hipótesis:**
+
+Evidencia: el original (v2) respondió status 200 con el cuerpo mostrado arriba; es lo único observado directamente.
+
+Conclusión registrada en el log (interpretación nuestra): «Comportamiento de v2: AC-0002 queda en "-500.00" (recibió 50000, devolvió 50000 y la ANULA de OP-0002 le descontó 50000): formato de saldo negativo grande.»
+
+Etiqueta: **Comportamiento de v2 sin línea base en v1**.
+
+Se observó en v2 y no existe una solicitud equivalente en v1, así que no está probado como cambio de versión (especificación, sección 6.2); queda como comportamiento observado.
+
+**Relación con otros experimentos y con la especificación:**
+
+- Especificación: la citan las filas CMD-18d (confirmado).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:49, X:67, X:73; v2: X:122, X:133, X:151, X:157, X:173, X:186, X:192, X:220 y 1 más).
+- Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
+
+#### X:327 — POST /msg ANULA;OP-0002;69
+
+**Qué se quería saber y por qué importa:** pregunta registrada: «S-B.11 segunda ANULA de un TRANSFER: ¿ok:false 'ya anulada'?»
+
+Categoría: Sonda de la campaña final. Pertenece a la campaña final de experimentos (secuencias `final-*`): sondea un punto concreto, el que enuncia la hipótesis registrada.
+
+**Estado previo y cómo se construye:** Posición 12 de 13 en `s-v2-final-sb`. La secuencia empieza con `POST /__reset` (MEM-01) y sigue con las solicitudes X:316–X:326, en orden; el efecto de cada una está en los pasos de la secuencia. Estado previo, reconstruido con las respuestas registradas del original: cuentas: AC-0001 («Ana», saldo 50000); AC-0002 («Beto», saldo -50000). operaciones: OP-0001 (depósito de 50000 en AC-0001, anulada); OP-0002 (transferencia de 50000 de AC-0001 a AC-0002, anulada); OP-0003 (transferencia de 50000 de AC-0002 a AC-0001).
+
+**Qué hace la solicitud:**
+
+`POST /msg` es la ruta de los mensajes (ENT-01).
+
+Autenticación: `Authorization: Bearer $TEAM_TOKEN`, con el token del equipo (ENT-05).
+
+El mensaje `m` se divide por `;` en 3 campos (INT-01): comando `ANULA`, argumentos: operacion=`OP-0002`; control `69`.
+
+`ANULA` anula una operación (primera vez `ok:true`; segunda vez `ok:false` con motivo `ya anulada`) (CMD-15). Aridad: 1 argumento(s): operacion.
+
+El último campo del mensaje es el dígito de control y todo lo anterior es el payload (INT-01). El control válido es `98 − (N·100 mod 97)` (ISO 7064 MOD 97-10), donde N se forma con el payload en mayúsculas: los dígitos se conservan, las letras valen A=1…Z=26 sin relleno y los demás símbolos se descartan (INT-03).
+
+Para el payload `ANULA;OP-0002` el cálculo da `69`; el control enviado es `69`, que coincide con ese valor.
+
+El control detecta errores de tipeo; no autentica ni protege la integridad ante un atacante (RIE-03).
+
+```bash
+curl -sS -i \
+  -X POST \
+  "$BASE_URL/msg" \
+  -H "Authorization: Bearer $TEAM_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data-raw '{"m":"ANULA;OP-0002;69"}'
+```
+
+Efecto esperado en el estado, según la respuesta registrada del original: la operación ya estaba anulada: no modifica el estado (CMD-15).
+
+**Respuesta observada del original:** versión v2, status 200
+
+```
+{"ok":false,"motivo":"ya anulada"}
+```
+
+Segunda anulación de la misma operación (CMD-15).
+
+**Respuesta de la réplica:** status 200 — coincide
+
+```
+{"ok":false,"motivo":"ya anulada"}
+```
+
+Coinciden el status y el JSON del original.
+
+**Qué permite concluir y qué sigue siendo hipótesis:**
+
+Evidencia: el original (v2) respondió status 200 con el cuerpo mostrado arriba; es lo único observado directamente.
+
+Conclusión registrada en el log (interpretación nuestra): «Comportamiento de v2: segunda ANULA de un TRANSFER da 200 ok:false 'ya anulada' (en v2 antes solo se había probado con un DEPOSITO, X:209).»
+
+Etiqueta: **Comportamiento de v2 sin línea base en v1**.
+
+Se observó en v2 y no existe una solicitud equivalente en v1, así que no está probado como cambio de versión (especificación, sección 6.2); queda como comportamiento observado.
+
+**Relación con otros experimentos y con la especificación:**
+
+- Especificación: la citan las filas CMD-15 (confirmado), CMD-18d (confirmado).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:65; v2: X:149, X:248, X:325).
+
+#### X:328 — POST /msg CONSULTA;AC-0001;14
+
+**Qué se quería saber y por qué importa:** pregunta registrada: «S-B.12 saldo final del origen»
+
+Categoría: Sonda de la campaña final. Pertenece a la campaña final de experimentos (secuencias `final-*`): sondea un punto concreto, el que enuncia la hipótesis registrada.
+
+**Estado previo y cómo se construye:** Posición 13 de 13 en `s-v2-final-sb`. La secuencia empieza con `POST /__reset` (MEM-01) y sigue con las solicitudes X:316–X:327, en orden; el efecto de cada una está en los pasos de la secuencia. Estado previo, reconstruido con las respuestas registradas del original: cuentas: AC-0001 («Ana», saldo 50000); AC-0002 («Beto», saldo -50000). operaciones: OP-0001 (depósito de 50000 en AC-0001, anulada); OP-0002 (transferencia de 50000 de AC-0001 a AC-0002, anulada); OP-0003 (transferencia de 50000 de AC-0002 a AC-0001).
+
+**Qué hace la solicitud:**
+
+`POST /msg` es la ruta de los mensajes (ENT-01).
+
+Autenticación: `Authorization: Bearer $TEAM_TOKEN`, con el token del equipo (ENT-05).
+
+El mensaje `m` se divide por `;` en 3 campos (INT-01): comando `CONSULTA`, argumentos: cuenta=`AC-0001`; control `14`.
+
+`CONSULTA` devuelve `cuenta_id` y `saldo` (CMD-04). Aridad: 1 argumento(s): cuenta.
+
+El último campo del mensaje es el dígito de control y todo lo anterior es el payload (INT-01). El control válido es `98 − (N·100 mod 97)` (ISO 7064 MOD 97-10), donde N se forma con el payload en mayúsculas: los dígitos se conservan, las letras valen A=1…Z=26 sin relleno y los demás símbolos se descartan (INT-03).
+
+Para el payload `CONSULTA;AC-0001` el cálculo da `14`; el control enviado es `14`, que coincide con ese valor.
+
+El control detecta errores de tipeo; no autentica ni protege la integridad ante un atacante (RIE-03).
+
+```bash
+curl -sS -i \
+  -X POST \
+  "$BASE_URL/msg" \
+  -H "Authorization: Bearer $TEAM_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data-raw '{"m":"CONSULTA;AC-0001;14"}'
+```
+
+Efecto esperado en el estado, según la respuesta registrada del original: no modifica el estado; observa que AC-0001 tiene saldo 50000 (centavos, CMD-04).
+
+**Respuesta observada del original:** versión v2, status 200
+
+```
+{"cuenta_id":"AC-0001","saldo":"500.00"}
+```
+
+Respuesta de `CONSULTA`; en v1 el saldo era un número y en v2 es un string con dos decimales (CMD-04, CAM-01).
+
+**Respuesta de la réplica:** status 200 — coincide
+
+```
+{"cuenta_id":"AC-0001","saldo":"500.00"}
+```
+
+Coinciden el status y el JSON del original.
+
+**Qué permite concluir y qué sigue siendo hipótesis:**
+
+Evidencia: el original (v2) respondió status 200 con el cuerpo mostrado arriba; es lo único observado directamente.
+
+Conclusión registrada en el log (interpretación nuestra): «Comportamiento de v2: AC-0001 queda en "500.00" (-50000 + 50000 de OP-0003 + 50000 devueltos por la ANULA de OP-0002).»
+
+Etiqueta: **Comportamiento de v2 sin línea base en v1**.
+
+Se observó en v2 y no existe una solicitud equivalente en v1, así que no está probado como cambio de versión (especificación, sección 6.2); queda como comportamiento observado.
+
+**Relación con otros experimentos y con la especificación:**
+
+- Especificación: la citan las filas CMD-18d (confirmado).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:69, X:81; v2: X:119, X:150, X:153, X:165, X:176, X:178, X:228, X:234 y 3 más).
+- Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
+
+### s-v2-final-p4 — v2, X:329–X:330
+
+Secuencia de 2 solicitud(es) de v2, nombre base `final`. Propósito: Reset previo de P4
+
+- Categorías de sus entradas: Preparación (1); Sonda de la campaña final (1).
+- Comandos que envía: `DEPÓSITO`.
+- Errores que devuelve el original: E301 (1).
+- Filas de la especificación que citan sus líneas: ENT-07, MEM-01, INT-08, CMD-19b, ERR-09.
+
+Pasos y efecto sobre el estado (según las respuestas registradas del original):
+
+- X:329 `POST /__reset` → status 200: vuelve el estado al inicial: borra cuentas, operaciones y contadores (MEM-01).
+- X:330 `DEPÓSITO;AC-0001;100;68` → status 400: rechazada con E301: no modifica el estado y no consume número de cuenta ni de operación (MEM-02).
+
+#### X:329 — POST /__reset
+
+**Qué se quería saber y por qué importa:** pregunta registrada: «Reset previo de P4»
+
+Categoría: Preparación. Es un paso de preparación: deja las cuentas u operaciones en el estado que necesitan las solicitudes siguientes de la misma secuencia y por sí mismo no pone a prueba ninguna regla.
+
+**Estado previo y cómo se construye:** Posición 1 de 2 en `s-v2-final-p4`. La secuencia empieza con `POST /__reset`, que borra cuentas, operaciones y contadores (MEM-01); no hay solicitudes previas. Estado previo, reconstruido con las respuestas registradas del original: sin cuentas ni operaciones.
+
+**Qué hace la solicitud:**
+
+`POST /__reset` es una ruta conocida (ENT-01) que vuelve el estado al inicial (MEM-01).
+
+Autenticación: `Authorization: Bearer $TEAM_TOKEN`, con el token del equipo (ENT-05).
+
+No lleva cuerpo.
+
+```bash
+curl -sS -i \
+  -X POST \
+  "$BASE_URL/__reset" \
+  -H "Authorization: Bearer $TEAM_TOKEN"
+```
+
+Efecto esperado en el estado, según la respuesta registrada del original: vuelve el estado al inicial: borra cuentas, operaciones y contadores (MEM-01).
+
+**Respuesta observada del original:** versión v2, status 200
+
+```
+{"ok":true}
+```
+
+Respuesta de `GET /health` y de `POST /__reset` (ENT-06, ENT-07).
+
+**Respuesta de la réplica:** status 200 — coincide
+
+```
+{"ok":true}
+```
+
+Coinciden el status y el JSON del original.
+
+**Qué permite concluir y qué sigue siendo hipótesis:**
+
+Evidencia: el original (v2) respondió status 200 con el cuerpo mostrado arriba; es lo único observado directamente.
+
+Conclusión registrada en el log (interpretación nuestra): «Reset previo de P4: 200 {"ok": true}.»
+
+Etiqueta: **Observación**.
+
+Es una observación puntual: la evidencia es el status y el cuerpo; cualquier generalización que haga la conclusión es inferencia.
+
+**Relación con otros experimentos y con la especificación:**
+
+- Especificación: la citan las filas ENT-07 (confirmado), MEM-01 (confirmado).
+
+#### X:330 — POST /msg DEPÓSITO;AC-0001;100;68
+
+**Qué se quería saber y por qué importa:** pregunta registrada: «P4: comando con acento; control calculado descartando la Ó: ¿E301 con sugerencia, E401 (normaliza) o E202?»
+
+Categoría: Sonda de la campaña final. Pertenece a la campaña final de experimentos (secuencias `final-*`): sondea un punto concreto, el que enuncia la hipótesis registrada.
+
+**Estado previo y cómo se construye:** Posición 2 de 2 en `s-v2-final-p4`. La secuencia empieza con `POST /__reset` (MEM-01) y sigue con las solicitudes X:329, en orden; el efecto de cada una está en los pasos de la secuencia. Estado previo, reconstruido con las respuestas registradas del original: sin cuentas ni operaciones.
+
+**Qué hace la solicitud:**
+
+`POST /msg` es la ruta de los mensajes (ENT-01).
+
+Autenticación: `Authorization: Bearer $TEAM_TOKEN`, con el token del equipo (ENT-05).
+
+El mensaje `m` se divide por `;` en 4 campos (INT-01): comando `DEPÓSITO`, argumentos: argumento 1=`AC-0001`, argumento 2=`100`; control `68`.
+
+`DEPÓSITO` no es uno de los comandos conocidos (`PING`, `ALTA`, `CONSULTA`, `DEPOSITO`, `TRANSFER`, `ANULA`); ver CMD-19.
+
+El último campo del mensaje es el dígito de control y todo lo anterior es el payload (INT-01). El control válido es `98 − (N·100 mod 97)` (ISO 7064 MOD 97-10), donde N se forma con el payload en mayúsculas: los dígitos se conservan, las letras valen A=1…Z=26 sin relleno y los demás símbolos se descartan (INT-03).
+
+Para el payload `DEPÓSITO;AC-0001;100` el cálculo da `68`; el control enviado es `68`, que coincide con ese valor.
+
+El control detecta errores de tipeo; no autentica ni protege la integridad ante un atacante (RIE-03).
+
+```bash
+curl -sS -i \
+  -X POST \
+  "$BASE_URL/msg" \
+  -H "Authorization: Bearer $TEAM_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data-raw '{"m":"DEPÓSITO;AC-0001;100;68"}'
+```
+
+Efecto esperado en el estado, según la respuesta registrada del original: rechazada con E301: no modifica el estado y no consume número de cuenta ni de operación (MEM-02).
+
+**Respuesta observada del original:** versión v2, status 400
+
+```
+{"error":"E301","mensaje":"comando desconocido ","sugerencia":"DEPOSITO"}
+```
+
+Error E301 (HTTP 400): el servicio responde «comando desconocido ». Según la especificación se produce cuando el comando no existe; puede añadir `sugerencia` (ERR-09, CMD-19, OBS-05). El campo `sugerencia` nombra el comando conocido más cercano (OBS-05).
+
+**Respuesta de la réplica:** status 400 — coincide
+
+```
+{"error":"E301","mensaje":"comando desconocido ","sugerencia":"DEPOSITO"}
+```
+
+Coinciden el status y el JSON del original.
+
+**Qué permite concluir y qué sigue siendo hipótesis:**
+
+Evidencia: el original (v2) respondió status 400 con el cuerpo mostrado arriba; es lo único observado directamente.
+
+Conclusión registrada en el log (interpretación nuestra): «Comportamiento de v2: 'DEPÓSITO' con control 68 (calculado descartando la Ó) da E301 con sugerencia DEPOSITO: el comando no se normaliza y el control acepta la Ó descartada (no hubo E202).»
+
+Etiqueta: **Comportamiento de v2 sin línea base en v1**.
+
+Se observó en v2 y no existe una solicitud equivalente en v1, así que no está probado como cambio de versión (especificación, sección 6.2); queda como comportamiento observado.
+
+**Relación con otros experimentos y con la especificación:**
+
+- Especificación: la citan las filas INT-08 (confirmado), CMD-19b (confirmado), ERR-09 (probable; variante confirmada en v2).
+
+### s-v2-final-sa — v2, X:331–X:337
+
+Secuencia de 7 solicitud(es) de v2, nombre base `final`. Propósito: Reset previo de la secuencia S-A
+
+- Categorías de sus entradas: Preparación (4); Sonda de la campaña final (3).
+- Comandos que envía: `ALTA`, `DEPOSITO`, `TRANSFER`.
+- Errores que devuelve el original: E303 (1), E304 (1).
+- Filas de la especificación que citan sus líneas: ENT-07, MEM-01, CMD-14c, MEM-02, CMD-14b.
+
+Pasos y efecto sobre el estado (según las respuestas registradas del original):
+
+- X:331 `POST /__reset` → status 200: vuelve el estado al inicial: borra cuentas, operaciones y contadores (MEM-01).
+- X:332 `ALTA;Ana;50` → status 201: crea la cuenta AC-0001 («Ana») con saldo 0 (CMD-02).
+- X:333 `ALTA;Beto;11` → status 201: crea la cuenta AC-0002 («Beto») con saldo 0 (CMD-02).
+- X:334 `DEPOSITO;AC-0001;1000;35` → status 200: registra OP-0001: suma 1000 a AC-0001, que queda con saldo 1000 (CMD-06).
+- X:335 `TRANSFER;AC-0001;AC-0002;0100;21` → status 400: rechazada con E303: no modifica el estado y no consume número de cuenta ni de operación (MEM-02).
+- X:336 `TRANSFER;AC-0001;AC-0001;100;17` → status 400: rechazada con E304: no modifica el estado y no consume número de cuenta ni de operación (MEM-02).
+- X:337 `TRANSFER;AC-0001;AC-0002;100;24` → status 200: registra OP-0002: mueve 100 de AC-0001 (saldo 900) a AC-0002 (saldo 100) (CMD-09).
+
+#### X:331 — POST /__reset
+
+**Qué se quería saber y por qué importa:** pregunta registrada: «Reset previo de la secuencia S-A»
+
+Categoría: Preparación. Es un paso de preparación: deja las cuentas u operaciones en el estado que necesitan las solicitudes siguientes de la misma secuencia y por sí mismo no pone a prueba ninguna regla.
+
+**Estado previo y cómo se construye:** Posición 1 de 7 en `s-v2-final-sa`. La secuencia empieza con `POST /__reset`, que borra cuentas, operaciones y contadores (MEM-01); no hay solicitudes previas. Estado previo, reconstruido con las respuestas registradas del original: sin cuentas ni operaciones.
+
+**Qué hace la solicitud:**
+
+`POST /__reset` es una ruta conocida (ENT-01) que vuelve el estado al inicial (MEM-01).
+
+Autenticación: `Authorization: Bearer $TEAM_TOKEN`, con el token del equipo (ENT-05).
+
+No lleva cuerpo.
+
+```bash
+curl -sS -i \
+  -X POST \
+  "$BASE_URL/__reset" \
+  -H "Authorization: Bearer $TEAM_TOKEN"
+```
+
+Efecto esperado en el estado, según la respuesta registrada del original: vuelve el estado al inicial: borra cuentas, operaciones y contadores (MEM-01).
+
+**Respuesta observada del original:** versión v2, status 200
+
+```
+{"ok":true}
+```
+
+Respuesta de `GET /health` y de `POST /__reset` (ENT-06, ENT-07).
+
+**Respuesta de la réplica:** status 200 — coincide
+
+```
+{"ok":true}
+```
+
+Coinciden el status y el JSON del original.
+
+**Qué permite concluir y qué sigue siendo hipótesis:**
+
+Evidencia: el original (v2) respondió status 200 con el cuerpo mostrado arriba; es lo único observado directamente.
+
+Conclusión registrada en el log (interpretación nuestra): «Reset previo de la secuencia S-A: 200 {"ok": true}.»
+
+Etiqueta: **Observación**.
+
+Es una observación puntual: la evidencia es el status y el cuerpo; cualquier generalización que haga la conclusión es inferencia.
+
+**Relación con otros experimentos y con la especificación:**
+
+- Especificación: la citan las filas ENT-07 (confirmado), MEM-01 (confirmado).
+
+#### X:332 — POST /msg ALTA;Ana;50
+
+**Qué se quería saber y por qué importa:** pregunta registrada: «S-A.1 preparación: AC-0001»
+
+Categoría: Preparación. Es un paso de preparación: deja las cuentas u operaciones en el estado que necesitan las solicitudes siguientes de la misma secuencia y por sí mismo no pone a prueba ninguna regla.
+
+**Estado previo y cómo se construye:** Posición 2 de 7 en `s-v2-final-sa`. La secuencia empieza con `POST /__reset` (MEM-01) y sigue con las solicitudes X:331, en orden; el efecto de cada una está en los pasos de la secuencia. Estado previo, reconstruido con las respuestas registradas del original: sin cuentas ni operaciones.
+
+**Qué hace la solicitud:**
+
+`POST /msg` es la ruta de los mensajes (ENT-01).
+
+Autenticación: `Authorization: Bearer $TEAM_TOKEN`, con el token del equipo (ENT-05).
+
+El mensaje `m` se divide por `;` en 3 campos (INT-01): comando `ALTA`, argumentos: nombre=`Ana`; control `50`.
+
+`ALTA` crea una cuenta con saldo 0 y devuelve su `cuentaId`, secuencial desde `AC-0001` (CMD-02). Aridad: 1 argumento(s): nombre.
+
+El último campo del mensaje es el dígito de control y todo lo anterior es el payload (INT-01). El control válido es `98 − (N·100 mod 97)` (ISO 7064 MOD 97-10), donde N se forma con el payload en mayúsculas: los dígitos se conservan, las letras valen A=1…Z=26 sin relleno y los demás símbolos se descartan (INT-03).
+
+Para el payload `ALTA;Ana` el cálculo da `50`; el control enviado es `50`, que coincide con ese valor.
+
+El control detecta errores de tipeo; no autentica ni protege la integridad ante un atacante (RIE-03).
+
+```bash
+curl -sS -i \
+  -X POST \
+  "$BASE_URL/msg" \
+  -H "Authorization: Bearer $TEAM_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data-raw '{"m":"ALTA;Ana;50"}'
+```
+
+Efecto esperado en el estado, según la respuesta registrada del original: crea la cuenta AC-0001 («Ana») con saldo 0 (CMD-02).
+
+**Respuesta observada del original:** versión v2, status 201
+
+```
+{"cuentaId":"AC-0001"}
+```
+
+Cuenta creada por `ALTA`; el id es secuencial desde `AC-0001` (CMD-02).
+
+**Respuesta de la réplica:** status 201 — coincide
+
+```
+{"cuentaId":"AC-0001"}
+```
+
+Coinciden el status y el JSON del original.
+
+**Qué permite concluir y qué sigue siendo hipótesis:**
+
+Evidencia: el original (v2) respondió status 201 con el cuerpo mostrado arriba; es lo único observado directamente.
+
+Conclusión registrada en el log (interpretación nuestra): «Preparación (201 AC-0001).»
+
+Etiqueta: **Preparación**.
+
+Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado para las líneas siguientes.
+
+**Relación con otros experimentos y con la especificación:**
+
+- Especificación: la citan las filas MEM-01 (confirmado).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:19, X:61, X:74, X:83; v2: X:103, X:145, X:158, X:167, X:169, X:174, X:181, X:187 y 11 más).
+
+#### X:333 — POST /msg ALTA;Beto;11
+
+**Qué se quería saber y por qué importa:** pregunta registrada: «S-A.2 preparación: AC-0002»
+
+Categoría: Preparación. Es un paso de preparación: deja las cuentas u operaciones en el estado que necesitan las solicitudes siguientes de la misma secuencia y por sí mismo no pone a prueba ninguna regla.
+
+**Estado previo y cómo se construye:** Posición 3 de 7 en `s-v2-final-sa`. La secuencia empieza con `POST /__reset` (MEM-01) y sigue con las solicitudes X:331–X:332, en orden; el efecto de cada una está en los pasos de la secuencia. Estado previo, reconstruido con las respuestas registradas del original: cuentas: AC-0001 («Ana», saldo 0).
+
+**Qué hace la solicitud:**
+
+`POST /msg` es la ruta de los mensajes (ENT-01).
+
+Autenticación: `Authorization: Bearer $TEAM_TOKEN`, con el token del equipo (ENT-05).
+
+El mensaje `m` se divide por `;` en 3 campos (INT-01): comando `ALTA`, argumentos: nombre=`Beto`; control `11`.
+
+`ALTA` crea una cuenta con saldo 0 y devuelve su `cuentaId`, secuencial desde `AC-0001` (CMD-02). Aridad: 1 argumento(s): nombre.
+
+El último campo del mensaje es el dígito de control y todo lo anterior es el payload (INT-01). El control válido es `98 − (N·100 mod 97)` (ISO 7064 MOD 97-10), donde N se forma con el payload en mayúsculas: los dígitos se conservan, las letras valen A=1…Z=26 sin relleno y los demás símbolos se descartan (INT-03).
+
+Para el payload `ALTA;Beto` el cálculo da `11`; el control enviado es `11`, que coincide con ese valor.
+
+El control detecta errores de tipeo; no autentica ni protege la integridad ante un atacante (RIE-03).
+
+```bash
+curl -sS -i \
+  -X POST \
+  "$BASE_URL/msg" \
+  -H "Authorization: Bearer $TEAM_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data-raw '{"m":"ALTA;Beto;11"}'
+```
+
+Efecto esperado en el estado, según la respuesta registrada del original: crea la cuenta AC-0002 («Beto») con saldo 0 (CMD-02).
+
+**Respuesta observada del original:** versión v2, status 201
+
+```
+{"cuentaId":"AC-0002"}
+```
+
+Cuenta creada por `ALTA`; el id es secuencial desde `AC-0001` (CMD-02).
+
+**Respuesta de la réplica:** status 201 — coincide
+
+```
+{"cuentaId":"AC-0002"}
+```
+
+Coinciden el status y el JSON del original.
+
+**Qué permite concluir y qué sigue siendo hipótesis:**
+
+Evidencia: el original (v2) respondió status 201 con el cuerpo mostrado arriba; es lo único observado directamente.
+
+Conclusión registrada en el log (interpretación nuestra): «Preparación (201 AC-0002).»
+
+Etiqueta: **Preparación**.
+
+Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado para las líneas siguientes.
+
+**Relación con otros experimentos y con la especificación:**
+
+- Especificación: ninguna fila de `docs/specification.md` cita esta línea.
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:20, X:62; v2: X:104, X:146, X:170, X:182, X:188, X:216, X:224, X:244 y 3 más).
+
+#### X:334 — POST /msg DEPOSITO;AC-0001;1000;35
+
+**Qué se quería saber y por qué importa:** pregunta registrada: «S-A.3 preparación: AC-0001 = 1000»
+
+Categoría: Preparación. Es un paso de preparación: deja las cuentas u operaciones en el estado que necesitan las solicitudes siguientes de la misma secuencia y por sí mismo no pone a prueba ninguna regla.
+
+**Estado previo y cómo se construye:** Posición 4 de 7 en `s-v2-final-sa`. La secuencia empieza con `POST /__reset` (MEM-01) y sigue con las solicitudes X:331–X:333, en orden; el efecto de cada una está en los pasos de la secuencia. Estado previo, reconstruido con las respuestas registradas del original: cuentas: AC-0001 («Ana», saldo 0); AC-0002 («Beto», saldo 0).
+
+**Qué hace la solicitud:**
+
+`POST /msg` es la ruta de los mensajes (ENT-01).
+
+Autenticación: `Authorization: Bearer $TEAM_TOKEN`, con el token del equipo (ENT-05).
+
+El mensaje `m` se divide por `;` en 4 campos (INT-01): comando `DEPOSITO`, argumentos: cuenta=`AC-0001`, monto=`1000`; control `35`.
+
+`DEPOSITO` suma el monto al saldo de la cuenta y devuelve un `operacionId` (CMD-06). Aridad: 2 argumento(s): cuenta, monto.
+
+El último campo del mensaje es el dígito de control y todo lo anterior es el payload (INT-01). El control válido es `98 − (N·100 mod 97)` (ISO 7064 MOD 97-10), donde N se forma con el payload en mayúsculas: los dígitos se conservan, las letras valen A=1…Z=26 sin relleno y los demás símbolos se descartan (INT-03).
+
+Para el payload `DEPOSITO;AC-0001;1000` el cálculo da `35`; el control enviado es `35`, que coincide con ese valor.
+
+El control detecta errores de tipeo; no autentica ni protege la integridad ante un atacante (RIE-03).
+
+```bash
+curl -sS -i \
+  -X POST \
+  "$BASE_URL/msg" \
+  -H "Authorization: Bearer $TEAM_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data-raw '{"m":"DEPOSITO;AC-0001;1000;35"}'
+```
+
+Efecto esperado en el estado, según la respuesta registrada del original: registra OP-0001: suma 1000 a AC-0001, que queda con saldo 1000 (CMD-06).
+
+**Respuesta observada del original:** versión v2, status 200
+
+```
+{"status":"recieved","operacionId":"OP-0001"}
+```
+
+Operación aceptada y registrada por `DEPOSITO` o `TRANSFER` (el texto `recieved` es el del original) (CMD-06, CMD-09, RIE-01).
+
+**Respuesta de la réplica:** status 200 — coincide
+
+```
+{"status":"recieved","operacionId":"OP-0001"}
+```
+
+Coinciden el status y el JSON del original.
+
+**Qué permite concluir y qué sigue siendo hipótesis:**
+
+Evidencia: el original (v2) respondió status 200 con el cuerpo mostrado arriba; es lo único observado directamente.
+
+Conclusión registrada en el log (interpretación nuestra): «Preparación: AC-0001 = 1000 (200 OP-0001).»
+
+Etiqueta: **Preparación**.
+
+Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado para las líneas siguientes.
+
+**Relación con otros experimentos y con la especificación:**
+
+- Especificación: la citan las filas MEM-01 (confirmado).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:63; v2: X:147, X:245, X:294).
+
+#### X:335 — POST /msg TRANSFER;AC-0001;AC-0002;0100;21
+
+**Qué se quería saber y por qué importa:** pregunta registrada: «S-A.4 monto con cero inicial en TRANSFER: ¿E303?»
+
+Categoría: Sonda de la campaña final. Pertenece a la campaña final de experimentos (secuencias `final-*`): sondea un punto concreto, el que enuncia la hipótesis registrada.
+
+**Estado previo y cómo se construye:** Posición 5 de 7 en `s-v2-final-sa`. La secuencia empieza con `POST /__reset` (MEM-01) y sigue con las solicitudes X:331–X:334, en orden; el efecto de cada una está en los pasos de la secuencia. Estado previo, reconstruido con las respuestas registradas del original: cuentas: AC-0001 («Ana», saldo 1000); AC-0002 («Beto», saldo 0). operaciones: OP-0001 (depósito de 1000 en AC-0001).
+
+**Qué hace la solicitud:**
+
+`POST /msg` es la ruta de los mensajes (ENT-01).
+
+Autenticación: `Authorization: Bearer $TEAM_TOKEN`, con el token del equipo (ENT-05).
+
+El mensaje `m` se divide por `;` en 5 campos (INT-01): comando `TRANSFER`, argumentos: origen=`AC-0001`, destino=`AC-0002`, monto=`0100`; control `21`.
+
+`TRANSFER` resta el monto de la cuenta de origen, lo suma a la de destino y devuelve un `operacionId` (CMD-09). Aridad: 3 argumento(s): origen, destino, monto.
+
+El último campo del mensaje es el dígito de control y todo lo anterior es el payload (INT-01). El control válido es `98 − (N·100 mod 97)` (ISO 7064 MOD 97-10), donde N se forma con el payload en mayúsculas: los dígitos se conservan, las letras valen A=1…Z=26 sin relleno y los demás símbolos se descartan (INT-03).
+
+Para el payload `TRANSFER;AC-0001;AC-0002;0100` el cálculo da `21`; el control enviado es `21`, que coincide con ese valor.
+
+El control detecta errores de tipeo; no autentica ni protege la integridad ante un atacante (RIE-03).
+
+```bash
+curl -sS -i \
+  -X POST \
+  "$BASE_URL/msg" \
+  -H "Authorization: Bearer $TEAM_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data-raw '{"m":"TRANSFER;AC-0001;AC-0002;0100;21"}'
+```
+
+Efecto esperado en el estado, según la respuesta registrada del original: rechazada con E303: no modifica el estado y no consume número de cuenta ni de operación (MEM-02).
+
+**Respuesta observada del original:** versión v2, status 400
+
+```
+{"error":"E303","mensaje":"monto inválido"}
+```
+
+Error E303 (HTTP 400): el servicio responde «monto inválido». Según la especificación se produce cuando el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo (ERR-12, CMD-07, CMD-07b, CMD-08b).
+
+**Respuesta de la réplica:** status 400 — coincide
+
+```
+{"error":"E303","mensaje":"monto inválido"}
+```
+
+Coinciden el status y el JSON del original.
+
+**Qué permite concluir y qué sigue siendo hipótesis:**
+
+Evidencia: el original (v2) respondió status 400 con el cuerpo mostrado arriba; es lo único observado directamente.
+
+Conclusión registrada en el log (interpretación nuestra): «Comportamiento de v2: TRANSFER con monto '0100' (cero inicial) da 400 E303, igual que DEPOSITO en X:84/X:168.»
+
+Etiqueta: **Comportamiento de v2 sin línea base en v1**.
+
+Se observó en v2 y no existe una solicitud equivalente en v1, así que no está probado como cambio de versión (especificación, sección 6.2); queda como comportamiento observado.
+
+**Relación con otros experimentos y con la especificación:**
+
+- Especificación: la citan las filas CMD-14c (confirmado), MEM-02 (confirmado).
+
+#### X:336 — POST /msg TRANSFER;AC-0001;AC-0001;100;17
+
+**Qué se quería saber y por qué importa:** pregunta registrada: «S-A.5 E304 con cuentas existentes»
+
+Categoría: Sonda de la campaña final. Pertenece a la campaña final de experimentos (secuencias `final-*`): sondea un punto concreto, el que enuncia la hipótesis registrada.
+
+**Estado previo y cómo se construye:** Posición 6 de 7 en `s-v2-final-sa`. La secuencia empieza con `POST /__reset` (MEM-01) y sigue con las solicitudes X:331–X:335, en orden; el efecto de cada una está en los pasos de la secuencia. Estado previo, reconstruido con las respuestas registradas del original: cuentas: AC-0001 («Ana», saldo 1000); AC-0002 («Beto», saldo 0). operaciones: OP-0001 (depósito de 1000 en AC-0001).
+
+**Qué hace la solicitud:**
+
+`POST /msg` es la ruta de los mensajes (ENT-01).
+
+Autenticación: `Authorization: Bearer $TEAM_TOKEN`, con el token del equipo (ENT-05).
+
+El mensaje `m` se divide por `;` en 5 campos (INT-01): comando `TRANSFER`, argumentos: origen=`AC-0001`, destino=`AC-0001`, monto=`100`; control `17`.
+
+`TRANSFER` resta el monto de la cuenta de origen, lo suma a la de destino y devuelve un `operacionId` (CMD-09). Aridad: 3 argumento(s): origen, destino, monto.
+
+El último campo del mensaje es el dígito de control y todo lo anterior es el payload (INT-01). El control válido es `98 − (N·100 mod 97)` (ISO 7064 MOD 97-10), donde N se forma con el payload en mayúsculas: los dígitos se conservan, las letras valen A=1…Z=26 sin relleno y los demás símbolos se descartan (INT-03).
+
+Para el payload `TRANSFER;AC-0001;AC-0001;100` el cálculo da `17`; el control enviado es `17`, que coincide con ese valor.
+
+El control detecta errores de tipeo; no autentica ni protege la integridad ante un atacante (RIE-03).
+
+```bash
+curl -sS -i \
+  -X POST \
+  "$BASE_URL/msg" \
+  -H "Authorization: Bearer $TEAM_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data-raw '{"m":"TRANSFER;AC-0001;AC-0001;100;17"}'
+```
+
+Efecto esperado en el estado, según la respuesta registrada del original: rechazada con E304: no modifica el estado y no consume número de cuenta ni de operación (MEM-02).
+
+**Respuesta observada del original:** versión v2, status 400
+
+```
+{"error":"E304","mensaje":"origen y destino iguales"}
+```
+
+Error E304 (HTTP 400): el servicio responde «origen y destino iguales». Según la especificación se produce cuando en `TRANSFER`, origen y destino son la misma cuenta (ERR-10, CMD-14b).
+
+**Respuesta de la réplica:** status 400 — coincide
+
+```
+{"error":"E304","mensaje":"origen y destino iguales"}
+```
+
+Coinciden el status y el JSON del original.
+
+**Qué permite concluir y qué sigue siendo hipótesis:**
+
+Evidencia: el original (v2) respondió status 400 con el cuerpo mostrado arriba; es lo único observado directamente.
+
+Conclusión registrada en el log (interpretación nuestra): «Comportamiento de v2: TRANSFER con origen y destino iguales y cuentas existentes da 400 E304.»
+
+Etiqueta: **Comportamiento de v2 sin línea base en v1**.
+
+Se observó en v2 y no existe una solicitud equivalente en v1, así que no está probado como cambio de versión (especificación, sección 6.2); queda como comportamiento observado.
+
+**Relación con otros experimentos y con la especificación:**
+
+- Especificación: la citan las filas CMD-14b (confirmado), MEM-02 (confirmado).
+- Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:80; v2: X:164, X:210).
+
+#### X:337 — POST /msg TRANSFER;AC-0001;AC-0002;100;24
+
+**Qué se quería saber y por qué importa:** pregunta registrada: «S-A.6 ¿E303/E304 consumieron número de OP? (esperado OP-0002 si no)»
+
+Categoría: Sonda de la campaña final. Pertenece a la campaña final de experimentos (secuencias `final-*`): sondea un punto concreto, el que enuncia la hipótesis registrada.
+
+**Estado previo y cómo se construye:** Posición 7 de 7 en `s-v2-final-sa`. La secuencia empieza con `POST /__reset` (MEM-01) y sigue con las solicitudes X:331–X:336, en orden; el efecto de cada una está en los pasos de la secuencia. Estado previo, reconstruido con las respuestas registradas del original: cuentas: AC-0001 («Ana», saldo 1000); AC-0002 («Beto», saldo 0). operaciones: OP-0001 (depósito de 1000 en AC-0001).
+
+**Qué hace la solicitud:**
+
+`POST /msg` es la ruta de los mensajes (ENT-01).
+
+Autenticación: `Authorization: Bearer $TEAM_TOKEN`, con el token del equipo (ENT-05).
+
+El mensaje `m` se divide por `;` en 5 campos (INT-01): comando `TRANSFER`, argumentos: origen=`AC-0001`, destino=`AC-0002`, monto=`100`; control `24`.
+
+`TRANSFER` resta el monto de la cuenta de origen, lo suma a la de destino y devuelve un `operacionId` (CMD-09). Aridad: 3 argumento(s): origen, destino, monto.
+
+El último campo del mensaje es el dígito de control y todo lo anterior es el payload (INT-01). El control válido es `98 − (N·100 mod 97)` (ISO 7064 MOD 97-10), donde N se forma con el payload en mayúsculas: los dígitos se conservan, las letras valen A=1…Z=26 sin relleno y los demás símbolos se descartan (INT-03).
+
+Para el payload `TRANSFER;AC-0001;AC-0002;100` el cálculo da `24`; el control enviado es `24`, que coincide con ese valor.
+
+El control detecta errores de tipeo; no autentica ni protege la integridad ante un atacante (RIE-03).
+
+```bash
+curl -sS -i \
+  -X POST \
+  "$BASE_URL/msg" \
+  -H "Authorization: Bearer $TEAM_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data-raw '{"m":"TRANSFER;AC-0001;AC-0002;100;24"}'
+```
+
+Efecto esperado en el estado, según la respuesta registrada del original: registra OP-0002: mueve 100 de AC-0001 (saldo 900) a AC-0002 (saldo 100) (CMD-09).
+
+**Respuesta observada del original:** versión v2, status 200
+
+```
+{"status":"recieved","operacionId":"OP-0002"}
+```
+
+Operación aceptada y registrada por `DEPOSITO` o `TRANSFER` (el texto `recieved` es el del original) (CMD-06, CMD-09, RIE-01).
+
+**Respuesta de la réplica:** status 200 — coincide
+
+```
+{"status":"recieved","operacionId":"OP-0002"}
+```
+
+Coinciden el status y el JSON del original.
+
+**Qué permite concluir y qué sigue siendo hipótesis:**
+
+Evidencia: el original (v2) respondió status 200 con el cuerpo mostrado arriba; es lo único observado directamente.
+
+Conclusión registrada en el log (interpretación nuestra): «Comportamiento de v2: TRANSFER válida recibe OP-0002 tras los rechazos E303 (X:335) y E304 (X:336): esos errores no consumen número de operación.»
+
+Etiqueta: **Comportamiento de v2 sin línea base en v1**.
+
+Se observó en v2 y no existe una solicitud equivalente en v1, así que no está probado como cambio de versión (especificación, sección 6.2); queda como comportamiento observado.
+
+**Relación con otros experimentos y con la especificación:**
+
+- Especificación: la citan las filas CMD-14b (confirmado), MEM-02 (confirmado).

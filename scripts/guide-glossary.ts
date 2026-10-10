@@ -34,6 +34,8 @@ export const COMMANDS: readonly CommandInfo[] = [
 
 export interface ErrorInfo {
   code: string;
+  /** Id of the row of docs/specification.md section 5 that defines the code. */
+  row: string;
   status: number;
   mensaje: string;
   /** What the specification says triggers it. */
@@ -42,28 +44,28 @@ export interface ErrorInfo {
 }
 
 export const ERRORS: readonly ErrorInfo[] = [
-  { code: "E001", status: 401, mensaje: "no autorizado", rule: "falta la cabecera `Authorization` o el token es incorrecto", cite: ["ENT-05"] },
-  { code: "E404", status: 404, mensaje: "ruta desconocida", rule: "ruta inexistente o método no admitido en una ruta conocida", cite: ["ENT-02", "ENT-03"] },
-  { code: "E100", status: 400, mensaje: "json inválido", rule: "el cuerpo no es JSON", cite: ["ENT-08"] },
-  { code: "E102", status: 400, mensaje: "falta m", rule: "el JSON no trae `m`, o `m` no es un string", cite: ["ENT-09", "ENT-11"] },
-  { code: "E103", status: 400, mensaje: "falta control", rule: "el mensaje no contiene ningún `;`", cite: ["INT-07"] },
-  { code: "E104", status: 400, mensaje: "segmento vacío", rule: "algún segmento de `m` al dividirlo por `;` está vacío", cite: ["INT-10"] },
+  { code: "E001", row: "ERR-02", status: 401, mensaje: "no autorizado", rule: "falta la cabecera `Authorization` o el token es incorrecto", cite: ["ENT-05"] },
+  { code: "E404", row: "ERR-01", status: 404, mensaje: "ruta desconocida", rule: "ruta inexistente o método no admitido en una ruta conocida", cite: ["ENT-02", "ENT-03"] },
+  { code: "E100", row: "ERR-03", status: 400, mensaje: "json inválido", rule: "el cuerpo no es JSON", cite: ["ENT-08"] },
+  { code: "E102", row: "ERR-04", status: 400, mensaje: "falta m", rule: "el JSON no trae `m`, o `m` no es un string", cite: ["ENT-09", "ENT-11"] },
+  { code: "E103", row: "ERR-05", status: 400, mensaje: "falta control", rule: "el mensaje no contiene ningún `;`", cite: ["INT-07"] },
+  { code: "E104", row: "ERR-06", status: 400, mensaje: "segmento vacío", rule: "algún segmento de `m` al dividirlo por `;` está vacío", cite: ["INT-10"] },
   {
-    code: "E201",
+    code: "E201", row: "ERR-07",
     status: 400,
     mensaje: "control mal formado",
     rule: "el control no es numérico o no tiene 1 o 2 dígitos (salvo en `PING`)",
     cite: ["INT-02", "INT-06"],
   },
-  { code: "E202", status: 400, mensaje: "control inválido", rule: "el control es numérico pero no es el válido (salvo en `PING`)", cite: ["INT-04", "INT-06b"] },
-  { code: "E301", status: 400, mensaje: "comando desconocido ", rule: "el comando no existe; puede añadir `sugerencia`", cite: ["CMD-19", "OBS-05"] },
-  { code: "E302", status: 400, mensaje: "aridad inválida", rule: "el número de argumentos no es el del comando", cite: ["CMD-20"] },
-  { code: "E303", status: 400, mensaje: "monto inválido", rule: "el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo", cite: ["CMD-07", "CMD-07b", "CMD-08b"] },
-  { code: "E304", status: 400, mensaje: "origen y destino iguales", rule: "en `TRANSFER`, origen y destino son la misma cuenta", cite: ["CMD-14b"] },
-  { code: "E401", status: 404, mensaje: "cuenta inexistente", rule: "la cuenta consultada, de origen o de destino no existe", cite: ["CMD-05", "CMD-14"] },
-  { code: "E402", status: 404, mensaje: "operación inexistente", rule: "la operación que se quiere anular no existe", cite: ["CMD-16"] },
-  { code: "E506", status: 422, mensaje: "límite excedido", rule: "el monto de un `TRANSFER` supera el límite de la versión", cite: ["CMD-10", "CAM-02"] },
-  { code: "E507", status: 422, mensaje: "saldo insuficiente", rule: "el saldo de la cuenta de origen es menor que el monto", cite: ["CMD-12"] },
+  { code: "E202", row: "ERR-08", status: 400, mensaje: "control inválido", rule: "el control es numérico pero no es el válido (salvo en `PING`)", cite: ["INT-04", "INT-06b"] },
+  { code: "E301", row: "ERR-09", status: 400, mensaje: "comando desconocido ", rule: "el comando no existe; puede añadir `sugerencia`", cite: ["CMD-19", "OBS-05"] },
+  { code: "E302", row: "ERR-11", status: 400, mensaje: "aridad inválida", rule: "el número de argumentos no es el del comando", cite: ["CMD-20"] },
+  { code: "E303", row: "ERR-12", status: 400, mensaje: "monto inválido", rule: "el monto es 0, negativo, decimal, no numérico, con cero a la izquierda o mayor que el máximo", cite: ["CMD-07", "CMD-07b", "CMD-08b"] },
+  { code: "E304", row: "ERR-10", status: 400, mensaje: "origen y destino iguales", rule: "en `TRANSFER`, origen y destino son la misma cuenta", cite: ["CMD-14b"] },
+  { code: "E401", row: "ERR-13", status: 404, mensaje: "cuenta inexistente", rule: "la cuenta consultada, de origen o de destino no existe", cite: ["CMD-05", "CMD-14"] },
+  { code: "E402", row: "ERR-14", status: 404, mensaje: "operación inexistente", rule: "la operación que se quiere anular no existe", cite: ["CMD-16"] },
+  { code: "E506", row: "ERR-15", status: 422, mensaje: "límite excedido", rule: "el monto de un `TRANSFER` supera el límite de la versión", cite: ["CMD-10", "CAM-02"] },
+  { code: "E507", row: "ERR-16", status: 422, mensaje: "saldo insuficiente", rule: "el saldo de la cuenta de origen es menor que el monto", cite: ["CMD-12"] },
 ];
 
 export interface ShapeInfo {
@@ -153,6 +155,12 @@ export const CATEGORIES: readonly CategoryInfo[] = [
     label: "Sonda del nombre de comando",
     why: "Pertenece a una secuencia que sondea los nombres de comando desconocidos y la sugerencia que acompaña a E301 (especificación, OBS-05).",
     stems: ["sug"],
+  },
+  {
+    key: "final",
+    label: "Sonda de la campaña final",
+    why: "Pertenece a la campaña final de experimentos (secuencias `final-*`): sondea un punto concreto, el que enuncia la hipótesis registrada.",
+    stems: ["final"],
   },
   {
     key: "example",

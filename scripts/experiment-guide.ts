@@ -267,6 +267,7 @@ interface SpecRef {
 
 interface Spec {
   rowIds: ReadonlySet<string>;
+  rowText: ReadonlyMap<string, string>;
   citedBy: ReadonlyMap<number, readonly SpecRef[]>;
 }
 
@@ -277,12 +278,13 @@ interface Example {
   response: unknown;
 }
 
-const SPEC_ROW_ID = /^(?:(?:ENT|INT|CMD|MEM|ORD|CAM|OBS|RIE)-\d+[a-z]?|E\d{3})$/;
+const SPEC_ROW_ID = /^(?:(?:ENT|INT|CMD|MEM|ORD|CAM|OBS|RIE|ERR)-\d+[a-z]?)$/;
 const SPEC_CITATION = /X:(\d+)(?:\s*[–-]\s*X:(\d+))?/g;
 
 /** Reads docs/specification.md: the set of row ids and, for each log line, the rows whose evidence cites it. */
 function loadSpec(): Spec {
   const rowIds = new Set<string>();
+  const rowText = new Map<string, string>();
   const citedBy = new Map<number, SpecRef[]>();
   for (const line of readFileSync(SPEC_PATH, "utf8").split("\n")) {
     if (!line.startsWith("|")) continue;
@@ -290,6 +292,7 @@ function loadSpec(): Spec {
     const id = cells[0] ?? "";
     if (!SPEC_ROW_ID.test(id)) continue;
     rowIds.add(id);
+    rowText.set(id, line);
     const evidence = cells[cells.length - 2] ?? "";
     const confidence = cells[cells.length - 1] ?? "";
     for (const match of evidence.matchAll(SPEC_CITATION)) {
@@ -301,20 +304,22 @@ function loadSpec(): Spec {
       }
     }
   }
-  return { rowIds, citedBy };
+  return { rowIds, rowText, citedBy };
 }
 
 /** Fails when the glossary cites a specification row that does not exist. */
 function assertGlossaryCitations(spec: Spec): void {
   const cited = [
     ...COMMANDS.flatMap((c) => c.cite),
-    ...ERRORS.flatMap((e) => [e.code, ...e.cite]),
+    ...ERRORS.flatMap((e) => [e.row, ...e.cite]),
     ...SHAPES.flatMap((s) => s.cite),
     ...CONTROL_DIGIT.cite,
     ...Object.values(AUTH_FORMS).flatMap((a) => a.cite),
   ];
   const missing = cited.filter((id) => !spec.rowIds.has(id));
   if (missing.length > 0) throw new Error(`glossary cites unknown specification rows: ${[...new Set(missing)].join(", ")}`);
+  const mismatched = ERRORS.filter((e) => !(spec.rowText.get(e.row) ?? "").includes(`\`${e.code}\``));
+  if (mismatched.length > 0) throw new Error(`specification rows do not mention their error code: ${mismatched.map((e) => `${e.code}/${e.row}`).join(", ")}`);
 }
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -387,6 +392,11 @@ function applyStep(state: SimState, row: Row): string {
   const { entry } = row;
   const message = messageOf(entry.request);
   const body = asRecord(entry.response);
+  if (row.method === "POST" && row.path === "/__reset") {
+    state.accounts.clear();
+    state.ops.clear();
+    return "vuelve el estado al inicial: borra cuentas, operaciones y contadores (MEM-01).";
+  }
   if (row.method !== "POST" || row.path !== "/msg" || message === null) {
     return "no es un mensaje de `POST /msg`: no modifica cuentas ni operaciones.";
   }
@@ -553,7 +563,7 @@ function describeResponse(row: Row): string {
     const info = ERRORS.find((e) => e.code === code);
     if (info === undefined) return `Error ${code}: no figura en el glosario.`;
     const hint = typeof record["sugerencia"] === "string" ? ` El campo \`sugerencia\` nombra el comando conocido más cercano (OBS-05).` : "";
-    return `Error ${code} (HTTP ${entry.status}): el servicio responde «${info.mensaje}». Según la especificación se produce cuando ${info.rule}${cites([`sección 5, fila ${code}`, ...info.cite])}.${hint}`;
+    return `Error ${code} (HTTP ${entry.status}): el servicio responde «${info.mensaje}». Según la especificación se produce cuando ${info.rule}${cites([info.row, ...info.cite])}.${hint}`;
   }
   const keys = Object.keys(record).sort().join(",");
   const shape = SHAPES.find((s) => s.keys === keys);
@@ -574,12 +584,12 @@ function responseIsDescribed(row: Row): boolean {
 // Categories, relations and conclusion
 
 function stemOf(seq: string): string | null {
-  return /^s-(?:v2-)?([a-z0-9]+)-\d+(?:-v2)?$/.exec(seq)?.[1] ?? null;
+  return /^s-(?:v2-)?([a-z0-9]+)-[a-z0-9]+(?:-v2)?$/.exec(seq)?.[1] ?? null;
 }
 
 function categoryOf(entry: Entry): CategoryInfo | undefined {
   const key =
-    entry.hipotesis.startsWith("Preparación") || entry.conclusion.startsWith("Preparación")
+    entry.hipotesis.startsWith("Preparación") || entry.conclusion.startsWith("Preparación") || entry.path === "/__reset"
       ? "preparation"
       : entry.replayOf !== null
         ? "replay"
@@ -823,7 +833,7 @@ function renderGlossary(): string[] {
     "",
     "| Código | Status | `mensaje` | Se produce cuando | Fuente |",
     "|---|---|---|---|---|",
-    ...ERRORS.map((e) => `| ${e.code} | ${e.status} | \`${e.mensaje}\` | ${e.rule} | sección 5, fila ${e.code}; ${e.cite.join(", ")} |`),
+    ...ERRORS.map((e) => `| ${e.code} | ${e.status} | \`${e.mensaje}\` | ${e.rule} | ${e.row}; ${e.cite.join(", ")} |`),
     "",
     "### Formas de respuesta correcta",
     "",

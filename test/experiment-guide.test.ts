@@ -38,7 +38,8 @@ describe("experiment guide structure", () => {
   const entries = guide.split(/^#### /m).slice(1);
 
   test("there is one entry per logged line", () => {
-    assert.equal(entries.length, 313);
+    const logged = readFileSync(join(root, "experimentos.jsonl"), "utf8").split("\n").filter((line) => line.trim() !== "").length;
+    assert.equal(entries.length, logged);
   });
 
   test("every entry carries the seven explanation headings in order", () => {
