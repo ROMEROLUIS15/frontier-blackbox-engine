@@ -24,13 +24,11 @@ interface LoggedExperiment {
 }
 
 // Trusted fixture: experimentos.jsonl is the log of real requests to the original service.
-// Only the lines tagged "version":"v2" are replayed: they are the ground truth for the current behavior.
-function readV2Experiments(): LoggedExperiment[] {
+function readLog(): LoggedExperiment[] {
   return readFileSync(join(root, "experimentos.jsonl"), "utf8")
     .split("\n")
     .filter((line) => line.trim() !== "")
-    .map((line) => JSON.parse(line) as LoggedExperiment)
-    .filter((e) => e.version === "v2");
+    .map((line) => JSON.parse(line) as LoggedExperiment);
 }
 
 async function startServer(): Promise<{ server: Server; base: string }> {
@@ -84,12 +82,39 @@ function sameResponse(actualText: string, expected: unknown): boolean {
   }
 }
 
-const experiments = readV2Experiments();
+// Only the lines tagged "version":"v2" are replayed: they are the ground truth for the current behavior.
+// The set is derived from the data, so appending campaign lines never needs a test edit. Logged /__reset
+// lines (request null) are part of the evidence and are replayed like any other request.
+const log = readLog();
+const experiments = log.filter((e) => e.version === "v2");
 const sequences = [...new Set(experiments.map((e) => e.seq))];
 
 describe("equivalence with version 2 of the original: every v2 line of experimentos.jsonl", () => {
-  test("the log holds the 229 v2 lines", () => {
-    assert.equal(experiments.length, 229);
+  test("the log is well formed: consecutive ids, and the required fields on every v2 line", () => {
+    assert.deepEqual(
+      log.map((e) => e.id),
+      log.map((_, index) => index + 1),
+    );
+    for (const e of experiments) {
+      for (const field of ["seq", "method", "path", "auth", "request", "status", "response"]) {
+        assert.ok(field in e, `id=${e.id} lacks "${field}"`);
+      }
+    }
+  });
+
+  test("the v2 set is derived from the data, is non-empty and is fully covered by the replays", () => {
+    assert.ok(experiments.length > 0);
+    const replayed = sequences.flatMap((seq) => experiments.filter((e) => e.seq === seq));
+    assert.equal(replayed.length, experiments.length);
+  });
+
+  test("logged /__reset lines are part of the replayed evidence (X:314, X:316, X:329, X:331)", () => {
+    const resets = experiments.filter((e) => e.method === "POST" && e.path === "/__reset" && e.auth === "team");
+    assert.ok(resets.length > 0);
+    for (const e of resets) {
+      assert.equal(e.request, null, `id=${e.id}`);
+      assert.deepEqual(e.response, { ok: true }, `id=${e.id}`);
+    }
   });
 
   for (const seq of sequences) {
@@ -114,7 +139,44 @@ describe("equivalence with version 2 of the original: every v2 line of experimen
   }
 });
 
-describe("same-account TRANSFER is rejected without mutation (mirrors X:79-81)", () => {
+describe("rejected requests and ANULA consume no operation number (X:324, X:332-337)", () => {
+  test("E303 and E304 rejections leave the next operation id untouched (X:335-337)", async () => {
+    const { server, base } = await startServer();
+    try {
+      await send(base, "POST", "/__reset", "team", {});
+      await message(base, "ALTA;Ana;50");
+      await message(base, "ALTA;Beto;11");
+      assert.deepEqual((await message(base, "DEPOSITO;AC-0001;1000;35")).body, { status: "recieved", operacionId: "OP-0001" });
+      const leadingZero = await message(base, "TRANSFER;AC-0001;AC-0002;0100;21");
+      assert.equal(leadingZero.status, 400);
+      assert.deepEqual(leadingZero.body, { error: "E303", mensaje: "monto inválido" });
+      const sameAccount = await message(base, "TRANSFER;AC-0001;AC-0001;100;17");
+      assert.equal(sameAccount.status, 400);
+      assert.deepEqual(sameAccount.body, { error: "E304", mensaje: "origen y destino iguales" });
+      assert.deepEqual((await message(base, "TRANSFER;AC-0001;AC-0002;100;24")).body, { status: "recieved", operacionId: "OP-0002" });
+    } finally {
+      await stopServer(server);
+    }
+  });
+
+  test("ANULA and an E507 rejection leave the next operation id untouched (X:322-324)", async () => {
+    const { server, base } = await startServer();
+    try {
+      await send(base, "POST", "/__reset", "team", {});
+      await message(base, "ALTA;Ana;50");
+      await message(base, "ALTA;Beto;11");
+      await message(base, "DEPOSITO;AC-0001;50000;39");
+      assert.deepEqual((await message(base, "TRANSFER;AC-0001;AC-0002;50000;59")).body, { status: "recieved", operacionId: "OP-0002" });
+      assert.deepEqual((await message(base, "ANULA;OP-0001;72")).body, { ok: true, anulada: "OP-0001" });
+      assert.deepEqual((await message(base, "TRANSFER;AC-0001;AC-0002;1;41")).body, { error: "E507", mensaje: "saldo insuficiente" });
+      assert.deepEqual((await message(base, "TRANSFER;AC-0002;AC-0001;50000;23")).body, { status: "recieved", operacionId: "OP-0003" });
+    } finally {
+      await stopServer(server);
+    }
+  });
+});
+
+describe("same-account TRANSFER is rejected without mutation (X:79-81 for the balance, X:336-337 for the id)", () => {
   test("E304 consumes no operation id and leaves the balance unchanged", async () => {
     const { server, base } = await startServer();
     try {

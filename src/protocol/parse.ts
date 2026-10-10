@@ -26,8 +26,11 @@ const SUGGESTION_MAX_DISTANCE = 2;
 /**
  * Closest known command to an unknown (already upper-cased, untrimmed) command name, or null when none is within
  * SUGGESTION_MAX_DISTANCE.
- * ASSUMPTION: the metric is plain Levenshtein; X:311-313 cannot tell it apart from Damerau (PIGN is 2 / 1).
- * ASSUMPTION: ties go to the first command in ARITY order (not evidenced).
+ * Observed: the metric is consistent with plain Levenshtein (X:311-313, X:315). X:315 ("ANLUA") is 2 from ALTA and
+ * 2 from ANULA under Levenshtein, but 1 from ANULA under Damerau (OSA); the original answers ALTA, so it does not
+ * choose by Damerau distance. This does not establish the general suggestion algorithm.
+ * ASSUMPTION: ties go to the first command in ARITY order. X:315 is consistent with it but does not distinguish it
+ * from alphabetical order (ALTA precedes ANULA in both).
  */
 export function suggestCommand(name: string): CommandName | null {
   let best: CommandName | null = null;
