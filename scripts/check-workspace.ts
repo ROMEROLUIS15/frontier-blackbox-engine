@@ -1,6 +1,6 @@
 /**
  * Workspace guardrail for the multi-agent console effort.
- * Usage: node scripts/check-workspace.ts --workspace <ws1|ws2|ws3|ws4|harness> [--base <ref>]
+ * Usage: node scripts/check-workspace.ts --workspace <ws1|ws2|ws3|ws4|harness|release> [--base <ref>]
  * Prints one line per check (PASS/FAIL) and exits 1 on any FAIL.
  * The ownership table below is the source of truth referenced by AGENTS.md section 10.
  */
@@ -36,7 +36,10 @@ export const OWNERSHIP = {
     "docs/agent-harness.md",
     "scripts/check-workspace.ts",
     "test/check-workspace.test.ts",
+    ".github/workflows/ci.yml",
   ],
+  /** Pull requests into main: any path may change, only the protected release set may not. */
+  release: ["**"],
 } as const;
 
 export const PROTECTED = [
@@ -55,8 +58,24 @@ export const PROTECTED = [
   "README.md",
 ] as const;
 
-/** Harness tests are the only files under a protected path that WS4 / harness may add. */
-export const PROTECTED_EXCEPTIONS = ["test/check-workspace.test.ts"] as const;
+/** Backend and official deliverables: the only paths frozen for the release workspace. */
+export const RELEASE_PROTECTED = [
+  "src/**",
+  "docs/*.pdf",
+  "docs/system-design.md",
+  "docs/system-design.html",
+  "docs/architecture.svg",
+  "docs/architecture.html",
+  "docs/architecture.png",
+  "docs/specification.md",
+  "experimentos.jsonl",
+  "pruebas/**",
+  "railway.json",
+  "README.md",
+] as const;
+
+/** Harness-owned files under a protected path: the harness test and the CI workflow. */
+export const PROTECTED_EXCEPTIONS = ["test/check-workspace.test.ts", ".github/workflows/ci.yml"] as const;
 
 export type WorkspaceId = keyof typeof OWNERSHIP;
 
@@ -92,8 +111,14 @@ export function matchesAny(file: string, globs: readonly string[]): boolean {
   return globs.some((glob) => globToRegExp(glob).test(file));
 }
 
-export function isProtected(file: string): boolean {
-  return matchesAny(file, PROTECTED) && !PROTECTED_EXCEPTIONS.some((exempt) => exempt === file);
+export function protectedFor(workspace: WorkspaceId): readonly string[] {
+  return workspace === "release" ? RELEASE_PROTECTED : PROTECTED;
+}
+
+export function isProtected(file: string, workspace?: WorkspaceId): boolean {
+  const globs = workspace === undefined ? PROTECTED : protectedFor(workspace);
+  const exempt = workspace === "release" ? [] : PROTECTED_EXCEPTIONS;
+  return matchesAny(file, globs) && !exempt.some((path) => path === file);
 }
 
 export function isOwned(workspace: WorkspaceId, file: string): boolean {
@@ -104,8 +129,8 @@ export function findForeignFiles(workspace: WorkspaceId, files: readonly string[
   return files.filter((file) => !isOwned(workspace, file));
 }
 
-export function findProtectedFiles(files: readonly string[]): string[] {
-  return files.filter(isProtected);
+export function findProtectedFiles(files: readonly string[], workspace?: WorkspaceId): string[] {
+  return files.filter((file) => isProtected(file, workspace));
 }
 
 export interface SecretFinding {
@@ -196,7 +221,7 @@ function runChecks(workspace: WorkspaceId, base: string): CheckResult[] {
   const backendChanges = nonEmptyLines(git(["diff", "--name-only", `${PROTECTED_BASE}...HEAD`, "--", "src"]));
   return [
     { name: "ownership", failures: findForeignFiles(workspace, files) },
-    { name: "protected-paths", failures: findProtectedFiles(files) },
+    { name: "protected-paths", failures: findProtectedFiles(files, workspace) },
     { name: "backend-untouched", failures: backendChanges },
     { name: "secrets-and-original-host", failures: secretFailures },
   ];

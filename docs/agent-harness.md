@@ -10,15 +10,20 @@ Status legend: **IMPLEMENTED AND VERIFIED** (command output observed, see sectio
 | Orca workspaces as an isolation mechanism | Not usable: verified not to isolate (section 3) |
 | Ownership, protected-path, backend-untouched and secret/original-host checks (`scripts/check-workspace.ts`) | **IMPLEMENTED AND VERIFIED** (unit tests + positive and negative runs) |
 | Root `npm run verify` (typecheck + tests) | **IMPLEMENTED AND VERIFIED** |
-| Backend CI (`npm ci` + `npm run verify` on push to `main` and on pull requests) | **IMPLEMENTED AND VERIFIED** (one successful run observed) |
+| GitHub secret scanning and push protection | **IMPLEMENTED AND VERIFIED** (enabled; `gh api repos/... --jq .security_and_analysis`) |
+| CI `ci` on push to `main` and on pull requests; backend `verify` | **IMPLEMENTED AND VERIFIED** (run on `a2620cc` succeeded) |
+| CI jobs `backend-verify`, `console-verify`, `harness-guardrails` | **IMPLEMENTED BUT NOT YET VERIFIED** (defined in this branch, not yet run on GitHub) |
+| `release` workspace mode of the guardrail script (PRs into `main`) | **IMPLEMENTED AND VERIFIED** (unit tests + local run) |
 | Policy rules in `AGENTS.md` section 10 | **IMPLEMENTED AND VERIFIED** as text; compliance is by human and agent discipline |
 | `feat/console` integration branch | **IMPLEMENTED AND VERIFIED** (branch exists) |
 | Console scaffold and frozen contract `console/contract/sandbox-api.ts` (Phase 0) | **IMPLEMENTED BUT NOT YET VERIFIED** (in progress on `feat/console`) |
 | Sandbox security model (section 5) | **PLANNED** |
-| CI coverage of `console/` | **PLANNED** |
-| GitHub branch protection / rulesets on `main` | **PLANNED** (not configured) |
+| CI coverage of `console/` (`console-verify`) | **IMPLEMENTED BUT NOT YET VERIFIED**: fails until `console/package.json` exists (arrives with `feat/console`) |
+| Required status checks | **PLANNED** (nothing requires any check today) |
+| GitHub ruleset on `main` | **PLANNED**, requires owner approval (not configured, section 6) |
+| Human review before merge, push and deploy; Railway deploy decisions | Manual |
 | Railway watch paths | **PLANNED** (not configured, not verified) |
-| Automatic invocation of the workspace check (hook or CI) | **PLANNED** (today it is run manually) |
+| Automatic invocation of the workspace check in CI (`harness-guardrails`) | **IMPLEMENTED BUT NOT YET VERIFIED** (defined, not yet run on GitHub); local hook **PLANNED** |
 
 ## 1. Objective
 
@@ -105,19 +110,46 @@ Sandbox security model — **PLANNED** (nothing below is implemented or verified
 | Added lines scanned for bearer tokens, GitHub tokens, private key headers, team token assignments and the original host unless the line carries `ORIGINAL_HOST` (step `secrets-and-original-host`) | **IMPLEMENTED AND VERIFIED** (unit tests on the matchers; limited to these patterns) |
 | Tokens only from environment or files outside the repo (`AGENTS.md` section 4) | **IMPLEMENTED AND VERIFIED** as policy |
 | No calls to the original service without approval of the exact requests (`AGENTS.md` section 8) | policy, enforced by humans and agents |
-| `main` protected by GitHub | **PLANNED**: `gh api repos/ROMEROLUIS15/frontier-blackbox-engine/branches/main` reports `protected: false` and there are 0 rulesets |
+| GitHub secret scanning and push protection | **IMPLEMENTED AND VERIFIED**: both `enabled` per the API; Dependabot security updates also enabled |
+| `main` protected by GitHub | **PLANNED**: branch protection returns 404 "Branch not protected", 0 rulesets, 0 rules apply to `main` |
 
-Until GitHub protection exists, "main is production" is a policy kept by humans and agents.
+Control classification:
+- **Automated and enforced today:** secret scanning and push protection; CI `ci` on push and pull request
+  (backend `verify` verified on `a2620cc`); the local guardrail script.
+- **Automated but not yet enforced or verified:** the three CI jobs `backend-verify`, `console-verify` and
+  `harness-guardrails` (not yet run on GitHub); required status checks (none configured, so no check can block
+  a merge today).
+- **Manual:** human review before merge, push and deploy; Railway deploy decisions.
+- **Pending (PLANNED, requires owner approval):** the `main` ruleset below; Railway watch paths (not
+  verifiable from GitHub).
+
+Planned `main` ruleset (NOT created; creating it is an owner decision):
+- pull request required before merging;
+- required status checks `backend-verify`, `console-verify`, `harness-guardrails`, each pinned to the GitHub
+  Actions app (id `15368`);
+- branch must be up to date before merging (strict);
+- all review threads resolved;
+- force-push and deletion blocked;
+- no bypass actors.
+
+Solo-maintainer limitation: GitHub does not let a PR author approve their own PR. With one maintainer, the
+"human review" is the owner's own merge decision, not an independent approval, unless a second reviewer account
+is added. A required-approvals rule would therefore block the sole maintainer and is not part of the plan.
+
+Until the ruleset exists, "main is production" is a policy kept by humans and agents. CI jobs run, but nothing
+forces a merge to wait for them.
 
 ## 7. Quality gates
 
 Before integrating a workspace, all of these exit 0:
-1. workspace tests, typecheck and build (console tooling: **PLANNED**, arrives with the scaffold);
+1. workspace tests, typecheck and build (console tooling arrives with the scaffold; CI job `console-verify` runs `npm run verify` in `console/`, **IMPLEMENTED BUT NOT YET VERIFIED**);
 2. `node scripts/check-workspace.ts --workspace <ws>` (all lines `PASS`);
 3. root `npm run verify` (typecheck + tests) — **IMPLEMENTED AND VERIFIED**.
 
 The Definition of Done of `AGENTS.md` plus the gates above is the acceptance bar. Gates are currently run by
-the writer and re-run by the orchestrator; no automation runs the workspace check (**PLANNED**).
+the writer and re-run by the orchestrator. CI job `harness-guardrails` runs
+`node scripts/check-workspace.ts --workspace release` on pull requests and pushes to `main`
+(**IMPLEMENTED BUT NOT YET VERIFIED**: not yet run on GitHub, and not required by any ruleset).
 
 ## 8. Integration flow
 
@@ -157,13 +189,15 @@ Git & CI/CD strategy:
 - **Why `feat/console` replaces `develop`:** it is a short-lived integration branch for one effort, created
   from `main` at `6d66b2b`, avoiding a permanent second long-lived branch.
 - **Review:** every change is reviewed by the orchestrator against the gates and by a human before `main`.
-- **Mandatory tests:** root `npm run verify` and the workspace check. Backend CI (`.github/workflows/ci.yml`)
-  runs `npm ci` + `npm run verify` on push to `main` and on pull requests; it does not cover `console/` yet
-  (**PLANNED**).
+- **Mandatory tests:** root `npm run verify` and the workspace check. Workflow `ci`
+  (`.github/workflows/ci.yml`) defines `backend-verify`, `console-verify` and `harness-guardrails` on push to
+  `main` and on pull requests to `main` or `feat/console`. Only the former single `verify` job has run on
+  GitHub; the three new jobs are **IMPLEMENTED BUT NOT YET VERIFIED**. `console-verify` fails by design while
+  `console/package.json` is absent, so it passes only once this branch is merged into `feat/console`.
 - **Avoiding accidental Railway deploys:** do not merge or push to `main` until after the final evaluation.
   Railway watch paths are **PLANNED** and not verified.
 - **Opening a PR to `main` requires:** all gates green, ownership check `PASS`, human approval. Approval is
-  enforced by people; GitHub-enforced protection is **PLANNED**, not configured.
+  enforced by people; the GitHub ruleset (section 6) is **PLANNED**, not configured.
 
 ## 11. Risks, limitations, future improvements
 
@@ -175,9 +209,9 @@ Git & CI/CD strategy:
   exist.
 - Phase 0 results are unknown at the time of writing.
 
-Future improvements (all **PLANNED**): GitHub branch protection and required status checks; CI job that runs
-the workspace check and the console tests; Railway watch paths restricted to backend files; a pre-push hook
-running the check.
+Future improvements (all **PLANNED**): the `main` ruleset with required status checks (section 6, needs owner
+approval); Railway watch paths restricted to backend files; a pre-push hook running the check; a second
+reviewer account if independent approval is wanted.
 
 ## 12. Evidence
 
@@ -192,4 +226,10 @@ Observed while building the harness (worktree `chore/agent-harness`):
 - `npm run verify` with the harness test → `tests 40 · pass 40 · fail 0`, typecheck clean.
 - `node scripts/check-workspace.ts --workspace harness` → `PASS ownership`, `PASS protected-paths`,
   `PASS backend-untouched`, `PASS secrets-and-original-host`.
+- GitHub settings (API, read-only): secret scanning `enabled`, push protection `enabled`, Dependabot security
+  updates `enabled`; `main` branch protection 404 "Branch not protected"; 0 rulesets; 0 rules apply to `main`.
+  Railway deploys through the `railway-app[bot]` GitHub App; its auto-deploy settings are not verifiable from GitHub.
+- Root `npm run verify` after adding the `release` mode and CI jobs: `tests 43 / pass 43 / fail 0`.
+- `node scripts/check-workspace.ts --workspace release --base main`: all `PASS`.
+- The three new CI jobs have not run on GitHub.
 - Final results and the commit hash are listed in the delivery report of the commit that adds this file.

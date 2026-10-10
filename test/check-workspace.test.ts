@@ -5,6 +5,7 @@ import {
   findProtectedFiles,
   findSecrets,
   isOwned,
+  isProtected,
   parseAddedLines,
   parsePorcelain,
 } from "../scripts/check-workspace.ts";
@@ -38,10 +39,29 @@ describe("ownership matching", () => {
       "docs/brief.pdf",
       "package.json",
       "railway.json",
-      ".github/workflows/ci.yml",
+      ".github/workflows/other.yml",
     ];
-    const allowed = ["test/check-workspace.test.ts", "docs/agent-harness.md"];
+    const allowed = ["test/check-workspace.test.ts", "docs/agent-harness.md", ".github/workflows/ci.yml"];
     assert.deepEqual(findProtectedFiles([...protectedFiles, ...allowed]), protectedFiles);
+  });
+});
+
+describe("release workspace", () => {
+  it("allows any path outside the backend and official deliverables", () => {
+    const allowed = ["console/web/x.tsx", ".github/workflows/ci.yml", "AGENTS.md"];
+    assert.deepEqual(findForeignFiles("release", allowed), []);
+    assert.deepEqual(findProtectedFiles(allowed, "release"), []);
+  });
+
+  it("blocks backend and official deliverables", () => {
+    const blocked = ["src/main.ts", "docs/specification.md", "railway.json", "pruebas/a.jsonl", "README.md"];
+    assert.deepEqual(findProtectedFiles([...blocked, "console/web/x.tsx"], "release"), blocked);
+    assert.equal(isProtected("docs/brief.pdf", "release"), true);
+  });
+
+  it("does not exempt harness files differently from other paths", () => {
+    assert.equal(isProtected("package.json", "release"), false);
+    assert.equal(isProtected("package.json"), true);
   });
 });
 

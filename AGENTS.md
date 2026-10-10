@@ -109,7 +109,7 @@ Scope: applies to agents working in git worktrees under `../frontier-worktrees/`
 Full rationale and status of each control: `docs/agent-harness.md`.
 
 - `main` is production: never modified directly. Today this is enforced by policy (humans and agents), not by
-  GitHub branch protection (not configured).
+  GitHub branch protection or rulesets (none configured; verified via API).
 - One agent per worktree and branch. Never edit another agent's worktree.
 - `feat/console` is the temporary integration branch for this effort (it replaces a `develop` branch).
 - Exclusive file ownership per workspace (WS1–WS4, harness). Source of truth: the `OWNERSHIP` and `PROTECTED`
@@ -130,3 +130,16 @@ Full rationale and status of each control: `docs/agent-harness.md`.
 - Every agent reports verifiable results as `<command>: <output>`, plus blockers and changed files. Never claim
   a test passed without execution evidence.
 - No new abstractions, tools or dependencies without a written justification.
+
+Control classification (details and evidence: `docs/agent-harness.md`):
+- **Automated and enforced today:** GitHub secret scanning and push protection (enabled, verified via API);
+  CI workflow `ci` on push to `main` and on pull requests (backend `verify` run verified on `a2620cc`); the
+  local guardrail script.
+- **Automated but not yet enforced or verified:** the CI jobs `backend-verify`, `console-verify` and
+  `harness-guardrails` (defined in `.github/workflows/ci.yml`, not yet run on GitHub); required status checks
+  (nothing requires them yet, so a red check does not block a merge).
+- **Manual:** human review before merge, push and deploy; Railway deploy decisions.
+- **Pending (PLANNED, requires owner approval):** a `main` ruleset (see `docs/agent-harness.md`, section 6)
+  and Railway watch paths (not verifiable from GitHub). Do not describe either as active.
+- Release workspace: `node scripts/check-workspace.ts --workspace release --base <ref>` is the check for pull
+  requests into `main`: any path may change except the backend and official deliverables.
