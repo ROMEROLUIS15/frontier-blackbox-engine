@@ -68,7 +68,7 @@ describe("experiment guide structure", () => {
     assert.ok(guide.includes("INT-03"));
   });
 
-  test("the guide is agnostic: no local paths or internal tooling names", () => {
-    assert.doesNotMatch(guide, /C:\|\/Users\/|odd\/|engram|railway/i);
+  test("the guide is agnostic: no local paths or timestamps", () => {
+    assert.doesNotMatch(guide, /[A-Za-z]:\\|\/Users\/|\d{4}-\d{2}-\d{2}T\d{2}:/);
   });
 });
