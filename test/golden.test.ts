@@ -43,14 +43,23 @@ test("reset returns 200 {ok:true}", async () => {
   assert.deepEqual(await res.json(), { ok: true });
 });
 
-test("replay pruebas/ejemplos.jsonl", async () => {
+test("replay pruebas/ejemplos.jsonl against the v2 responses recorded in s-ej-01-v2 (X:115-134)", async () => {
   await post("/__reset", {});
   const lines = readJsonl<{ n: number; request: unknown; status: number; response: unknown }>("pruebas/ejemplos.jsonl");
   assert.equal(lines.length, 20);
-  for (const l of lines) {
+  // Version 2 changed some responses of the official examples (e.g. the saldo is now a string), so the expected
+  // responses come from the v2 log, after checking that it recorded exactly the same requests.
+  const v2 = readJsonl<{ seq: string; request: unknown; status: number; response: unknown }>("experimentos.jsonl").filter(
+    (x) => x.seq === "s-ej-01-v2",
+  );
+  assert.equal(v2.length, lines.length);
+  for (const [i, l] of lines.entries()) {
+    const expected = v2[i];
+    assert.ok(expected);
+    assert.deepEqual(expected.request, l.request, `example n=${l.n} request matches the v2 log`);
     const res = await post("/msg", l.request);
-    assert.equal(res.status, l.status, `example n=${l.n} status`);
-    assert.deepEqual(await res.json(), l.response, `example n=${l.n} body`);
+    assert.equal(res.status, expected.status, `example n=${l.n} status`);
+    assert.deepEqual(await res.json(), expected.response, `example n=${l.n} body`);
   }
 });
 
@@ -98,8 +107,8 @@ async function replayLogged(l: LoggedRequest): Promise<Response> {
   return fetch(base + l.path, { method: l.method, headers, body });
 }
 
-for (const seq of ["s-io-01", "s-amt-01"]) {
-  test(`replay experimentos.jsonl ${seq} (routes, auth, body, amounts, limit)`, async () => {
+for (const seq of ["s-io-01-v2", "s-amt-01-v2"]) {
+  test(`replay experimentos.jsonl ${seq} (routes, auth, body, amounts, limit 50000)`, async () => {
     await post("/__reset", {});
     const lines = readJsonl<LoggedRequest>("experimentos.jsonl").filter((l) => l.seq === seq);
     assert.ok(lines.length > 0);
