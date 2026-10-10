@@ -23,29 +23,38 @@ function isCommand(name: string): name is CommandName {
 }
 
 /**
- * Validates a raw message `m`.
- * Observed: control format (E201) and control value (E202) are checked before command (E301) and
- * arity (E302) (experimentos.jsonl:51-56). The order is defined only in this function.
+ * Validates a raw message `m`. The order is defined only in this function (version 2):
+ * E103 (no `;`) -> E104 (any empty segment) -> [PING: arity only] -> control format E201 -> control value E202
+ * -> command E301 -> arity E302.
  */
 export function parseMessage(m: string): ParsedMessage | Reply {
-  // Observed: experimentos.jsonl:60 (`PING` without `;` -> E103).
-  // ASSUMPTION: any non-empty message without `;` is E103; only `PING` was observed.
-  // ASSUMPTION: an empty message stays on the control-format path (E201); not demonstrated.
-  if (m !== "" && !m.includes(";")) return Errors.missingControl;
+  // Observed: no `;` at all, including the empty message -> E103 (experimentos.jsonl:60, 144, 204).
+  if (!m.includes(";")) return Errors.missingControl;
 
   const fields = m.split(";");
-  const control = fields[fields.length - 1] ?? "";
 
+  // Observed: any empty segment, first command segment and last control segment included, is E104 and wins over
+  // control, command and arity errors (experimentos.jsonl:179, 194-196, 198-202, 205, 242).
+  // A segment holding only a space is not empty (experimentos.jsonl:203).
+  if (fields.includes("")) return Errors.emptySegment;
+
+  const name = (fields[0] ?? "").toUpperCase();
+  const args = fields.slice(1, -1);
+
+  // Observed: PING ignores the control completely (format and value) but still checks arity
+  // (experimentos.jsonl:197, 212, 213).
+  if (name === "PING") {
+    return args.length === ARITY.PING ? { command: name, args } : Errors.invalidArity;
+  }
+
+  const control = fields[fields.length - 1] ?? "";
   if (!/^\d+$/.test(control)) return Errors.malformedControl;
 
   const payload = fields.slice(0, -1).join(";");
   // Observed: leading zeros in the control compare numerically ("064" equals 64, experimentos.jsonl:58).
   if (Number(control) !== controlDigit(payload)) return Errors.invalidControl;
 
-  const name = (fields[0] ?? "").toUpperCase();
-  if (!isCommand(name) || fields.length < 2) return Errors.unknownCommand;
-
-  const args = fields.slice(1, -1);
+  if (!isCommand(name)) return Errors.unknownCommand;
   if (args.length !== ARITY[name]) return Errors.invalidArity;
 
   return { command: name, args };

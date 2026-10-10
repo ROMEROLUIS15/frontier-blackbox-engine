@@ -4,18 +4,32 @@ import type { ParsedMessage } from "../protocol/parse.ts";
 import { formatId } from "./state.ts";
 import type { BankState } from "./state.ts";
 
-// Observed: 100000 accepted, 120000 rejected.
-// Observed: 100001 rejected, and limit is per transfer, not cumulative (experimentos.jsonl:27-29).
-const TRANSFER_LIMIT = 100000;
+// Observed (version 2): 50000 accepted, 50001 rejected (experimentos.jsonl:190-191). The limit is per transfer,
+// not cumulative (experimentos.jsonl:27-29, version 1 with 100000).
+const TRANSFER_LIMIT = 50000;
+
+// Observed: 9999999999 accepted twice, 10000000000 -> E303 (experimentos.jsonl:278-280, 275). The balance has no cap.
+const MAX_AMOUNT = 9999999999;
 
 function parseAmount(raw: string): number | null {
-  // Observed: 0, negative, decimal and non-numeric amounts -> E303 (experimentos.jsonl:21-24, 26).
-  // Observed for DEPOSITO: a leading zero ("0500") -> E303 (experimentos.jsonl:84).
+  // Observed: 0, negative, decimal and non-numeric amounts -> E303 (experimentos.jsonl:21-24, 26, 177, 230-232).
+  // Observed for DEPOSITO: a leading zero ("0500") -> E303 (experimentos.jsonl:84, 168).
   // Inference: TRANSFER shares this parser, so it rejects leading zeros too (not observed).
-  // ASSUMPTION: amounts beyond the safe integer range are also invalid.
   if (!/^[1-9]\d*$/.test(raw)) return null;
   const n = Number(raw);
-  return Number.isSafeInteger(n) ? n : null;
+  return n <= MAX_AMOUNT ? n : null;
+}
+
+/**
+ * Formats integer cents as a decimal string with exactly two decimals ("-0.05", "400.00").
+ * Observed: experimentos.jsonl:119, 122, 157, 176, 228, 249, 281. Integer arithmetic only: no float division.
+ * ASSUMPTION: balances stay within the safe integer range (the original shows no cap; none was probed).
+ */
+export function formatCents(cents: number): string {
+  const absolute = Math.abs(cents);
+  const fraction = absolute % 100;
+  const whole = (absolute - fraction) / 100;
+  return `${cents < 0 ? "-" : ""}${whole}.${String(fraction).padStart(2, "0")}`;
 }
 
 function nextOperationId(state: BankState): string {
@@ -42,14 +56,15 @@ export function execute(state: BankState, msg: ParsedMessage): Reply {
       // Observed: account ids are matched exactly; "ac-0001" is unknown (experimentos.jsonl:82).
       const balance = state.accounts.get(a);
       if (balance === undefined) return Errors.unknownAccount;
-      return { status: 200, body: { cuenta_id: a, saldo: balance } };
+      return { status: 200, body: { cuenta_id: a, saldo: formatCents(balance) } };
     }
 
     case "DEPOSITO": {
-      const balance = state.accounts.get(a);
-      if (balance === undefined) return Errors.unknownAccount;
+      // Observed: the amount is validated before the account (E303 before E401, experimentos.jsonl:211).
       const amount = parseAmount(b);
       if (amount === null) return Errors.invalidAmount;
+      const balance = state.accounts.get(a);
+      if (balance === undefined) return Errors.unknownAccount;
       state.accounts.set(a, balance + amount);
       const opId = nextOperationId(state);
       state.operations.set(opId, { kind: "DEPOSITO", from: null, to: a, amount, annulled: false });
@@ -57,17 +72,16 @@ export function execute(state: BankState, msg: ParsedMessage): Reply {
     }
 
     case "TRANSFER": {
-      // Observed order pairs: E303 before E401 (experimentos.jsonl:77), E401 before E506 (:78),
-      // E506 before E507 (:30).
-      // ASSUMPTION: E304's position relative to E303/E401/E506/E507 is unverified; :80 had valid
-      // accounts and a valid amount.
+      // Observed order (version 2): E303 -> E304 -> E401 -> E506 -> E507
+      // (experimentos.jsonl:221, 210, 222, 78, 30).
       const amount = parseAmount(c);
       if (amount === null) return Errors.invalidAmount;
+      // Observed: same origin and destination -> E304 even when the account does not exist, no balance change
+      // (experimentos.jsonl:80-81, 210, 222).
+      if (a === b) return Errors.sameAccount;
       const fromBalance = state.accounts.get(a);
       const toBalance = state.accounts.get(b);
       if (fromBalance === undefined || toBalance === undefined) return Errors.unknownAccount;
-      // Observed: same origin and destination -> E304, no balance change (experimentos.jsonl:80-81).
-      if (a === b) return Errors.sameAccount;
       if (amount > TRANSFER_LIMIT) return Errors.limitExceeded;
       if (fromBalance < amount) return Errors.insufficientFunds;
       state.accounts.set(a, fromBalance - amount);
