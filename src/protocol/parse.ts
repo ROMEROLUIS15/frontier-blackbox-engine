@@ -48,10 +48,13 @@ export function parseMessage(m: string): ParsedMessage | Reply {
   }
 
   const control = fields[fields.length - 1] ?? "";
-  if (!/^\d+$/.test(control)) return Errors.malformedControl;
+  // Observed: a non-PING control is 1 or 2 digits; "050", "150", "+50" and " 50" are E201, and a single digit is
+  // accepted (experimentos.jsonl wave 10: X:282-285; ejemplos n=4).
+  // ASSUMPTION: a 2-digit control with a leading zero (e.g. "03") is valid as a number; not yet measured.
+  if (!/^\d{1,2}$/.test(control)) return Errors.malformedControl;
 
   const payload = fields.slice(0, -1).join(";");
-  // Observed: leading zeros in the control compare numerically ("064" equals 64, experimentos.jsonl:58).
+  // Note: "064" equals 64 only for PING, which ignores the control (experimentos.jsonl:58, 142).
   if (Number(control) !== controlDigit(payload)) return Errors.invalidControl;
 
   if (!isCommand(name)) return Errors.unknownCommand;

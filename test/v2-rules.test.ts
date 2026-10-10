@@ -199,3 +199,26 @@ describe("R8: DEPOSITO validation order E303 -> E401", () => {
     assert.deepEqual(await signed("DEPOSITO", "AC-0001", "100"), E401);
   });
 });
+
+describe("R9: the control of non-PING commands is 1 or 2 digits (E201 otherwise)", () => {
+  const E201 = { status: 400, body: { error: "E201", mensaje: "control mal formado" } };
+  const cases: Array<[string, string]> = [
+    ["X:282 a leading zero (050, valid value 50) is E201", "ALTA;Ana;050"],
+    ["X:285 three digits (150) is E201, not E202", "ALTA;Ana;150"],
+    ["X:283 a plus sign (+50) is E201", "ALTA;Ana;+50"],
+    ["X:284 a space (' 50') is E201", "ALTA;Ana; 50"],
+  ];
+  for (const [name, m] of cases) {
+    test(name, async () => {
+      assert.deepEqual(await raw(m), E201);
+    });
+  }
+
+  test("E:4 a single-digit control (ALTA;Mateo;3) is accepted", async () => {
+    assert.deepEqual(await raw("ALTA;Mateo;3"), { status: 201, body: { cuentaId: "AC-0001" } });
+  });
+
+  test("X:58 / X:142 PING ignores the control format, so PING;064 stays 200 pong", async () => {
+    assert.deepEqual(await raw("PING;064"), PONG);
+  });
+});
