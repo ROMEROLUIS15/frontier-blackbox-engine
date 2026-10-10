@@ -54,18 +54,69 @@ test("replay pruebas/ejemplos.jsonl", async () => {
   }
 });
 
-test("replay experimentos.jsonl s-ctl-01 with X-Req", async () => {
-  await post("/__reset", {});
-  const lines = readJsonl<{ seq: string; x_req: number; request: unknown; status: number; response: unknown }>(
-    "experimentos.jsonl",
-  ).filter((l) => l.seq === "s-ctl-01");
-  assert.equal(lines.length, 5);
-  for (const l of lines) {
-    const res = await post("/msg", l.request);
-    assert.equal(res.status, l.status);
-    assert.deepEqual(await res.json(), l.response);
-    assert.equal(res.headers.get("x-req"), String(l.x_req));
+test("replay experimentos.jsonl s-ctl-01 with X-Req on a fresh server", async () => {
+  // Observed: these were the first five authorized /msg requests of the token (X-Req 1..5).
+  const fresh = createServer(TOKEN);
+  await new Promise<void>((resolve) => fresh.listen(0, "127.0.0.1", resolve));
+  const freshBase = `http://127.0.0.1:${(fresh.address() as AddressInfo).port}`;
+  try {
+    const lines = readJsonl<{ seq: string; x_req: number; request: unknown; status: number; response: unknown }>(
+      "experimentos.jsonl",
+    ).filter((l) => l.seq === "s-ctl-01");
+    assert.equal(lines.length, 5);
+    for (const l of lines) {
+      const res = await fetch(freshBase + "/msg", {
+        method: "POST",
+        headers: { "content-type": "application/json", authorization: `Bearer ${TOKEN}` },
+        body: JSON.stringify(l.request),
+      });
+      assert.equal(res.status, l.status);
+      assert.deepEqual(await res.json(), l.response);
+      assert.equal(res.headers.get("x-req"), String(l.x_req));
+    }
+  } finally {
+    await new Promise<void>((resolve) => fresh.close(() => resolve()));
   }
+});
+
+interface LoggedRequest {
+  id: number;
+  seq: string;
+  method: string;
+  path: string;
+  auth: "team" | "none" | "wrong";
+  request: unknown;
+  status: number;
+  response: unknown;
+}
+
+async function replayLogged(l: LoggedRequest): Promise<Response> {
+  const headers: Record<string, string> = { "content-type": "application/json" };
+  if (l.auth === "team") headers["authorization"] = `Bearer ${TOKEN}`;
+  if (l.auth === "wrong") headers["authorization"] = "Bearer wrong-token";
+  const body = l.request === null ? undefined : typeof l.request === "string" ? l.request : JSON.stringify(l.request);
+  return fetch(base + l.path, { method: l.method, headers, body });
+}
+
+for (const seq of ["s-io-01", "s-amt-01"]) {
+  test(`replay experimentos.jsonl ${seq} (routes, auth, body, amounts, limit)`, async () => {
+    await post("/__reset", {});
+    const lines = readJsonl<LoggedRequest>("experimentos.jsonl").filter((l) => l.seq === seq);
+    assert.ok(lines.length > 0);
+    for (const l of lines) {
+      const res = await replayLogged(l);
+      assert.equal(res.status, l.status, `experimentos id=${l.id} status`);
+      assert.deepEqual(await res.json(), l.response, `experimentos id=${l.id} body`);
+    }
+  });
+}
+
+test("X-Req is not reset by /__reset (experimentos ids 18 -> 19)", async () => {
+  const first = await post("/msg", { m: "PING;64" });
+  const before = Number(first.headers.get("x-req"));
+  await post("/__reset", {});
+  const next = await post("/msg", { m: "PING;64" });
+  assert.equal(Number(next.headers.get("x-req")), before + 1);
 });
 
 test("s-diag-01 with wrong token returns 401 E001 without X-Req", async () => {

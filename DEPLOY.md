@@ -6,7 +6,8 @@
   the repository must not contain a `Dockerfile`.
 - Node version: `engines.node` = `24.x` in `package.json` (Railpack reads `engines.node`).
 - Start command: `node src/main.ts` (no build step; Node 24 strips TypeScript types natively).
-- Health check: `GET /health` → `200 {"status":"ok"}`, no authentication required.
+- No platform health check: like the original, `GET /health` requires the bearer token (401 E001 without it,
+  experimentos.jsonl:13) and answers `200 {"ok":true}` with it (experimentos.jsonl:14).
 
 ## Environment variables
 

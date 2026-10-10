@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><title>Architecture — Reto 2 replica</title>
+<html lang="es"><head><meta charset="utf-8"><title>Arquitectura — réplica del Reto 2</title>
 <style>
   @page { size: A4 landscape; margin: 12mm; }
   body { font-family: "Segoe UI", Arial, sans-serif; margin: 0; color: #0f172a; }
@@ -8,10 +8,10 @@
   img { width: 100%; display: block; }
 </style></head>
 <body>
-<h1>Architecture — Reto 2 "La caja negra" replica</h1>
-<img src="architecture.svg" alt="Architecture diagram">
-<p>Request flow: 1 HTTPS request → 2 validate message (format, control value, command, arity) → 3 control value check →
-4 execute command (only if valid) → 5 read/update in-memory state → 6 status + JSON response.
-Auxiliary dependencies (red/green "auxiliary"): control algorithm used by validation; error catalog used by validation and commands.
-http/server.ts is the only I/O adapter; control and bank modules are pure.</p>
+<h1>Arquitectura — réplica del Reto 2 "La caja negra"</h1>
+<img src="architecture.svg" alt="Diagrama de arquitectura">
+<p>Flujo de una solicitud: 1 solicitud HTTPS → 2 validar el mensaje (formato, valor de control, comando, aridad) → 3 verificar el valor de control →
+4 ejecutar el comando (solo si es válido) → 5 leer/escribir (l/e) el estado en memoria → 6 respuesta con status + JSON.
+Dependencias auxiliares (marcadas "auxiliar" en rojo/verde): el algoritmo de control lo usa la validación; el catálogo de errores lo usan la validación y los comandos.
+http/server.ts es el único adaptador de E/S; los módulos control y bank son puros.</p>
 </body></html>

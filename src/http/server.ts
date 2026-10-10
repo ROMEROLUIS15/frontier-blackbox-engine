@@ -30,24 +30,29 @@ async function readBody(req: IncomingMessage): Promise<string | null> {
   return Buffer.concat(chunks).toString("utf8");
 }
 
-function extractMessage(raw: string | null): string | null {
-  if (raw === null) return null;
+function parseJson(raw: string): { ok: true; value: unknown } | { ok: false } {
   try {
-    const parsed: unknown = JSON.parse(raw);
-    if (
-      typeof parsed === "object" &&
-      parsed !== null &&
-      !Array.isArray(parsed) &&
-      "m" in parsed &&
-      typeof parsed.m === "string"
-    ) {
-      return parsed.m;
-    }
+    return { ok: true, value: JSON.parse(raw) };
   } catch {
-    // invalid JSON: handled by the caller as an invalid body
+    return { ok: false };
   }
-  return null;
 }
+
+/** Returns the message `m`, or the error reply for an unusable body. */
+function extractMessage(raw: string | null): string | Reply {
+  // ASSUMPTION: an oversized body is treated like invalid JSON.
+  if (raw === null) return Errors.invalidJson;
+  const parsed = parseJson(raw);
+  if (!parsed.ok) return Errors.invalidJson;
+  const value = parsed.value;
+  // ASSUMPTION: valid JSON that is not an object (array, number, null) answers like a missing `m`.
+  if (typeof value === "object" && value !== null && !Array.isArray(value) && "m" in value && typeof value.m === "string") {
+    return value.m;
+  }
+  return Errors.missingMessage;
+}
+
+const ROUTES = new Set(["GET /health", "POST /__reset", "POST /msg"]);
 
 export function createServer(teamToken: string): Server {
   const state = createState();
@@ -56,41 +61,41 @@ export function createServer(teamToken: string): Server {
 
   async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> {
     const path = (req.url ?? "").split("?")[0];
+    const route = `${req.method ?? ""} ${path}`;
 
-    // ASSUMPTION: /health is public so platform health checks work without the token.
-    if (req.method === "GET" && path === "/health") {
-      send(res, { status: 200, body: { status: "ok" } });
+    // Observed: unknown routes and unsupported methods answer 404 before auth (experimentos.jsonl:7-9, 12).
+    if (!ROUTES.has(route)) {
+      send(res, Errors.routeNotFound);
       return;
     }
 
-    // ASSUMPTION: a missing Authorization header is treated like a wrong token (401 E001).
+    // Observed: missing or wrong token -> 401 E001 on every known route, /health included (experimentos.jsonl:10-11, 13).
     if (req.headers.authorization !== expectedAuth) {
       send(res, Errors.unauthorized);
       return;
     }
 
-    if (req.method === "POST" && path === "/__reset") {
+    if (route === "GET /health") {
+      send(res, { status: 200, body: { ok: true } }); // observed: experimentos.jsonl:14
+      return;
+    }
+
+    if (route === "POST /__reset") {
       await readBody(req);
-      resetState(state);
-      requestCounter = 0;
+      resetState(state); // observed: X-Req is not reset (experimentos.jsonl:18 -> 19)
       send(res, { status: 200, body: { ok: true } });
       return;
     }
 
-    if (req.method === "POST" && path === "/msg") {
-      const m = extractMessage(await readBody(req));
-      requestCounter += 1; // observed: also incremented for error responses
-      const headers = { "X-Req": String(requestCounter) };
-      if (m === null) {
-        send(res, Errors.invalidBody, headers);
-        return;
-      }
-      const parsed = parseMessage(m);
-      send(res, isReply(parsed) ? parsed : execute(state, parsed), headers);
+    const m = extractMessage(await readBody(req));
+    requestCounter += 1; // observed: also incremented for error responses
+    const headers = { "X-Req": String(requestCounter) };
+    if (typeof m !== "string") {
+      send(res, m, headers);
       return;
     }
-
-    send(res, Errors.routeNotFound);
+    const parsed = parseMessage(m);
+    send(res, isReply(parsed) ? parsed : execute(state, parsed), headers);
   }
 
   return createHttpServer((req, res) => {
