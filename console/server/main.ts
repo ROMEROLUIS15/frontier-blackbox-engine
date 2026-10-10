@@ -1,22 +1,27 @@
-import { createServer } from "node:http";
-import { BFF_ERROR_STATUS } from "../contract/sandbox-api.ts";
-import type { BffError } from "../contract/sandbox-api.ts";
+import { createBffServer } from "./bff-server.ts";
+import { parseConfig } from "./config.ts";
 
-const port = Number(process.env.PORT ?? 8781);
+const configResult = parseConfig(process.env);
+if (!configResult.ok) {
+  console.error(JSON.stringify({ level: "error", event: "config", reason: configResult.reason }));
+  process.exit(1);
+}
+const { port, distDir } = configResult.config;
 
-const notImplemented: BffError = {
-  error: { code: "NOT_IMPLEMENTED", message: "The sandbox BFF is not implemented yet." },
-};
+const server = createBffServer({ distDir });
+let stopping = false;
 
-const server = createServer((_request, response) => {
-  const payload = JSON.stringify(notImplemented);
-  response.writeHead(BFF_ERROR_STATUS.NOT_IMPLEMENTED, {
-    "Content-Type": "application/json; charset=utf-8",
-    "Content-Length": Buffer.byteLength(payload),
-  });
-  response.end(payload);
-});
+function shutdown(signal: string): void {
+  if (stopping) return;
+  stopping = true;
+  console.log(JSON.stringify({ level: "info", event: "shutdown", signal }));
+  server.close(); // the server close event also closes every sandbox session
+  server.closeAllConnections();
+}
+
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));
 
 server.listen(port, "127.0.0.1", () => {
-  console.log(`console BFF stub listening on 127.0.0.1:${port}`);
+  console.log(JSON.stringify({ level: "info", event: "listening", host: "127.0.0.1", port }));
 });
