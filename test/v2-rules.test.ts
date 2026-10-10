@@ -236,7 +236,7 @@ describe("R10: the control value is compared as exact text, not as a number", ()
   });
 });
 
-describe("R11: E301 carries a sugerencia when a known command is one edit away", () => {
+describe("R11: E301 carries a sugerencia when a known command is within two edits", () => {
   const body = (sugerencia?: string) => ({
     status: 400,
     body: sugerencia === undefined
@@ -252,6 +252,9 @@ describe("R11: E301 carries a sugerencia when a known command is one edit away",
     ["X:303", "CONSULT;AC-0001;41", "CONSULTA"],
     ["X:304", "ping ;64", "PING"],
     ["X:305", "AL TA;Ana;50", "ALTA"],
+    ["X:311 distance 2", "CONSUL;AC-0001;92", "CONSULTA"],
+    ["X:312 distance 2", "PIGN;12", "PING"],
+    ["X:313 no key at distance 3", "DEPOS;AC-0001;100;8", undefined],
     ["X:308 no key when nothing is close", "XYZ;20", undefined],
     ["X:126 no key for SALDOS (distance 4)", "SALDOS;AC-0001;38", undefined],
   ];

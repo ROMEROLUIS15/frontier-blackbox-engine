@@ -88,8 +88,8 @@ const experiments = readV2Experiments();
 const sequences = [...new Set(experiments.map((e) => e.seq))];
 
 describe("equivalence with version 2 of the original: every v2 line of experimentos.jsonl", () => {
-  test("the log holds the 226 v2 lines", () => {
-    assert.equal(experiments.length, 226);
+  test("the log holds the 229 v2 lines", () => {
+    assert.equal(experiments.length, 229);
   });
 
   for (const seq of sequences) {
