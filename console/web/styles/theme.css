@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+/* Design tokens. Names are fixed; WS1 owns the final values. */
+@theme {
+  --color-canvas: #0b0d10;
+  --color-surface: #12151a;
+  --color-surface-raised: #1a1e25;
+  --color-border: #2a303a;
+  --color-text: #e6e8eb;
+  --color-text-muted: #8b93a1;
+  --color-accent: #5b8cff;
+  --color-success: #3ecf8e;
+  --color-warning: #f5a524;
+  --color-danger: #f0506e;
+  --font-sans: ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --radius-panel: 0.75rem;
+}
