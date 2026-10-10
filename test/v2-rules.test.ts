@@ -60,7 +60,7 @@ async function openAccounts(count: number): Promise<void> {
   for (let i = 0; i < count; i += 1) await signed("ALTA", "Ana");
 }
 
-describe("R1: any empty segment is E104, before control and command checks", () => {
+describe("R1: every empty segment is E104, before control and command checks", () => {
   const cases: Array<[string, string]> = [
     ["X:179 ALTA;;85", "ALTA;;85"],
     ["X:194 CONSULTA;;11", "CONSULTA;;11"],
