@@ -27,7 +27,7 @@ export const OWNERSHIP = {
     "console/web/index.html",
     "console/web/main.tsx",
     "console/contract/**",
-    "console/test/**",
+    "console/specs/**",
     "console/.gitignore",
     "test/check-workspace.test.ts",
   ],

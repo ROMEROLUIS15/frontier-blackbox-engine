@@ -74,7 +74,7 @@ Source of truth: `OWNERSHIP` and `PROTECTED` in `scripts/check-workspace.ts`.
 | WS1 | Frontend/UX | `console/ui-shell` | `console/web/app/**`, `console/web/components/**`, `console/web/styles/**` |
 | WS2 | BFF/Sandbox | `console/bff-sandbox` | `console/server/**` |
 | WS3 | Features/Data | `console/features` | `console/web/features/**`, `console/web/api/**` |
-| WS4 | Integration/QA | `feat/console` | `console/package.json`, `console/package-lock.json`, `console/tsconfig*.json`, `console/vite.config.ts`, `console/vitest.config.*`, `console/web/index.html`, `console/web/main.tsx`, `console/contract/**`, `console/test/**`, `console/.gitignore` |
+| WS4 | Integration/QA | `feat/console` | `console/package.json`, `console/package-lock.json`, `console/tsconfig*.json`, `console/vite.config.ts`, `console/vitest.config.*`, `console/web/index.html`, `console/web/main.tsx`, `console/contract/**`, `console/specs/**`, `console/.gitignore` |
 | harness | Agent harness | `chore/agent-harness` | `AGENTS.md`, `docs/agent-harness.md`, `scripts/check-workspace.ts`, `test/check-workspace.test.ts` |
 | Nobody (protected) | — | — | `src/**`, root `test/**` (except the harness test), `docs/*.pdf`, `docs/system-design*`, `docs/architecture*`, `docs/specification.md`, `experimentos.jsonl`, `pruebas/**`, `railway.json`, root `package.json`, `package-lock.json`, `.github/**`, `README.md` |
 
