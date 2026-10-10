@@ -11,7 +11,8 @@
     "test": "node --test",
     "typecheck": "tsc --noEmit",
     "verify": "npm run typecheck && npm test",
-    "smoke": "node scripts/smoke.ts"
+    "smoke": "node scripts/smoke.ts",
+    "docs:experiments": "node scripts/experiment-guide.ts"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",
