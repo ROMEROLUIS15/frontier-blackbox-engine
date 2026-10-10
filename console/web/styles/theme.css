@@ -1,18 +1,81 @@
 @import "tailwindcss";
 
-/* Design tokens. Names are fixed; WS1 owns the final values. */
+/* Design tokens. Names are fixed (shared contract); values are the "observability console" dark theme. */
 @theme {
-  --color-canvas: #0b0d10;
-  --color-surface: #12151a;
-  --color-surface-raised: #1a1e25;
-  --color-border: #2a303a;
-  --color-text: #e6e8eb;
-  --color-text-muted: #8b93a1;
-  --color-accent: #5b8cff;
-  --color-success: #3ecf8e;
-  --color-warning: #f5a524;
-  --color-danger: #f0506e;
-  --font-sans: ui-sans-serif, system-ui, sans-serif;
-  --font-mono: ui-monospace, "SFMono-Regular", Menlo, monospace;
-  --radius-panel: 0.75rem;
+  --color-canvas: #07080d;
+  --color-surface: #0e1017;
+  --color-surface-raised: #151823;
+  --color-border: #272b3a;
+  --color-text: #e8eaf2;
+  --color-text-muted: #9aa2b8;
+  --color-accent: #8b7cff;
+  --color-success: #3ddc97;
+  --color-warning: #ffb547;
+  --color-danger: #ff6b84;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Menlo, Consolas, monospace;
+  --radius-panel: 0.875rem;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    background-color: var(--color-canvas);
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: var(--font-sans);
+    color: var(--color-text);
+    background-color: var(--color-canvas);
+    background-image:
+      radial-gradient(60rem 32rem at 12% -8%, color-mix(in srgb, var(--color-accent) 22%, transparent), transparent 70%),
+      radial-gradient(44rem 28rem at 100% 0%, color-mix(in srgb, #22d3ee 10%, transparent), transparent 70%),
+      linear-gradient(to right, color-mix(in srgb, var(--color-border) 35%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in srgb, var(--color-border) 35%, transparent) 1px, transparent 1px);
+    background-size: auto, auto, 44px 44px, 44px 44px;
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--color-accent) 45%, transparent);
+    color: #fff;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 0.375rem;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-warning) 55%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 8px transparent;
+  }
+}
+
+.sandbox-dot {
+  animation: pulse-ring 2s ease-out infinite;
 }
