@@ -46,7 +46,8 @@ function extractMessage(raw: string | null): string | Reply {
   const parsed = parseJson(raw);
   if (!parsed.ok) return Errors.invalidJson;
   const value = parsed.value;
-  // ASSUMPTION: valid JSON that is not an object (array, number, null) answers like a missing `m`.
+  // Observed: a JSON array answers like a missing `m` (experimentos.jsonl:59).
+  // ASSUMPTION: other non-object JSON values (number, null) behave the same.
   if (typeof value === "object" && value !== null && !Array.isArray(value) && "m" in value && typeof value.m === "string") {
     return value.m;
   }
