@@ -16,6 +16,8 @@ export const Errors = {
   invalidJson: err(400, "E100", "json inválido"),
   // Observed: experimentos.jsonl:16-17 (no `m`, or `m` not a string).
   missingMessage: err(400, "E102", "falta m"),
+  // Observed: experimentos.jsonl:60 (`{"m":"PING"}`, no `;`).
+  missingControl: err(400, "E103", "falta control"),
   malformedControl: err(400, "E201", "control mal formado"),
   invalidControl: err(400, "E202", "control inválido"),
   // Note the trailing space: it is part of the original message.
@@ -23,6 +25,8 @@ export const Errors = {
   invalidArity: err(400, "E302", "aridad inválida"),
   // Observed: experimentos.jsonl:21-24, 26 (0, negative, decimal, non-numeric).
   invalidAmount: err(400, "E303", "monto inválido"),
+  // Observed: experimentos.jsonl:80 (TRANSFER with equal origin and destination).
+  sameAccount: err(400, "E304", "origen y destino iguales"),
   unknownAccount: err(404, "E401", "cuenta inexistente"),
   // Observed: experimentos.jsonl:18.
   unknownOperation: err(404, "E402", "operación inexistente"),

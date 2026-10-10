@@ -28,6 +28,11 @@ function isCommand(name: string): name is CommandName {
  * is unverified; it is defined only in this function so it can be changed in one place.
  */
 export function parseMessage(m: string): ParsedMessage | Reply {
+  // Observed: experimentos.jsonl:60 (`PING` without `;` -> E103).
+  // ASSUMPTION: any non-empty message without `;` is E103; only `PING` was observed.
+  // ASSUMPTION: an empty message stays on the control-format path (E201); not demonstrated.
+  if (m !== "" && !m.includes(";")) return Errors.missingControl;
+
   const fields = m.split(";");
   const control = fields[fields.length - 1] ?? "";
 
