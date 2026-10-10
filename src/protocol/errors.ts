@@ -10,6 +10,14 @@ function err(status: number, error: string, mensaje: string): Reply {
 }
 
 // Response bodies are byte-exact copies of the original service's Spanish strings.
+/**
+ * E301 body variant with a suggested command.
+ * Observed: experimentos.jsonl:286, 287, 300-305 (`sugerencia` is present only when a known command is close).
+ */
+export function unknownCommandSuggesting(sugerencia: string): Reply {
+  return { status: 400, body: { error: "E301", mensaje: "comando desconocido ", sugerencia } };
+}
+
 export const Errors = {
   unauthorized: err(401, "E001", "no autorizado"),
   // Observed: experimentos.jsonl:15 (body is not JSON).

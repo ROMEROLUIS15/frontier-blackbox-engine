@@ -1,5 +1,6 @@
 import { controlDigit } from "../control/iso7064.ts";
-import { Errors } from "./errors.ts";
+import { Errors, unknownCommandSuggesting } from "./errors.ts";
+import { levenshtein } from "./levenshtein.ts";
 import type { Reply } from "./errors.ts";
 
 export type CommandName = "PING" | "ALTA" | "CONSULTA" | "DEPOSITO" | "TRANSFER" | "ANULA";
@@ -17,6 +18,28 @@ const ARITY: Record<CommandName, number> = {
   TRANSFER: 3,
   ANULA: 1,
 };
+
+// ASSUMPTION: only distance 1 is evidenced (experimentos.jsonl:286, 287, 300-305); SALDOS, at distance 4, gets no
+// suggestion (X:126) and XYZ neither (X:308). Distances 2-3 have not been measured. Change the threshold here only.
+const SUGGESTION_MAX_DISTANCE = 1;
+
+/**
+ * Closest known command to an unknown (already upper-cased, untrimmed) command name, or null when none is within
+ * SUGGESTION_MAX_DISTANCE. ASSUMPTION: ties go to the first command in ARITY order (not evidenced).
+ */
+export function suggestCommand(name: string): CommandName | null {
+  let best: CommandName | null = null;
+  let bestDistance = SUGGESTION_MAX_DISTANCE + 1;
+  for (const candidate of Object.keys(ARITY)) {
+    if (!isCommand(candidate)) continue;
+    const distance = levenshtein(name, candidate);
+    if (distance < bestDistance) {
+      best = candidate;
+      bestDistance = distance;
+    }
+  }
+  return best;
+}
 
 function isCommand(name: string): name is CommandName {
   return Object.hasOwn(ARITY, name);
@@ -50,14 +73,18 @@ export function parseMessage(m: string): ParsedMessage | Reply {
   const control = fields[fields.length - 1] ?? "";
   // Observed: a non-PING control is 1 or 2 digits; "050", "150", "+50" and " 50" are E201, and a single digit is
   // accepted (experimentos.jsonl wave 10: X:282-285; ejemplos n=4).
-  // ASSUMPTION: a 2-digit control with a leading zero (e.g. "03") is valid as a number; not yet measured.
   if (!/^\d{1,2}$/.test(control)) return Errors.malformedControl;
 
   const payload = fields.slice(0, -1).join(";");
-  // Note: "064" equals 64 only for PING, which ignores the control (experimentos.jsonl:58, 142).
-  if (Number(control) !== controlDigit(payload)) return Errors.invalidControl;
+  // Observed: the control value is compared as exact text: "03" and "00" are E202 although the valid control is 3
+  // (experimentos.jsonl:309, 310; "3" is accepted, ejemplos n=4). "064" is accepted only by PING, which ignores
+  // the control (experimentos.jsonl:58, 142).
+  if (control !== String(controlDigit(payload))) return Errors.invalidControl;
 
-  if (!isCommand(name)) return Errors.unknownCommand;
+  if (!isCommand(name)) {
+    const suggestion = suggestCommand(name);
+    return suggestion === null ? Errors.unknownCommand : unknownCommandSuggesting(suggestion);
+  }
   if (args.length !== ARITY[name]) return Errors.invalidArity;
 
   return { command: name, args };
