@@ -22,7 +22,7 @@ A task is done only when all of these hold, with the command output reported:
 - Keep the approved layout: `src/control` (control value), `src/protocol` (parsing, validation, error catalog),
   `src/bank` (state and commands), `src/http` (the only I/O adapter), `src/main.ts` (bootstrap).
 - `control` and `bank` stay pure: no `node:http`, no `process`, no I/O.
-  Check: `rg -n "node:http|process\." src/control src/bank` returns nothing.
+  Check: `test/boundaries.test.ts` passes (runtime import graph + forbidden globals, with a negative fixture).
 - Apply SOLID where it removes real coupling; do not add interfaces, factories or layers with a single use.
 - No new runtime dependency or framework without a written justification approved by the team.
   Check: `package.json` has no `dependencies` key.

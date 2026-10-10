@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { createServer as createHttpServer } from "node:http";
 import type { IncomingMessage, Server, ServerResponse } from "node:http";
 import { createState, resetState } from "../bank/state.ts";
@@ -60,7 +61,7 @@ export interface Logger {
   error(line: string): void;
 }
 
-const consoleLogger: Logger = {
+export const consoleLogger: Logger = {
   info: (line) => console.log(line),
   error: (line) => console.error(line),
 };
@@ -115,18 +116,44 @@ export function createServer(teamToken: string, logger: Logger = consoleLogger):
 
   return createHttpServer((req, res) => {
     const started = performance.now();
+    const id = randomUUID(); // correlation id for logs only; never sent in the response
     const method = req.method ?? "";
     const path = pathOf(req);
     res.on("finish", () => {
       const ms = Math.round((performance.now() - started) * 100) / 100;
-      logger.info(JSON.stringify({ level: "info", method, path, status: res.statusCode, ms }));
+      logger.info(JSON.stringify({ level: "info", id, method, path, status: res.statusCode, ms }));
     });
     handle(req, res).catch((error: unknown) => {
       // Only the error class name is logged: messages could echo request data.
       const name = error instanceof Error ? error.name : typeof error;
-      logger.error(JSON.stringify({ level: "error", method, path, error: name }));
+      logger.error(JSON.stringify({ level: "error", id, method, path, error: name }));
       if (!res.headersSent) send(res, Errors.internal);
       else res.end();
     });
   });
+}
+
+/** The subset of `http.Server` needed to stop it. */
+export interface ShutdownTarget {
+  close(callback?: (error?: Error) => void): unknown;
+  closeIdleConnections(): void;
+  closeAllConnections(): void;
+}
+
+/**
+ * Returns an idempotent signal handler: stops accepting connections, closes idle keep-alive sockets and,
+ * after `timeoutMs`, force-closes the rest. In-memory state is not persisted.
+ */
+export function createShutdown(server: ShutdownTarget, logger: Logger, timeoutMs = 10_000): (signal: string) => void {
+  let stopping = false;
+  return (signal) => {
+    if (stopping) return;
+    stopping = true;
+    logger.info(JSON.stringify({ level: "info", event: "shutdown", signal }));
+    server.close((error) => {
+      if (error) logger.error(JSON.stringify({ level: "error", event: "shutdown", error: error.name }));
+    });
+    server.closeIdleConnections();
+    setTimeout(() => server.closeAllConnections(), timeoutMs).unref();
+  };
 }

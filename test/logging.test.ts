@@ -38,6 +38,37 @@ test("logs one structured line per request with method, path, status and duratio
   });
 });
 
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+
+test("each request log carries its own correlation id, never sent in the response", async () => {
+  await withServer(async (base, lines) => {
+    const responses: Response[] = [];
+    for (let i = 0; i < 2; i++) {
+      const res = await fetch(base + "/msg", {
+        method: "POST",
+        headers: { "content-type": "application/json", authorization: `Bearer ${TOKEN}` },
+        body: JSON.stringify({ m: "PING;64" }),
+      });
+      await res.text();
+      responses.push(res);
+    }
+    await settle();
+    const ids = lines.map((l) => {
+      const entry: unknown = JSON.parse(l);
+      assert.ok(typeof entry === "object" && entry !== null);
+      const id = Reflect.get(entry, "id");
+      assert.ok(typeof id === "string" && UUID.test(id), `bad id in ${l}`);
+      return id;
+    });
+    assert.equal(ids.length, 2);
+    assert.notEqual(ids[0], ids[1]);
+    for (const res of responses) {
+      for (const [, value] of res.headers) assert.ok(!ids.includes(value), "correlation id leaked into a header");
+      assert.equal(res.headers.get("x-req") !== null, true, "X-Req must still be present");
+    }
+  });
+});
+
 test("log lines never contain the token, auth header or request body", async () => {
   await withServer(async (base, lines) => {
     for (const authorization of [`Bearer ${TOKEN}`, "Bearer wrong-token"]) {
