@@ -81,7 +81,8 @@ A task is done only when all of these hold, with the command output reported:
   blocked on tests but must carry `// ASSUMPTION:`.
 - Test layers: unit (`test/control.test.ts`, `test/config.test.ts`), HTTP integration and stateful sequences
   (`test/golden.test.ts`), logging (`test/logging.test.ts`).
-- Regression: every `seq` in `experimentos.jsonl` and the whole `pruebas/ejemplos.jsonl` are replayed by a test.
+- Regression: every v2 `seq` in `experimentos.jsonl` (`"version":"v2"`) is replayed by a test, and the whole
+  `pruebas/ejemplos.jsonl` is replayed against the v2 responses recorded in `s-ej-01-v2`.
 - One command before any commit, push or deploy: `npm run verify` (typecheck + tests) exits 0.
 - Deployed service: `npm run smoke` against the public URL before declaring it operational.
 - Before reporting work as done, satisfy the Definition of Done.
