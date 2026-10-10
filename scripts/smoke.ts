@@ -25,8 +25,11 @@ const CHECKS: Check[] = [
   { name: "reset", method: "POST", path: "/__reset", auth: true, body: {}, status: 200, response: { ok: true } },
   { name: "PING", method: "POST", path: "/msg", auth: true, body: { m: "PING;64" }, status: 200, response: { pong: true } },
   { name: "ALTA", method: "POST", path: "/msg", auth: true, body: { m: "ALTA;Lucia;82" }, status: 201, response: { cuentaId: "AC-0001" } },
-  { name: "CONSULTA", method: "POST", path: "/msg", auth: true, body: { m: "CONSULTA;AC-0001;14" }, status: 200, response: { cuenta_id: "AC-0001", saldo: 0 } },
+  { name: "CONSULTA", method: "POST", path: "/msg", auth: true, body: { m: "CONSULTA;AC-0001;14" }, status: 200, response: { cuenta_id: "AC-0001", saldo: "0.00" } },
   { name: "invalid control", method: "POST", path: "/msg", auth: true, body: { m: "ALTA;Lucia;83" }, status: 400, response: { error: "E202", mensaje: "control inválido" } },
+  // Version 2 markers (experimentos.jsonl:179, 197): fail fast if the deployed replica still runs v1 rules.
+  { name: "v2 empty segment", method: "POST", path: "/msg", auth: true, body: { m: "ALTA;;85" }, status: 400, response: { error: "E104", mensaje: "segmento vacío" } },
+  { name: "v2 PING ignores control", method: "POST", path: "/msg", auth: true, body: { m: "PING;XX" }, status: 200, response: { pong: true } },
   { name: "reset (leave clean)", method: "POST", path: "/__reset", auth: true, body: {}, status: 200, response: { ok: true } },
 ];
 
