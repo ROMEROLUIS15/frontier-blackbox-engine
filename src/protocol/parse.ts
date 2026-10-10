@@ -24,8 +24,8 @@ function isCommand(name: string): name is CommandName {
 
 /**
  * Validates a raw message `m`.
- * ASSUMPTION: the relative order of the checks (control format, control value, command, arity)
- * is unverified; it is defined only in this function so it can be changed in one place.
+ * Observed: control format (E201) and control value (E202) are checked before command (E301) and
+ * arity (E302) (experimentos.jsonl:51-56). The order is defined only in this function.
  */
 export function parseMessage(m: string): ParsedMessage | Reply {
   // Observed: experimentos.jsonl:60 (`PING` without `;` -> E103).
@@ -39,7 +39,7 @@ export function parseMessage(m: string): ParsedMessage | Reply {
   if (!/^\d+$/.test(control)) return Errors.malformedControl;
 
   const payload = fields.slice(0, -1).join(";");
-  // ASSUMPTION: leading zeros in the control compare numerically ("064" equals 64).
+  // Observed: leading zeros in the control compare numerically ("064" equals 64, experimentos.jsonl:58).
   if (Number(control) !== controlDigit(payload)) return Errors.invalidControl;
 
   const name = (fields[0] ?? "").toUpperCase();

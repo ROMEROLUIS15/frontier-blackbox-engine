@@ -30,7 +30,8 @@ export function execute(state: BankState, msg: ParsedMessage): Reply {
       return { status: 200, body: { pong: true } };
 
     case "ALTA": {
-      // ASSUMPTION: any name is accepted and duplicates are allowed.
+      // Observed: a duplicate name is accepted with a new id (experimentos.jsonl:83).
+      // ASSUMPTION: any other name (empty, non-ASCII) is accepted too.
       state.accountCounter += 1;
       const id = formatId("AC", state.accountCounter);
       state.accounts.set(id, 0);
@@ -38,7 +39,7 @@ export function execute(state: BankState, msg: ParsedMessage): Reply {
     }
 
     case "CONSULTA": {
-      // ASSUMPTION: account ids are matched exactly (case-sensitive).
+      // Observed: account ids are matched exactly; "ac-0001" is unknown (experimentos.jsonl:82).
       const balance = state.accounts.get(a);
       if (balance === undefined) return Errors.unknownAccount;
       return { status: 200, body: { cuenta_id: a, saldo: balance } };
@@ -82,8 +83,8 @@ export function execute(state: BankState, msg: ParsedMessage): Reply {
       if (op === undefined) return Errors.unknownOperation;
       if (op.annulled) return { status: 200, body: { ok: false, motivo: "ya anulada" } };
       op.annulled = true;
-      // Observed: reverting a TRANSFER subtracts the amount from the destination.
-      // ASSUMPTION: it also credits the origin; reverting a DEPOSITO debits the account; negative balances are allowed.
+      // Observed: reverting a TRANSFER debits the destination and credits the origin (experimentos.jsonl:65-67);
+      // reverting a DEPOSITO debits the account (68-69); negative balances are allowed (72-73).
       state.accounts.set(op.to, (state.accounts.get(op.to) ?? 0) - op.amount);
       if (op.from !== null) state.accounts.set(op.from, (state.accounts.get(op.from) ?? 0) + op.amount);
       return { status: 200, body: { ok: true, anulada: a } };
