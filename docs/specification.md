@@ -1,7 +1,8 @@
 # Especificación conductual — servicio "La caja negra" (Reto 2)
 
-Permite reimplementar el servicio sin tocar el original. Evidencia: `E:n` = línea n de `pruebas/ejemplos.jsonl`;
-`X:n` = línea (`id`) n de `experimentos.jsonl`.
+Permite reimplementar el servicio sin tocar el original. Evidencia: `X:n` = línea (`id`) n de `experimentos.jsonl`.
+Las líneas X:31–X:50 (`seq` `s-ej-01`) reproducen contra el original, en orden y tras un reset, los 20 ejemplos de
+`pruebas/ejemplos.jsonl` (X:30+n = ejemplo n), con status y cuerpo idénticos en los 20 casos.
 
 Confianza (README): **confirmado** = probado y repetido · **probable** = visto una vez o inferido (se marca
 "inferido") · **supuesto** = no probado; es lo que hace la réplica por defecto.
@@ -28,49 +29,49 @@ Formato de error común: `{"error":"<código>","mensaje":"<texto>"}`. Todos los 
 
 | ID | Comportamiento | Evidencia | Confianza |
 |---|---|---|---|
-| INT-01 | `m` = campos separados por `;`. El último campo es el control; el payload es todo lo anterior. | E:1–E:20 | confirmado |
-| INT-02 | Control no numérico → `400 {"error":"E201","mensaje":"control mal formado"}`. | E:17 | probable |
-| INT-03 | Control válido = `98 − (N·100 mod 97)` (ISO 7064 MOD 97-10). N: payload en mayúsculas; dígitos sin cambio; letras A=1…Z=26 sin relleno; `;`, `-` y demás símbolos se descartan. | E:1–E:20 (los 18 controles numéricos aceptados coinciden; E:2, rechazado, no coincide); restos borde 0 y 1: X:3–X:6 | confirmado |
-| INT-04 | Control numérico incorrecto → `400 {"error":"E202","mensaje":"control inválido"}`. | E:2, X:4, X:6 | confirmado |
-| INT-05 | El control se calcula sobre el payload en mayúsculas: `CONSULTa;AC-0001` acepta el mismo control (14) que `CONSULTA;AC-0001` (inferido). | E:11, E:5 | probable |
+| INT-01 | `m` = campos separados por `;`. El último campo es el control; el payload es todo lo anterior. | X:31–X:50 | confirmado |
+| INT-02 | Control no numérico → `400 {"error":"E201","mensaje":"control mal formado"}`. | X:47 | probable |
+| INT-03 | Control válido = `98 − (N·100 mod 97)` (ISO 7064 MOD 97-10). N: payload en mayúsculas; dígitos sin cambio; letras A=1…Z=26 sin relleno; `;`, `-` y demás símbolos se descartan. | X:31–X:50 (los 18 controles numéricos aceptados coinciden; X:32, rechazado, no coincide); restos borde 0 y 1: X:3–X:6 | confirmado |
+| INT-04 | Control numérico incorrecto → `400 {"error":"E202","mensaje":"control inválido"}`. | X:32, X:4, X:6 | confirmado |
+| INT-05 | El control se calcula sobre el payload en mayúsculas: `CONSULTa;AC-0001` acepta el mismo control (14) que `CONSULTA;AC-0001` (inferido). | X:41, X:35 | probable |
 | INT-06 | Ceros a la izquierda en el control (`064`), letras no ASCII en el payload. | — | supuesto: comparación numérica; no ASCII se descarta |
 
 ## 3. Comandos
 
-El nombre del comando no distingue mayúsculas (E:11, probable). Aridad = campos entre comando y control.
+El nombre del comando no distingue mayúsculas (X:41, probable). Aridad = campos entre comando y control.
 
 | ID | Comando | Comportamiento | Evidencia | Confianza |
 |---|---|---|---|---|
-| CMD-01 | `PING` (0 args) | `200 {"pong":true}` | E:1, X:2 | confirmado |
-| CMD-02 | `ALTA;nombre` (1) | Crea cuenta con saldo 0 → `201 {"cuentaId":"AC-NNNN"}`, secuencial desde `AC-0001`. | E:3, E:4, X:3, X:5, X:19, X:20 | confirmado |
+| CMD-01 | `PING` (0 args) | `200 {"pong":true}` | X:31, X:2 | confirmado |
+| CMD-02 | `ALTA;nombre` (1) | Crea cuenta con saldo 0 → `201 {"cuentaId":"AC-NNNN"}`, secuencial desde `AC-0001`. | X:33, X:34, X:3, X:5, X:19, X:20 | confirmado |
 | CMD-03 | `ALTA` | Nombres duplicados o con caracteres especiales. | — | supuesto: se aceptan |
-| CMD-04 | `CONSULTA;cuenta` (1) | `200 {"cuenta_id":"AC-NNNN","saldo":<n>}`. | E:5, E:8, E:11, E:19 | confirmado |
-| CMD-05 | `CONSULTA` | Cuenta inexistente → `404 {"error":"E401","mensaje":"cuenta inexistente"}`. | E:15 | probable |
-| CMD-06 | `DEPOSITO;cuenta;monto` (2) | Suma al saldo → `200 {"status":"recieved","operacionId":"OP-NNNN"}`. | E:6, E:18, X:25 | confirmado |
+| CMD-04 | `CONSULTA;cuenta` (1) | `200 {"cuenta_id":"AC-NNNN","saldo":<n>}`. | X:35, X:38, X:41, X:49 | confirmado |
+| CMD-05 | `CONSULTA` | Cuenta inexistente → `404 {"error":"E401","mensaje":"cuenta inexistente"}`. | X:45 | probable |
+| CMD-06 | `DEPOSITO;cuenta;monto` (2) | Suma al saldo → `200 {"status":"recieved","operacionId":"OP-NNNN"}`. | X:36, X:48, X:25 | confirmado |
 | CMD-07 | `DEPOSITO` | Monto 0, negativo, decimal o no numérico → `400 {"error":"E303","mensaje":"monto inválido"}`. | X:21–X:24 | confirmado |
-| CMD-08 | `DEPOSITO` | Sin el límite de E506: se aceptan 250000 y 500000 (inferido). | E:6, X:25 | probable |
-| CMD-09 | `TRANSFER;origen;destino;monto` (3) | Resta del origen, suma al destino → `200 {"status":"recieved","operacionId":"OP-NNNN"}`. | E:7, E:8, E:10, E:11, X:28, X:29 | confirmado |
-| CMD-10 | `TRANSFER` | Monto > 100000 → `422 {"error":"E506","mensaje":"límite excedido"}`; 100000 se acepta. | E:9, E:10, X:27, X:28 | confirmado |
+| CMD-08 | `DEPOSITO` | Sin el límite de E506: se aceptan 250000 y 500000 (inferido). | X:36, X:25 | probable |
+| CMD-09 | `TRANSFER;origen;destino;monto` (3) | Resta del origen, suma al destino → `200 {"status":"recieved","operacionId":"OP-NNNN"}`. | X:37, X:38, X:40, X:41, X:28, X:29 | confirmado |
+| CMD-10 | `TRANSFER` | Monto > 100000 → `422 {"error":"E506","mensaje":"límite excedido"}`; 100000 se acepta. | X:39, X:40, X:27, X:28 | confirmado |
 | CMD-11 | `TRANSFER` | El límite es por transferencia, no acumulado: 100000 + 30000 seguidas se aceptan (inferido). | X:28, X:29 | probable |
-| CMD-12 | `TRANSFER` | Saldo del origen menor que el monto → `422 {"error":"E507","mensaje":"saldo insuficiente"}`. | E:16 | probable |
+| CMD-12 | `TRANSFER` | Saldo del origen menor que el monto → `422 {"error":"E507","mensaje":"saldo insuficiente"}`. | X:46 | probable |
 | CMD-13 | `TRANSFER` | Monto 0 → `400 E303 "monto inválido"`. | X:26 | probable |
 | CMD-14 | `TRANSFER` | Origen o destino inexistente; transferencia a la misma cuenta. | — | supuesto: E401; sin trato especial |
-| CMD-15 | `ANULA;operacion` (1) | Primera vez → `200 {"ok":true,"anulada":"OP-NNNN"}`; segunda vez → `200 {"ok":false,"motivo":"ya anulada"}`. | E:13, E:14 | probable |
+| CMD-15 | `ANULA;operacion` (1) | Primera vez → `200 {"ok":true,"anulada":"OP-NNNN"}`; segunda vez → `200 {"ok":false,"motivo":"ya anulada"}`. | X:43, X:44 | probable |
 | CMD-16 | `ANULA` | Operación inexistente → `404 {"error":"E402","mensaje":"operación inexistente"}`. | X:18 | probable |
-| CMD-17 | `ANULA` | Anular un TRANSFER descuenta el monto del destino: saldo 40700 = 40000 + 700 tras anular 100000 (inferido). | E:10, E:13, E:19 | probable |
+| CMD-17 | `ANULA` | Anular un TRANSFER descuenta el monto del destino: saldo 40700 = 40000 + 700 tras anular 100000 (inferido). | X:40, X:43, X:49 | probable |
 | CMD-18 | `ANULA` | Devuelve el monto al origen; anular un DEPOSITO lo descuenta; saldos negativos permitidos. | — | supuesto |
-| CMD-19 | Comando desconocido | → `400 {"error":"E301","mensaje":"comando desconocido "}` (con espacio final). | E:12 | probable |
-| CMD-20 | Aridad incorrecta | → `400 {"error":"E302","mensaje":"aridad inválida"}`. | E:20 | probable |
+| CMD-19 | Comando desconocido | → `400 {"error":"E301","mensaje":"comando desconocido "}` (con espacio final). | X:42 | probable |
+| CMD-20 | Aridad incorrecta | → `400 {"error":"E302","mensaje":"aridad inválida"}`. | X:50 | probable |
 
 ## 4. Memoria entre requests
 
 | ID | Comportamiento | Evidencia | Confianza |
 |---|---|---|---|
 | MEM-01 | `/__reset` borra cuentas, operaciones y contadores `AC`/`OP`: tras cada reset la primera cuenta vuelve a ser `AC-0001` y la primera operación `OP-0001`. | X:3, X:19, X:25 | confirmado |
-| MEM-02 | Las solicitudes rechazadas no consumen número de cuenta ni de operación. | E:2→E:3, X:4→X:5, E:9→E:10, X:21–X:24→X:25 | confirmado |
-| MEM-03 | `ANULA` no consume número de operación. | E:13→E:18 (`OP-0004`) | probable |
-| MEM-04 | Los saldos se acumulan entre requests. | E:5, E:8, E:11, E:19 | confirmado |
-| MEM-05 | El estado de una operación anulada se recuerda (segunda ANULA → `ok:false`). | E:14 | probable |
+| MEM-02 | Las solicitudes rechazadas no consumen número de cuenta ni de operación. | X:32→X:33, X:4→X:5, X:39→X:40, X:21–X:24→X:25 | confirmado |
+| MEM-03 | `ANULA` no consume número de operación. | X:43→X:48 (`OP-0004`) | probable |
+| MEM-04 | Los saldos se acumulan entre requests. | X:35, X:38, X:41, X:49 | confirmado |
+| MEM-05 | El estado de una operación anulada se recuerda (segunda ANULA → `ok:false`). | X:44 | probable |
 | MEM-06 | `X-Req` persiste a través de `/__reset` (ver ENT-10). | X:18→X:19 | probable |
 
 ## 5. Errores
@@ -81,15 +82,15 @@ El nombre del comando no distingue mayúsculas (E:11, probable). Aridad = campos
 | E001 | 401 | `no autorizado` | X:1, X:10, X:11, X:13 | confirmado |
 | E100 | 400 | `json inválido` | X:15 | probable |
 | E102 | 400 | `falta m` | X:16, X:17 | confirmado |
-| E201 | 400 | `control mal formado` | E:17 | probable |
-| E202 | 400 | `control inválido` | E:2, X:4, X:6 | confirmado |
-| E301 | 400 | `comando desconocido ` (espacio final) | E:12 | probable |
-| E302 | 400 | `aridad inválida` | E:20 | probable |
+| E201 | 400 | `control mal formado` | X:47 | probable |
+| E202 | 400 | `control inválido` | X:32, X:4, X:6 | confirmado |
+| E301 | 400 | `comando desconocido ` (espacio final) | X:42 | probable |
+| E302 | 400 | `aridad inválida` | X:50 | probable |
 | E303 | 400 | `monto inválido` | X:21–X:24, X:26 | confirmado |
-| E401 | 404 | `cuenta inexistente` | E:15 | probable |
+| E401 | 404 | `cuenta inexistente` | X:45 | probable |
 | E402 | 404 | `operación inexistente` | X:18 | probable |
-| E506 | 422 | `límite excedido` | E:9, X:27, X:30 | confirmado |
-| E507 | 422 | `saldo insuficiente` | E:16 | probable |
+| E506 | 422 | `límite excedido` | X:39, X:27, X:30 | confirmado |
+| E507 | 422 | `saldo insuficiente` | X:46 | probable |
 
 Orden de evaluación:
 
@@ -97,8 +98,8 @@ Orden de evaluación:
 |---|---|---|---|
 | ORD-01 | Ruta (E404) antes que autenticación (E001). | X:12 | probable |
 | ORD-02 | Autenticación antes que el cuerpo (E100/E102) y que la integridad. | — | supuesto |
-| ORD-03 | Cuerpo (E100/E102) antes que control: sin `m` no hay control que validar (inferido por necesidad lógica). | — | probable |
-| ORD-04 | E201 → E202 → E301 → E302. E201 y E202 son excluyentes. E:12 y E:20 tienen control válido, así que no revelan el orden. | E:12, E:20 | supuesto |
+| ORD-03 | Cuerpo (E100/E102) antes que control: sin `m` no hay control que validar (inferencia lógica, sin evidencia directa). | — | supuesto |
+| ORD-04 | E201 → E202 → E301 → E302. E201 y E202 son excluyentes. X:42 y X:50 tienen control válido, así que no revelan el orden. | X:42, X:50 | supuesto |
 | ORD-05 | E506 antes que E507: monto 150000 sobre el límite y sobre el saldo (130000) → E506. | X:30 | probable |
 | ORD-06 | E401 y E303 antes que E506/E507. | — | supuesto |
 
@@ -106,7 +107,7 @@ Orden de evaluación:
 
 | ID | Comportamiento | Evidencia | Confianza |
 |---|---|---|---|
-| CAM-01 | No detectamos cambios respecto de la versión de la mañana: las repeticiones posteriores coinciden con los ejemplos (`PING;64` → `200 {"pong":true}`; 100000 aceptado; montos > 100000 → E506). | X:2 vs E:1; X:28 vs E:10; X:27 vs E:9 | probable |
+| CAM-01 | No detectamos cambios respecto de la versión de la mañana: las repeticiones posteriores coinciden con los ejemplos (`PING;64` → `200 {"pong":true}`; 100000 aceptado; montos > 100000 → E506). | X:2 vs X:31; X:28 vs X:40; X:27 vs X:39 | probable |
 | CAM-02 | No ejecutamos un chequeo sistemático de deriva; un cambio en comportamientos no repetidos no sería detectado. | — | supuesto |
 
 ## 7. Riesgos
