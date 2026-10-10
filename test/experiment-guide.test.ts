@@ -72,3 +72,22 @@ describe("experiment guide structure", () => {
     assert.doesNotMatch(guide, /[A-Za-z]:\\|\/Users\/|\d{4}-\d{2}-\d{2}T\d{2}:/);
   });
 });
+
+describe("official example cross references", () => {
+  const guide = existsSync(guidePath) ? readFileSync(guidePath, "utf8") : "";
+  const entry = (id: number): string => guide.split(/^#### /m).find((block) => block.startsWith(`X:${id} `)) ?? "";
+  const exampleLine = (id: number): string => entry(id).split("\n").find((line) => line.includes("Ejemplo oficial E:")) ?? "";
+
+  test("a different auth, route or method is not called the same request", () => {
+    for (const id of [1, 8, 10, 11, 85, 250, 251, 256, 257]) {
+      const line = exampleLine(id);
+      assert.ok(line.includes("mismo mensaje"), `X:${id}: ${line}`);
+      assert.ok(!line.includes("misma solicitud"), `X:${id}: ${line}`);
+      assert.ok(!line.includes("difiere"), `X:${id}: ${line}`);
+    }
+  });
+
+  test("an identical method, route, auth and body is called the same request", () => {
+    assert.ok(exampleLine(35).includes("misma solicitud"));
+  });
+});
