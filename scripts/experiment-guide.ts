@@ -647,10 +647,22 @@ function relationsOf(row: Row, ctx: Context): Relations {
   }
   const examples = ctx.examples.filter((x) => sameJson(x.request, entry.request));
   for (const example of examples) {
-    const agrees = example.status === entry.status && sameJson(example.response, entry.response);
-    lines.push(
-      `- Ejemplo oficial E:${example.n} (\`pruebas/ejemplos.jsonl\`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial ${agrees ? "coincide con" : "difiere de"} la registrada en esta línea.`,
-    );
+    const source = `Ejemplo oficial E:${example.n} (\`pruebas/ejemplos.jsonl\`, grabado por los autores del reto con la versión de la mañana)`;
+    const differences = [
+      row.auth === "team" ? null : "otra autenticación",
+      row.path === "/msg" ? null : "otra ruta",
+      row.method === "POST" ? null : "otro método",
+    ].filter((d): d is string => d !== null);
+    if (differences.length > 0) {
+      lines.push(
+        `- ${source}: mismo mensaje \`m\`, pero con ${differences.join(" y ")} (los ejemplos oficiales son \`POST /msg\` con el token del equipo); las respuestas no son comparables directamente.`,
+      );
+    } else {
+      const agrees = example.status === entry.status && sameJson(example.response, entry.response);
+      lines.push(
+        `- ${source}: misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial ${agrees ? "coincide con" : "difiere de"} la registrada en esta línea.`,
+      );
+    }
   }
   return { lines, hasAny: specRefs.length > 0 || pair !== null || sameV1.length + sameV2.length > 0 || examples.length > 0 };
 }

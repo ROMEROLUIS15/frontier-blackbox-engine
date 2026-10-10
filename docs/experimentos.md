@@ -335,7 +335,7 @@ Es la base de comparación de v1; su repetición en v2 es X:85, donde la respues
 - Especificación: la citan las filas ENT-05 (confirmado), ENT-10 (probable), E001 (confirmado).
 - Par v1/v2: X:1 (v1) y X:85 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:2, X:8, X:10, X:11, X:31; v2: X:86, X:92, X:94, X:95, X:115, X:250, X:251, X:256 y 5 más).
-- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): mismo mensaje `m`, pero con otra autenticación (los ejemplos oficiales son `POST /msg` con el token del equipo); las respuestas no son comparables directamente.
 
 ### s-ctl-01 — v1, X:2–X:6
 
@@ -424,7 +424,7 @@ Es la base de comparación de v1; su repetición en v2 es X:86, donde la respues
 - Especificación: la citan las filas ENT-01 (confirmado), ENT-10 (probable), CMD-01 (confirmado).
 - Par v1/v2: X:2 (v1) y X:86 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:1, X:8, X:10, X:11, X:31; v2: X:85, X:92, X:94, X:95, X:115, X:250, X:251, X:256 y 5 más).
-- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:3 — POST /msg ALTA;Mava;98
 
@@ -846,7 +846,7 @@ Es la base de comparación de v1; su repetición en v2 es X:92, donde la respues
 - Especificación: la citan las filas ENT-02 (confirmado), ENT-10 (probable), E404 (confirmado).
 - Par v1/v2: X:8 (v1) y X:92 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:1, X:2, X:10, X:11, X:31; v2: X:85, X:86, X:94, X:95, X:115, X:250, X:251, X:256 y 5 más).
-- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): mismo mensaje `m`, pero con otra ruta (los ejemplos oficiales son `POST /msg` con el token del equipo); las respuestas no son comparables directamente.
 
 #### X:9 — GET /msg
 
@@ -973,7 +973,7 @@ El texto registrado marca parte de la conclusión como inferida o supuesta: esa 
 - Especificación: la citan las filas ENT-05 (confirmado), ENT-10 (probable), E001 (confirmado).
 - Par v1/v2: X:10 (v1) y X:94 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:1, X:2, X:8, X:11, X:31; v2: X:85, X:86, X:92, X:95, X:115, X:250, X:251, X:256 y 5 más).
-- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): mismo mensaje `m`, pero con otra autenticación (los ejemplos oficiales son `POST /msg` con el token del equipo); las respuestas no son comparables directamente.
 
 #### X:11 — POST /msg PING;64
 
@@ -1043,7 +1043,7 @@ Es la base de comparación de v1; su repetición en v2 es X:95, donde la respues
 - Especificación: la citan las filas ENT-05 (confirmado), ENT-10 (probable), E001 (confirmado).
 - Par v1/v2: X:11 (v1) y X:95 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:1, X:2, X:8, X:10, X:31; v2: X:85, X:86, X:92, X:94, X:115, X:250, X:251, X:256 y 5 más).
-- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): mismo mensaje `m`, pero con otra autenticación (los ejemplos oficiales son `POST /msg` con el token del equipo); las respuestas no son comparables directamente.
 
 #### X:12 — GET /noexiste
 
@@ -2146,7 +2146,7 @@ Es la base de comparación de v1; su repetición en v2 es X:112, donde la respue
 - Especificación: la citan las filas CMD-09 (confirmado), CMD-11 (confirmado), CAM-02 (confirmado).
 - Par v1/v2: X:28 (v1) y X:112 (v2, `replay_of`); las respuestas registradas del original difieren.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:40; v2: X:124).
-- Ejemplo oficial E:10 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:10 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 #### X:29 — POST /msg TRANSFER;AC-0001;AC-0002;30000;16
 
@@ -2385,7 +2385,7 @@ Es la base de comparación de v1; su repetición en v2 es X:115, donde la respue
 - Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-01 (confirmado).
 - Par v1/v2: X:31 (v1) y X:115 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:1, X:2, X:8, X:10, X:11; v2: X:85, X:86, X:92, X:94, X:95, X:250, X:251, X:256 y 5 más).
-- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:32 — POST /msg ALTA;Lucia;83
 
@@ -2452,7 +2452,7 @@ Es la base de comparación de v1; su repetición en v2 es X:116, donde la respue
 
 - Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), INT-04 (confirmado), MEM-02 (confirmado), E202 (confirmado).
 - Par v1/v2: X:32 (v1) y X:116 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Ejemplo oficial E:2 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:2 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:33 — POST /msg ALTA;Lucia;82
 
@@ -2519,7 +2519,7 @@ Es la base de comparación de v1; su repetición en v2 es X:117, donde la respue
 
 - Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-02 (confirmado), MEM-02 (confirmado).
 - Par v1/v2: X:33 (v1) y X:117 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Ejemplo oficial E:3 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:3 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:34 — POST /msg ALTA;Mateo;3
 
@@ -2586,7 +2586,7 @@ Es la base de comparación de v1; su repetición en v2 es X:118, donde la respue
 
 - Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-02 (confirmado).
 - Par v1/v2: X:34 (v1) y X:118 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Ejemplo oficial E:4 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:4 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:35 — POST /msg CONSULTA;AC-0001;14
 
@@ -2654,7 +2654,7 @@ Es la base de comparación de v1; su repetición en v2 es X:119, donde la respue
 - Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), INT-05 (probable), MEM-04 (confirmado), CAM-01 (confirmado).
 - Par v1/v2: X:35 (v1) y X:119 (v2, `replay_of`); las respuestas registradas del original difieren.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:66, X:69, X:81; v2: X:150, X:153, X:165, X:176, X:178, X:228, X:234, X:236 y 2 más).
-- Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:36 — POST /msg DEPOSITO;AC-0001;250000;86
 
@@ -2722,7 +2722,7 @@ Es la base de comparación de v1; su repetición en v2 es X:120, donde la respue
 - Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-06 (confirmado), CMD-08 (probable).
 - Par v1/v2: X:36 (v1) y X:120 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v2: X:171, X:183, X:189, X:217).
-- Ejemplo oficial E:6 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:6 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:37 — POST /msg TRANSFER;AC-0001;AC-0002;40000;86
 
@@ -2789,7 +2789,7 @@ Es la base de comparación de v1; su repetición en v2 es X:121, donde la respue
 
 - Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-09 (confirmado).
 - Par v1/v2: X:37 (v1) y X:121 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Ejemplo oficial E:7 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:7 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:38 — POST /msg CONSULTA;AC-0002;11
 
@@ -2857,8 +2857,8 @@ Es la base de comparación de v1; su repetición en v2 es X:122, donde la respue
 - Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-09 (confirmado), MEM-04 (confirmado), CAM-01 (confirmado).
 - Par v1/v2: X:38 (v1) y X:122 (v2, `replay_of`); las respuestas registradas del original difieren.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:49, X:67, X:73; v2: X:133, X:151, X:157, X:173, X:186, X:192, X:220, X:249).
-- Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
-- Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 #### X:39 — POST /msg TRANSFER;AC-0001;AC-0002;120000;55
 
@@ -2925,7 +2925,7 @@ Es la base de comparación de v1; su repetición en v2 es X:123, donde la respue
 
 - Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), MEM-02 (confirmado), E506 (confirmado).
 - Par v1/v2: X:39 (v1) y X:123 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Ejemplo oficial E:9 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:9 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:40 — POST /msg TRANSFER;AC-0001;AC-0002;100000;12
 
@@ -2993,7 +2993,7 @@ Es la base de comparación de v1; su repetición en v2 es X:124, donde la respue
 - Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-09 (confirmado), CMD-17 (probable), MEM-02 (confirmado).
 - Par v1/v2: X:40 (v1) y X:124 (v2, `replay_of`); las respuestas registradas del original difieren.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:28; v2: X:112).
-- Ejemplo oficial E:10 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:10 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:41 — POST /msg CONSULTa;AC-0001;14
 
@@ -3060,7 +3060,7 @@ Es la base de comparación de v1; su repetición en v2 es X:125, donde la respue
 
 - Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), INT-05 (probable), CMD-09 (confirmado), MEM-04 (confirmado).
 - Par v1/v2: X:41 (v1) y X:125 (v2, `replay_of`); las respuestas registradas del original difieren.
-- Ejemplo oficial E:11 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:11 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:42 — POST /msg SALDOS;AC-0001;38
 
@@ -3127,7 +3127,7 @@ Es la base de comparación de v1; su repetición en v2 es X:126, donde la respue
 
 - Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-19 (probable), E301 (probable; variante confirmada en v2).
 - Par v1/v2: X:42 (v1) y X:126 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Ejemplo oficial E:12 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:12 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:43 — POST /msg ANULA;OP-0003;66
 
@@ -3195,8 +3195,8 @@ Es la base de comparación de v1; su repetición en v2 es X:127, donde la respue
 - Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-15 (probable), CMD-17 (probable), MEM-03 (probable).
 - Par v1/v2: X:43 (v1) y X:127 (v2, `replay_of`); las respuestas registradas del original difieren.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:44, X:72; v2: X:128, X:156).
-- Ejemplo oficial E:13 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
-- Ejemplo oficial E:14 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:13 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:14 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 #### X:44 — POST /msg ANULA;OP-0003;66
 
@@ -3264,8 +3264,8 @@ Es la base de comparación de v1; su repetición en v2 es X:128, donde la respue
 - Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-15 (probable), MEM-05 (probable).
 - Par v1/v2: X:44 (v1) y X:128 (v2, `replay_of`); las respuestas registradas del original difieren.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:43, X:72; v2: X:127, X:156).
-- Ejemplo oficial E:13 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
-- Ejemplo oficial E:14 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:13 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:14 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:45 — POST /msg CONSULTA;AC-0009;87
 
@@ -3332,7 +3332,7 @@ Es la base de comparación de v1; su repetición en v2 es X:129, donde la respue
 
 - Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-05 (confirmado), E401 (confirmado).
 - Par v1/v2: X:45 (v1) y X:129 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Ejemplo oficial E:15 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:15 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:46 — POST /msg TRANSFER;AC-0002;AC-0001;50000;23
 
@@ -3399,7 +3399,7 @@ Es la base de comparación de v1; su repetición en v2 es X:130, donde la respue
 
 - Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-12 (probable; confirmado en v2 para el saldo exacto), E507 (probable).
 - Par v1/v2: X:46 (v1) y X:130 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Ejemplo oficial E:16 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:16 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:47 — POST /msg DEPOSITO;AC-0002;700;5X
 
@@ -3466,7 +3466,7 @@ Es la base de comparación de v1; su repetición en v2 es X:131, donde la respue
 
 - Especificación: la citan las filas INT-01 (confirmado), INT-02 (probable), INT-03 (confirmado), E201 (probable).
 - Par v1/v2: X:47 (v1) y X:131 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Ejemplo oficial E:17 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:17 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:48 — POST /msg DEPOSITO;AC-0002;700;35
 
@@ -3533,7 +3533,7 @@ Es la base de comparación de v1; su repetición en v2 es X:132, donde la respue
 
 - Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-06 (confirmado), MEM-03 (probable).
 - Par v1/v2: X:48 (v1) y X:132 (v2, `replay_of`); las respuestas registradas del original difieren.
-- Ejemplo oficial E:18 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:18 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:49 — POST /msg CONSULTA;AC-0002;11
 
@@ -3601,8 +3601,8 @@ Es la base de comparación de v1; su repetición en v2 es X:133, donde la respue
 - Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-17 (probable), MEM-04 (confirmado).
 - Par v1/v2: X:49 (v1) y X:133 (v2, `replay_of`); las respuestas registradas del original difieren.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:67, X:73; v2: X:122, X:151, X:157, X:173, X:186, X:192, X:220, X:249).
-- Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
-- Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:50 — POST /msg ALTA;Lucia;Gomez;11
 
@@ -3669,7 +3669,7 @@ Es la base de comparación de v1; su repetición en v2 es X:134, donde la respue
 
 - Especificación: la citan las filas INT-01 (confirmado), INT-03 (confirmado), CMD-20 (probable), E302 (probable).
 - Par v1/v2: X:50 (v1) y X:134 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Ejemplo oficial E:20 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:20 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 ### s-ord-02 — v1, X:51–X:60
 
@@ -4770,7 +4770,7 @@ El texto registrado marca parte de la conclusión como inferida o supuesta: esa 
 - Especificación: la citan las filas CMD-18 (probable).
 - Par v1/v2: X:66 (v1) y X:150 (v2, `replay_of`); las respuestas registradas del original difieren.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:69, X:81; v2: X:119, X:153, X:165, X:176, X:178, X:228, X:234, X:236 y 2 más).
-- Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 #### X:67 — POST /msg CONSULTA;AC-0002;11
 
@@ -4838,8 +4838,8 @@ Es la base de comparación de v1; su repetición en v2 es X:151, donde la respue
 - Especificación: la citan las filas CMD-18 (probable).
 - Par v1/v2: X:67 (v1) y X:151 (v2, `replay_of`); las respuestas registradas del original difieren.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:49, X:73; v2: X:122, X:133, X:157, X:173, X:186, X:192, X:220, X:249).
-- Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
-- Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 #### X:68 — POST /msg ANULA;OP-0001;72
 
@@ -4974,7 +4974,7 @@ Es la base de comparación de v1; su repetición en v2 es X:153, donde la respue
 - Especificación: la citan las filas CMD-18b (probable).
 - Par v1/v2: X:69 (v1) y X:153 (v2, `replay_of`); las respuestas registradas del original difieren.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:81; v2: X:119, X:150, X:165, X:176, X:178, X:228, X:234, X:236 y 2 más).
-- Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:70 — POST /msg DEPOSITO;AC-0002;500;53
 
@@ -5174,8 +5174,8 @@ Es la base de comparación de v1; su repetición en v2 es X:156, donde la respue
 - Especificación: la citan las filas CMD-18c (probable).
 - Par v1/v2: X:72 (v1) y X:156 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:43, X:44; v2: X:127, X:128).
-- Ejemplo oficial E:13 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
-- Ejemplo oficial E:14 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:13 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:14 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 #### X:73 — POST /msg CONSULTA;AC-0002;11
 
@@ -5243,8 +5243,8 @@ Es la base de comparación de v1; su repetición en v2 es X:157, donde la respue
 - Especificación: la citan las filas CMD-18c (probable).
 - Par v1/v2: X:73 (v1) y X:157 (v2, `replay_of`); las respuestas registradas del original difieren.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:49, X:67; v2: X:122, X:133, X:151, X:173, X:186, X:192, X:220, X:249).
-- Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
-- Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 ### s-tr-01 — v1, X:74–X:84
 
@@ -5803,7 +5803,7 @@ Es la base de comparación de v1; su repetición en v2 es X:165, donde la respue
 - Especificación: la citan las filas CMD-14b (probable).
 - Par v1/v2: X:81 (v1) y X:165 (v2, `replay_of`); las respuestas registradas del original difieren.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:69; v2: X:119, X:150, X:153, X:176, X:178, X:228, X:234, X:236 y 2 más).
-- Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 #### X:82 — POST /msg CONSULTA;ac-0001;14
 
@@ -6088,7 +6088,7 @@ Repite X:1 y registra la misma respuesta: v2 no cambió este comportamiento.
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:1 (v1) y X:85 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:2, X:8, X:10, X:11, X:31; v2: X:86, X:92, X:94, X:95, X:115, X:250, X:251, X:256 y 5 más).
-- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): mismo mensaje `m`, pero con otra autenticación (los ejemplos oficiales son `POST /msg` con el token del equipo); las respuestas no son comparables directamente.
 
 ### s-ctl-01-v2 — v2, X:86–X:90
 
@@ -6178,7 +6178,7 @@ Repite X:2 y registra la misma respuesta: v2 no cambió este comportamiento.
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:2 (v1) y X:86 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:1, X:8, X:10, X:11, X:31; v2: X:85, X:92, X:94, X:95, X:115, X:250, X:251, X:256 y 5 más).
-- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:87 — POST /msg ALTA;Mava;98
 
@@ -6605,7 +6605,7 @@ Repite X:8 y registra la misma respuesta: v2 no cambió este comportamiento.
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:8 (v1) y X:92 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:1, X:2, X:10, X:11, X:31; v2: X:85, X:86, X:94, X:95, X:115, X:250, X:251, X:256 y 5 más).
-- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): mismo mensaje `m`, pero con otra ruta (los ejemplos oficiales son `POST /msg` con el token del equipo); las respuestas no son comparables directamente.
 
 #### X:93 — GET /msg
 
@@ -6734,7 +6734,7 @@ Repite X:10 y registra la misma respuesta: v2 no cambió este comportamiento.
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:10 (v1) y X:94 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:1, X:2, X:8, X:11, X:31; v2: X:85, X:86, X:92, X:95, X:115, X:250, X:251, X:256 y 5 más).
-- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): mismo mensaje `m`, pero con otra autenticación (los ejemplos oficiales son `POST /msg` con el token del equipo); las respuestas no son comparables directamente.
 
 #### X:95 — POST /msg PING;64
 
@@ -6806,7 +6806,7 @@ Repite X:11 y registra la misma respuesta: v2 no cambió este comportamiento.
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:11 (v1) y X:95 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:1, X:2, X:8, X:10, X:31; v2: X:85, X:86, X:92, X:94, X:115, X:250, X:251, X:256 y 5 más).
-- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): mismo mensaje `m`, pero con otra autenticación (los ejemplos oficiales son `POST /msg` con el token del equipo); las respuestas no son comparables directamente.
 
 #### X:96 — GET /noexiste
 
@@ -7936,7 +7936,7 @@ Es un cambio de versión probado por el par X:28 (v1: status 200) y X:112 (v2: s
 - Especificación: la citan las filas CMD-10 (confirmado), CAM-02 (confirmado).
 - Par v1/v2: X:28 (v1) y X:112 (v2, `replay_of`); las respuestas registradas del original difieren.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:40; v2: X:124).
-- Ejemplo oficial E:10 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:10 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 #### X:113 — POST /msg TRANSFER;AC-0001;AC-0002;30000;16
 
@@ -8178,7 +8178,7 @@ Repite X:31 y registra la misma respuesta: v2 no cambió este comportamiento.
 - Especificación: la citan las filas CMD-01 (confirmado).
 - Par v1/v2: X:31 (v1) y X:115 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:1, X:2, X:8, X:10, X:11; v2: X:85, X:86, X:92, X:94, X:95, X:250, X:251, X:256 y 5 más).
-- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:116 — POST /msg ALTA;Lucia;83
 
@@ -8247,7 +8247,7 @@ Repite X:32 y registra la misma respuesta: v2 no cambió este comportamiento.
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:32 (v1) y X:116 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Ejemplo oficial E:2 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:2 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:117 — POST /msg ALTA;Lucia;82
 
@@ -8316,7 +8316,7 @@ Repite X:33 y registra la misma respuesta: v2 no cambió este comportamiento.
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:33 (v1) y X:117 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Ejemplo oficial E:3 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:3 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:118 — POST /msg ALTA;Mateo;3
 
@@ -8385,7 +8385,7 @@ Repite X:34 y registra la misma respuesta: v2 no cambió este comportamiento.
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:34 (v1) y X:118 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Ejemplo oficial E:4 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:4 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:119 — POST /msg CONSULTA;AC-0001;14
 
@@ -8455,7 +8455,7 @@ Es un cambio de versión probado por el par X:35 (v1: status 200) y X:119 (v2: s
 - Especificación: la citan las filas CMD-04 (confirmado), CAM-01 (confirmado).
 - Par v1/v2: X:35 (v1) y X:119 (v2, `replay_of`); las respuestas registradas del original difieren.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:66, X:69, X:81; v2: X:150, X:153, X:165, X:176, X:178, X:228, X:234, X:236 y 2 más).
-- Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 #### X:120 — POST /msg DEPOSITO;AC-0001;250000;86
 
@@ -8525,7 +8525,7 @@ Repite X:36 y registra la misma respuesta: v2 no cambió este comportamiento.
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:36 (v1) y X:120 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v2: X:171, X:183, X:189, X:217).
-- Ejemplo oficial E:6 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:6 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:121 — POST /msg TRANSFER;AC-0001;AC-0002;40000;86
 
@@ -8594,7 +8594,7 @@ Repite X:37 y registra la misma respuesta: v2 no cambió este comportamiento.
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:37 (v1) y X:121 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Ejemplo oficial E:7 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:7 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:122 — POST /msg CONSULTA;AC-0002;11
 
@@ -8664,8 +8664,8 @@ Es un cambio de versión probado por el par X:38 (v1: status 200) y X:122 (v2: s
 - Especificación: la citan las filas CMD-04 (confirmado), CAM-01 (confirmado).
 - Par v1/v2: X:38 (v1) y X:122 (v2, `replay_of`); las respuestas registradas del original difieren.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:49, X:67, X:73; v2: X:133, X:151, X:157, X:173, X:186, X:192, X:220, X:249).
-- Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
-- Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 #### X:123 — POST /msg TRANSFER;AC-0001;AC-0002;120000;55
 
@@ -8734,7 +8734,7 @@ Repite X:39 y registra la misma respuesta: v2 no cambió este comportamiento.
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:39 (v1) y X:123 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Ejemplo oficial E:9 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:9 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:124 — POST /msg TRANSFER;AC-0001;AC-0002;100000;12
 
@@ -8804,7 +8804,7 @@ Es un cambio de versión probado por el par X:40 (v1: status 200) y X:124 (v2: s
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:40 (v1) y X:124 (v2, `replay_of`); las respuestas registradas del original difieren.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:28; v2: X:112).
-- Ejemplo oficial E:10 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:10 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 #### X:125 — POST /msg CONSULTa;AC-0001;14
 
@@ -8873,7 +8873,7 @@ Es un cambio de versión probado por el par X:41 (v1: status 200) y X:125 (v2: s
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:41 (v1) y X:125 (v2, `replay_of`); las respuestas registradas del original difieren.
-- Ejemplo oficial E:11 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:11 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 #### X:126 — POST /msg SALDOS;AC-0001;38
 
@@ -8942,7 +8942,7 @@ Repite X:42 y registra la misma respuesta: v2 no cambió este comportamiento.
 
 - Especificación: la citan las filas CMD-19 (probable), E301 (probable; variante confirmada en v2), OBS-05 (confirmado en v2 (umbral ≤ 2); supuesto: métrica exacta y desempate).
 - Par v1/v2: X:42 (v1) y X:126 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Ejemplo oficial E:12 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:12 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:127 — POST /msg ANULA;OP-0003;66
 
@@ -9012,8 +9012,8 @@ Se deduce de un cambio probado (líneas citadas: X:43); no es una prueba indepen
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:43 (v1) y X:127 (v2, `replay_of`); las respuestas registradas del original difieren.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:44, X:72; v2: X:128, X:156).
-- Ejemplo oficial E:13 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
-- Ejemplo oficial E:14 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:13 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:14 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 #### X:128 — POST /msg ANULA;OP-0003;66
 
@@ -9083,8 +9083,8 @@ Se deduce de un cambio probado (líneas citadas: X:44); no es una prueba indepen
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:44 (v1) y X:128 (v2, `replay_of`); las respuestas registradas del original difieren.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:43, X:72; v2: X:127, X:156).
-- Ejemplo oficial E:13 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
-- Ejemplo oficial E:14 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:13 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:14 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 #### X:129 — POST /msg CONSULTA;AC-0009;87
 
@@ -9153,7 +9153,7 @@ Repite X:45 y registra la misma respuesta: v2 no cambió este comportamiento.
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:45 (v1) y X:129 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Ejemplo oficial E:15 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:15 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:130 — POST /msg TRANSFER;AC-0002;AC-0001;50000;23
 
@@ -9222,7 +9222,7 @@ Repite X:46 y registra la misma respuesta: v2 no cambió este comportamiento.
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:46 (v1) y X:130 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Ejemplo oficial E:16 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:16 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:131 — POST /msg DEPOSITO;AC-0002;700;5X
 
@@ -9291,7 +9291,7 @@ Repite X:47 y registra la misma respuesta: v2 no cambió este comportamiento.
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:47 (v1) y X:131 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Ejemplo oficial E:17 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:17 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:132 — POST /msg DEPOSITO;AC-0002;700;35
 
@@ -9360,7 +9360,7 @@ Se deduce de un cambio probado (líneas citadas: X:48); no es una prueba indepen
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:48 (v1) y X:132 (v2, `replay_of`); las respuestas registradas del original difieren.
-- Ejemplo oficial E:18 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:18 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 #### X:133 — POST /msg CONSULTA;AC-0002;11
 
@@ -9430,8 +9430,8 @@ Es un cambio de versión probado por el par X:49 (v1: status 200) y X:133 (v2: s
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:49 (v1) y X:133 (v2, `replay_of`); las respuestas registradas del original difieren.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:67, X:73; v2: X:122, X:151, X:157, X:173, X:186, X:192, X:220, X:249).
-- Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
-- Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 #### X:134 — POST /msg ALTA;Lucia;Gomez;11
 
@@ -9500,7 +9500,7 @@ Repite X:50 y registra la misma respuesta: v2 no cambió este comportamiento.
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:50 (v1) y X:134 (v2, `replay_of`); las respuestas registradas del original son iguales.
-- Ejemplo oficial E:20 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:20 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 ### s-ord-02-v2 — v2, X:135–X:144
 
@@ -10631,7 +10631,7 @@ Es un cambio de versión probado por el par X:66 (v1: status 200) y X:150 (v2: s
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:66 (v1) y X:150 (v2, `replay_of`); las respuestas registradas del original difieren.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:69, X:81; v2: X:119, X:153, X:165, X:176, X:178, X:228, X:234, X:236 y 2 más).
-- Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 #### X:151 — POST /msg CONSULTA;AC-0002;11
 
@@ -10701,8 +10701,8 @@ Es un cambio de versión probado por el par X:67 (v1: status 200) y X:151 (v2: s
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:67 (v1) y X:151 (v2, `replay_of`); las respuestas registradas del original difieren.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:49, X:73; v2: X:122, X:133, X:157, X:173, X:186, X:192, X:220, X:249).
-- Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
-- Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 #### X:152 — POST /msg ANULA;OP-0001;72
 
@@ -10841,7 +10841,7 @@ Es un cambio de versión probado por el par X:69 (v1: status 200) y X:153 (v2: s
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:69 (v1) y X:153 (v2, `replay_of`); las respuestas registradas del original difieren.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:81; v2: X:119, X:150, X:165, X:176, X:178, X:228, X:234, X:236 y 2 más).
-- Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 #### X:154 — POST /msg DEPOSITO;AC-0002;500;53
 
@@ -11047,8 +11047,8 @@ Repite X:72 y registra la misma respuesta: v2 no cambió este comportamiento.
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:72 (v1) y X:156 (v2, `replay_of`); las respuestas registradas del original son iguales.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:43, X:44; v2: X:127, X:128).
-- Ejemplo oficial E:13 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
-- Ejemplo oficial E:14 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:13 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:14 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 #### X:157 — POST /msg CONSULTA;AC-0002;11
 
@@ -11118,8 +11118,8 @@ Es un cambio de versión probado por el par X:73 (v1: status 200) y X:157 (v2: s
 - Especificación: la citan las filas CMD-04 (confirmado).
 - Par v1/v2: X:73 (v1) y X:157 (v2, `replay_of`); las respuestas registradas del original difieren.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:49, X:67; v2: X:122, X:133, X:151, X:173, X:186, X:192, X:220, X:249).
-- Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
-- Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 ### s-tr-01-v2 — v2, X:158–X:168
 
@@ -11691,7 +11691,7 @@ Es un cambio de versión probado por el par X:81 (v1: status 200) y X:165 (v2: s
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Par v1/v2: X:81 (v1) y X:165 (v2, `replay_of`); las respuestas registradas del original difieren.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:69; v2: X:119, X:150, X:153, X:176, X:178, X:228, X:234, X:236 y 2 más).
-- Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 #### X:166 — POST /msg CONSULTA;ac-0001;14
 
@@ -12112,7 +12112,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:36; v2: X:120, X:183, X:189, X:217).
-- Ejemplo oficial E:6 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:6 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:172 — POST /msg TRANSFER;AC-0001;AC-0002;99999;24
 
@@ -12244,8 +12244,8 @@ Etiqueta: **Cambio de versión probado**.
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:49, X:67, X:73; v2: X:122, X:133, X:151, X:157, X:186, X:192, X:220, X:249).
-- Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
-- Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 **Limitación:** la conclusión habla de un cambio de versión, pero esta línea no tiene par v1/v2 ni cita otra línea: el registro no permite verificar el par.
 
@@ -12464,7 +12464,7 @@ Etiqueta: **Cambio de versión probado**.
 
 - Especificación: la citan las filas CMD-04 (confirmado).
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:69, X:81; v2: X:119, X:150, X:153, X:165, X:178, X:228, X:234, X:236 y 2 más).
-- Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 **Limitación:** la conclusión habla de un cambio de versión, pero esta línea no tiene par v1/v2 ni cita otra línea: el registro no permite verificar el par.
 
@@ -12598,7 +12598,7 @@ Es una observación puntual: la evidencia es el status y el cuerpo; cualquier ge
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:69, X:81; v2: X:119, X:150, X:153, X:165, X:176, X:228, X:234, X:236 y 2 más).
-- Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 #### X:179 — POST /msg ALTA;;85
 
@@ -12953,7 +12953,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:36; v2: X:120, X:171, X:189, X:217).
-- Ejemplo oficial E:6 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:6 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:184 — POST /msg TRANSFER;AC-0001;AC-0002;60000;32
 
@@ -13154,8 +13154,8 @@ Es una observación puntual: la evidencia es el status y el cuerpo; cualquier ge
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:49, X:67, X:73; v2: X:122, X:133, X:151, X:157, X:173, X:192, X:220, X:249).
-- Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
-- Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 ### s-v2-lim-03 — v2, X:187–X:192
 
@@ -13372,7 +13372,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 
 - Especificación: la citan las filas CMD-08 (probable).
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:36; v2: X:120, X:171, X:183, X:217).
-- Ejemplo oficial E:6 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:6 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:190 — POST /msg TRANSFER;AC-0001;AC-0002;50000;59
 
@@ -13567,8 +13567,8 @@ Etiqueta: **Cambio de versión probado**.
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:49, X:67, X:73; v2: X:122, X:133, X:151, X:157, X:173, X:186, X:220, X:249).
-- Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
-- Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 **Limitación:** la conclusión habla de un cambio de versión, pero esta línea no tiene par v1/v2 ni cita otra línea: el registro no permite verificar el par.
 
@@ -15348,7 +15348,7 @@ Es un paso de preparación: no pone a prueba una hipótesis, solo deja el estado
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:36; v2: X:120, X:171, X:183, X:189).
-- Ejemplo oficial E:6 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:6 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 #### X:218 — POST /msg TRANSFER;AC-0001;AC-0002;30000;16
 
@@ -15547,8 +15547,8 @@ Es una observación puntual: la evidencia es el status y el cuerpo; cualquier ge
 
 - Especificación: la citan las filas CMD-11 (confirmado).
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:49, X:67, X:73; v2: X:122, X:133, X:151, X:157, X:173, X:186, X:192, X:249).
-- Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
-- Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 ### s-v2-ord-03 — v2, X:221–X:222
 
@@ -16103,7 +16103,7 @@ Etiqueta: **Cambio de versión probado**.
 
 - Especificación: la citan las filas CMD-04 (confirmado).
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:69, X:81; v2: X:119, X:150, X:153, X:165, X:176, X:178, X:234, X:236 y 2 más).
-- Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 **Limitación:** la conclusión habla de un cambio de versión, pero esta línea no tiene par v1/v2 ni cita otra línea: el registro no permite verificar el par.
 
@@ -16520,7 +16520,7 @@ Es una observación puntual: la evidencia es el status y el cuerpo; cualquier ge
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:69, X:81; v2: X:119, X:150, X:153, X:165, X:176, X:178, X:228, X:236 y 2 más).
-- Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 #### X:235 — POST /msg DEPOSITO;AC-0001;100000000000;39
 
@@ -16654,7 +16654,7 @@ Es una observación puntual: la evidencia es el status y el cuerpo; cualquier ge
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:69, X:81; v2: X:119, X:150, X:153, X:165, X:176, X:178, X:228, X:234 y 2 más).
-- Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 ### s-v2-ids-01 — v2, X:237–X:242
 
@@ -17555,8 +17555,8 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 - Especificación: la citan las filas CMD-04 (confirmado).
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:38, X:49, X:67, X:73; v2: X:122, X:133, X:151, X:157, X:173, X:186, X:192, X:220).
-- Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
-- Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:8 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:19 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 ### s-v2-http-01 — v2, X:250–X:264
 
@@ -17652,7 +17652,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:1, X:2, X:8, X:10, X:11, X:31; v2: X:85, X:86, X:92, X:94, X:95, X:115, X:251, X:256 y 5 más).
-- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): mismo mensaje `m`, pero con otra ruta (los ejemplos oficiales son `POST /msg` con el token del equipo); las respuestas no son comparables directamente.
 
 #### X:251 — POST /msg?x=1
 
@@ -17721,7 +17721,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:1, X:2, X:8, X:10, X:11, X:31; v2: X:85, X:86, X:92, X:94, X:95, X:115, X:250, X:256 y 5 más).
-- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): mismo mensaje `m`, pero con otra ruta (los ejemplos oficiales son `POST /msg` con el token del equipo); las respuestas no son comparables directamente.
 
 #### X:252 — HEAD /health
 
@@ -18018,7 +18018,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:1, X:2, X:8, X:10, X:11, X:31; v2: X:85, X:86, X:92, X:94, X:95, X:115, X:250, X:251 y 5 más).
-- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): mismo mensaje `m`, pero con otra autenticación (los ejemplos oficiales son `POST /msg` con el token del equipo); las respuestas no son comparables directamente.
 
 #### X:257 — POST /msg PING;64
 
@@ -18087,7 +18087,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:1, X:2, X:8, X:10, X:11, X:31; v2: X:85, X:86, X:92, X:94, X:95, X:115, X:250, X:251 y 5 más).
-- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): mismo mensaje `m`, pero con otra autenticación (los ejemplos oficiales son `POST /msg` con el token del equipo); las respuestas no son comparables directamente.
 
 #### X:258 — POST /msg null
 
@@ -18519,7 +18519,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:1, X:2, X:8, X:10, X:11, X:31; v2: X:85, X:86, X:92, X:94, X:95, X:115, X:250, X:251 y 5 más).
-- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial coincide con la registrada en esta línea.
+- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial coincide con la registrada en esta línea.
 
 ### s-v2-max-01 — v2, X:265–X:276
 
@@ -19686,7 +19686,7 @@ Etiqueta: **Cambio de versión probado**.
 
 - Especificación: la citan las filas CMD-04 (confirmado), CMD-08b (confirmado en v2), OBS-03 (confirmado en v2).
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:69, X:81; v2: X:119, X:150, X:153, X:165, X:176, X:178, X:228, X:234 y 2 más).
-- Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 **Limitación:** la conclusión habla de un cambio de versión, pero esta línea no tiene par v1/v2 ni cita otra línea: el registro no permite verificar el par.
 
@@ -20708,7 +20708,7 @@ Es una observación puntual: la evidencia es el status y el cuerpo; cualquier ge
 
 - Especificación: ninguna fila de `docs/specification.md` cita esta línea.
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:35, X:66, X:69, X:81; v2: X:119, X:150, X:153, X:165, X:176, X:178, X:228, X:234 y 2 más).
-- Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:5 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud (método, ruta, autenticación y cuerpo); su respuesta oficial difiere de la registrada en esta línea.
 
 ### s-v2-http-02 — v2, X:297–X:299
 
@@ -20792,7 +20792,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 - Especificación: la citan las filas ENT-03 (confirmado).
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:1, X:2, X:8, X:10, X:11, X:31; v2: X:85, X:86, X:92, X:94, X:95, X:115, X:250, X:251 y 5 más).
-- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): mismo mensaje `m`, pero con otro método (los ejemplos oficiales son `POST /msg` con el token del equipo); las respuestas no son comparables directamente.
 
 #### X:298 — DELETE /msg PING;64
 
@@ -20861,7 +20861,7 @@ Se observó en v2 y no existe una solicitud equivalente en v1, así que no está
 
 - Especificación: la citan las filas ENT-03 (confirmado).
 - Mismo mensaje `m` en otras líneas de nuestros experimentos (v1: X:1, X:2, X:8, X:10, X:11, X:31; v2: X:85, X:86, X:92, X:94, X:95, X:115, X:250, X:251 y 5 más).
-- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): misma solicitud; su respuesta oficial difiere de la registrada en esta línea.
+- Ejemplo oficial E:1 (`pruebas/ejemplos.jsonl`, grabado por los autores del reto con la versión de la mañana): mismo mensaje `m`, pero con otro método (los ejemplos oficiales son `POST /msg` con el token del equipo); las respuestas no son comparables directamente.
 
 #### X:299 — POST /__reset
 
