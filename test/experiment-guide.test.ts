@@ -7,19 +7,30 @@ import { generateGuide } from "../scripts/experiment-guide.ts";
 const root = join(import.meta.dirname, "..");
 const guidePath = join(root, "docs", "experimentos.md");
 
+// Trusted fixture: the log of real requests to the original service.
+const logged = readFileSync(join(root, "experimentos.jsonl"), "utf8")
+  .split("\n")
+  .filter((line) => line.trim() !== "")
+  .map((line) => JSON.parse(line) as { id: number; seq: string });
+const fuzzLogged = logged.filter((e) => e.seq.startsWith("s-fz-"));
+const fuzzSequences = [...new Set(fuzzLogged.map((e) => e.seq))];
+
 describe("experiment guide", () => {
   test("docs/experimentos.md exists", () => {
     assert.ok(existsSync(guidePath), "run `npm run docs:experiments` to generate docs/experimentos.md");
   });
 
+  // The generation replays the whole log, so it runs once per file and both tests below share it.
+  const generated = generateGuide();
+
   test("docs/experimentos.md is up to date with experimentos.jsonl and the replica", async () => {
-    const expected = await generateGuide();
+    const expected = await generated;
     const actual = readFileSync(guidePath, "utf8").replaceAll("\r\n", "\n");
     assert.ok(actual === expected, "docs/experimentos.md is stale: run `npm run docs:experiments`");
   });
 
   test("generation is deterministic", async () => {
-    assert.equal(await generateGuide(), await generateGuide());
+    assert.equal(await generateGuide(), await generated);
   });
 });
 
@@ -37,9 +48,13 @@ describe("experiment guide structure", () => {
   const guide = existsSync(guidePath) ? readFileSync(guidePath, "utf8") : "";
   const entries = guide.split(/^#### /m).slice(1);
 
-  test("there is one entry per logged line", () => {
-    const logged = readFileSync(join(root, "experimentos.jsonl"), "utf8").split("\n").filter((line) => line.trim() !== "").length;
-    assert.equal(entries.length, logged);
+  test("there is one full entry per logged line outside the fuzzing campaign", () => {
+    assert.equal(entries.length, logged.length - fuzzLogged.length);
+    for (const e of fuzzLogged.slice(0, 50)) assert.ok(!guide.includes(`#### X:${e.id} `), `X:${e.id} must be condensed`);
+  });
+
+  test("the probe sequences keep full entries", () => {
+    for (const id of [338, 2438, 2467, 2473, 2479]) assert.ok(guide.includes(`#### X:${id} `), `X:${id}`);
   });
 
   test("every entry carries the seven explanation headings in order", () => {
@@ -71,6 +86,41 @@ describe("experiment guide structure", () => {
 
   test("the guide is agnostic: no local paths or timestamps", () => {
     assert.doesNotMatch(guide, /[A-Za-z]:\\|\/Users\/|\d{4}-\d{2}-\d{2}T\d{2}:/);
+  });
+});
+
+describe("condensed fuzzing section", () => {
+  const guide = existsSync(guidePath) ? readFileSync(guidePath, "utf8") : "";
+  const section = guide.split(/^## /m).find((block) => block.startsWith("Fuzzing diferencial")) ?? "";
+  const rows = section.split("\n").filter((line) => /^\| `s-fz-/.test(line));
+
+  test("explains the method, the seeds and the batch sizes", () => {
+    assert.ok(section.includes("1 a 12 pasos"));
+    assert.ok(section.includes("semilla 20261011, 300 secuencias"));
+    assert.ok(section.includes("semilla 20261012, 300 secuencias"));
+    assert.ok(section.includes("semilla 20261013, 200 secuencias"));
+    assert.ok(section.includes("CMD-10b"));
+  });
+
+  test("has one row per fuzz sequence and their steps cover every fuzz line", () => {
+    assert.equal(rows.length, fuzzSequences.length);
+    let covered = 0;
+    for (const seq of fuzzSequences) {
+      const row = rows.find((line) => line.startsWith(`| \`${seq}\` |`));
+      assert.ok(row !== undefined, seq);
+      const cells = row.split("|").map((cell) => cell.trim());
+      const lines = fuzzLogged.filter((e) => e.seq === seq).length;
+      const steps = Number(cells[3]);
+      assert.ok(steps >= 1 && steps <= 12, `${seq}: ${steps} steps`);
+      assert.equal(steps + 1, lines, `${seq}: steps plus the reset line`);
+      covered += lines;
+    }
+    assert.equal(covered, fuzzLogged.length);
+  });
+
+  test("the replica comparison is measured for every row", () => {
+    for (const row of rows) assert.match(row, /\| (sí|no) \|$/);
+    assert.match(section, /la réplica coincide con el original en \d+\/\d+ líneas/);
   });
 });
 

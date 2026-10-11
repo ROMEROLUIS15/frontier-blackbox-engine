@@ -56,7 +56,7 @@ sequenceDiagram
 | `src/control/iso7064.ts` | Control value: uppercase payload; digits kept, letters A=1..Z=26 (no padding), other chars dropped; `98 − (N·100 mod 97)`, computed by streaming mod. |
 | `src/protocol/parse.ts` | Splits `m` on `;`, last field = control; validates control format, control value, command (case-insensitive), arity. |
 | `src/protocol/errors.ts` | Single catalog of error statuses and byte-exact bodies. |
-| `src/bank/state.ts` | Accounts, operations, `AC`/`OP` counters, reset. |
+| `src/bank/state.ts` | Accounts, holder per account, operations, `AC`/`OP` counters, reset. |
 | `src/bank/commands.ts` | PING, ALTA, CONSULTA, DEPOSITO, TRANSFER, ANULA. |
 | `src/http/server.ts` | `node:http` adapter: auth, routes (`/health`, `/__reset`, `/msg`), `X-Req` counter. |
 | `src/main.ts` | Reads `TEAM_TOKEN` (required) and `PORT` (default 3000); listens on `0.0.0.0`. |
@@ -66,6 +66,7 @@ sequenceDiagram
 | Element | Behavior | Confidence / evidence |
 |---|---|---|
 | Accounts `AC-NNNN` | Sequential from `AC-0001`, 4-digit zero padding, start at balance 0 | confirmed — E:3, E:4, E:5, X:3, X:5 |
+| Holder per account | The `ALTA` name argument, stored per account and cleared by reset; compared exactly (case-sensitive) by TRANSFER | observed — X:2467, X:2473, X:2479 (CMD-10b) |
 | Operations `OP-NNNN` | Shared sequence for DEPOSITO and TRANSFER | observed — E:6, E:7, E:10, E:18 |
 | Rejected requests | Do not consume `AC`/`OP` numbers | confirmed — E:2→E:3, X:4→X:5; E:9→E:10; X:335–X:337 (E303 and E304 do not consume `OP-0002`) |
 | ANULA | Does not consume an `OP` number; second ANULA → `ok:false` | observed — E:13, E:14, E:18; X:322→X:324 (the next TRANSFER after an ANULA and an E507 is `OP-0003`), X:327 |
@@ -97,8 +98,8 @@ observed in the v2 log (control before command and arity: X:51–X:56; E103 and 
 | 10 | Business rules | 404 `E401`, 422 `E506`, 422 `E507` | E:15, E:9, E:16 |
 
 TRANSFER limit in v2: an amount `> 50000` is rejected with `E506` and `50000` is accepted (inclusive) — observed
-X:190, X:191, X:320, X:321; the limit is per transfer, not cumulative. Version 1 used 100000 (X:27–X:29, X:112).
-TRANSFER validation order: `E303` → `E304` → `E401` → `E506` → `E507` — observed X:221, X:210, X:222, X:78, X:30,
+X:190, X:191, X:320, X:321; the limit is per transfer, not cumulative, and it does not apply between two accounts with exactly the same holder name (case-sensitive; the balance check still applies) — observed X:2467, X:2468, X:2473, X:2479, X:610, X:1304 (CMD-10b). Version 1 used 100000 (X:27–X:29, X:112).
+TRANSFER validation order: `E303` → `E304` → `E401` → `E506` (skipped for same-holder accounts) → `E507` — observed X:221, X:210, X:222, X:78, X:30,
 X:320. DEPOSITO: `E303` before `E401` — observed X:211. Invalid amounts (0, negative, decimal, non-numeric,
 leading zero, above 9999999999) → 400 `E303` "monto inválido" — observed X:21–X:24, X:26, X:84, X:275, X:335.
 Unknown operation → 404 `E402` — observed X:18. The `sugerencia` of `E301` is the closest command within edit

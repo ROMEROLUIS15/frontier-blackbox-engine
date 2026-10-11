@@ -21,8 +21,8 @@ export const COMMANDS: readonly CommandInfo[] = [
   {
     name: "TRANSFER",
     args: ["origen", "destino", "monto"],
-    meaning: "resta el monto de la cuenta de origen, lo suma a la de destino y devuelve un `operacionId`",
-    cite: ["CMD-09"],
+    meaning: "resta el monto de la cuenta de origen, lo suma a la de destino y devuelve un `operacionId`; el límite de monto no aplica entre cuentas con el mismo titular (mismo nombre de `ALTA`, sensible a mayúsculas)",
+    cite: ["CMD-09", "CMD-10b"],
   },
   {
     name: "ANULA",
@@ -64,7 +64,7 @@ export const ERRORS: readonly ErrorInfo[] = [
   { code: "E304", row: "ERR-10", status: 400, mensaje: "origen y destino iguales", rule: "en `TRANSFER`, origen y destino son la misma cuenta", cite: ["CMD-14b"] },
   { code: "E401", row: "ERR-13", status: 404, mensaje: "cuenta inexistente", rule: "la cuenta consultada, de origen o de destino no existe", cite: ["CMD-05", "CMD-14"] },
   { code: "E402", row: "ERR-14", status: 404, mensaje: "operación inexistente", rule: "la operación que se quiere anular no existe", cite: ["CMD-16"] },
-  { code: "E506", row: "ERR-15", status: 422, mensaje: "límite excedido", rule: "el monto de un `TRANSFER` supera el límite de la versión", cite: ["CMD-10", "CAM-02"] },
+  { code: "E506", row: "ERR-15", status: 422, mensaje: "límite excedido", rule: "el monto de un `TRANSFER` supera el límite de la versión y las cuentas no tienen exactamente el mismo titular", cite: ["CMD-10", "CMD-10b", "CAM-02"] },
   { code: "E507", row: "ERR-16", status: 422, mensaje: "saldo insuficiente", rule: "el saldo de la cuenta de origen es menor que el monto", cite: ["CMD-12"] },
 ];
 

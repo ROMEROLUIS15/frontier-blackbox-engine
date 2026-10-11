@@ -19,6 +19,10 @@ const GUIDE_PATH = join(ROOT, "docs", "experimentos.md");
 const SPEC_PATH = join(ROOT, "docs", "specification.md");
 const EXAMPLES_PATH = join(ROOT, "pruebas", "ejemplos.jsonl");
 
+/** Sequences of the differential fuzzing campaign are rendered as one table row each, not as full entries. */
+const FUZZ_PREFIX = "s-fz-";
+const isFuzz = (seq: string): boolean => seq.startsWith(FUZZ_PREFIX);
+
 // Fixed local values: the replica runs only in this process; none of them is a real credential.
 const LOCAL_TOKEN = "test-token";
 const WRONG_TOKEN = "wrong-token";
@@ -776,6 +780,8 @@ function renderIntro(): string[] {
     "",
     "Cuando el registro no alcanza para explicar algo, la entrada lo dice en una línea **Limitación**; no se rellena con suposiciones.",
     "",
+    "Las secuencias `s-fz-*` de la campaña de fuzzing diferencial (miles de líneas generadas al azar) no tienen una entrada cada una: se resumen en la sección «Fuzzing diferencial», con una fila por secuencia. Todas las demás líneas del log tienen su entrada completa.",
+    "",
     "## Qué es evidencia y qué es explicación",
     "",
     "- Son **datos**: lo registrado en `experimentos.jsonl` (solicitud, status, cuerpo, hipótesis, conclusión) y lo medido en la réplica al generar el documento.",
@@ -859,7 +865,7 @@ function renderGlossary(): string[] {
   return lines;
 }
 
-function renderMethod(groups: readonly SeqInfo[], rows: readonly Row[]): string[] {
+function renderMethod(groups: readonly SeqInfo[], rows: readonly Row[], fuzzLines: number): string[] {
   const v1 = rows.filter((r) => r.entry.version === "v1");
   const v2 = rows.filter((r) => r.entry.version === "v2");
   const v1Last = v1[v1.length - 1]?.entry.id ?? 0;
@@ -874,6 +880,7 @@ function renderMethod(groups: readonly SeqInfo[], rows: readonly Row[]): string[
     `- **Repetición de la versión 1 contra la versión 2** (campo \`replay_of\`): ${range(replayFirst, replayLast)}, ${replays.length} líneas, una por cada línea de la versión 1, con la misma solicitud y el mismo estado.`,
     `- **Ondas nuevas de la versión 2:** ${range(replayLast + 1, rows.length)}, ${rows.length - replayLast} líneas.`,
     `- Total: ${rows.length} líneas (v1: ${v1.length}; v2: ${v2.length}, desde ${ref(v2First)}).`,
+    `- De ellas, ${fuzzLines} pertenecen a la campaña de fuzzing diferencial (secuencias \`${FUZZ_PREFIX}*\`), resumidas en la sección «Fuzzing diferencial»; la tabla siguiente lista el resto de las secuencias.`,
     "",
     "Cada `seq` empieza con `POST /__reset`, de modo que su primera solicitud parte de un estado vacío. El propósito de cada",
     "secuencia es la primera hipótesis registrada en ella.",
@@ -884,6 +891,57 @@ function renderMethod(groups: readonly SeqInfo[], rows: readonly Row[]): string[
   for (const g of groups) {
     lines.push(
       `| \`${g.seq}\` | ${range(g.first.id, g.last.id)} | ${g.rows.length} | ${g.first.version} | ${tableCell(truncate(g.first.hipotesis, 140))} |`,
+    );
+  }
+  lines.push("");
+  return lines;
+}
+
+interface FuzzBatch {
+  seed: string;
+  sequences: number;
+}
+
+function fuzzBatches(groups: readonly SeqInfo[]): FuzzBatch[] {
+  const counts = new Map<string, number>();
+  for (const group of groups) {
+    const seed = /^s-fz-(\d+)-\d+$/.exec(group.seq)?.[1] ?? "desconocida";
+    counts.set(seed, (counts.get(seed) ?? 0) + 1);
+  }
+  return [...counts].map(([seed, sequences]) => ({ seed, sequences }));
+}
+
+/** One condensed section for the fuzzing campaign: the method, then one table row per sequence. */
+function renderFuzz(groups: readonly SeqInfo[]): string[] {
+  if (groups.length === 0) return [];
+  const rows = groups.flatMap((g) => g.rows);
+  const batches = fuzzBatches(groups);
+  const steps = (g: SeqInfo): Row[] => g.rows.filter((r) => r.path !== "/__reset");
+  const matching = rows.filter((r) => r.matches).length;
+  const lines = [
+    "## Fuzzing diferencial",
+    "",
+    `Rango de líneas: ${range(groups[0]?.first.id ?? 0, groups[groups.length - 1]?.last.id ?? 0)} (intercaladas con las sondas dirigidas, que tienen entrada completa). ${rows.length} líneas en ${groups.length} secuencias \`${FUZZ_PREFIX}*\`.`,
+    "",
+    "### Método",
+    "",
+    "- Cada secuencia es una serie aleatoria con estado de 1 a 12 pasos sobre los seis comandos (`PING`, `ALTA`, `CONSULTA`, `DEPOSITO`, `TRANSFER`, `ANULA`), con valores de borde.",
+    "- La secuencia empieza con `POST /__reset` (MEM-01). Cada paso se envió al servicio original y su respuesta se registró en el log; la réplica se compara con esa respuesta registrada, como en el resto de la guía.",
+    `- Generación reproducible: el nombre de la secuencia es \`${FUZZ_PREFIX}<semilla>-<número>\`. Lotes: ${batches.map((b) => `semilla ${b.seed}, ${b.sequences} secuencias`).join("; ")}.`,
+    "- Criterio de parada: dos lotes consecutivos sin diferencias nuevas entre el original y la réplica. La campaña reveló la regla del titular en `TRANSFER` (CMD-10b), documentada y probada con sondas dirigidas (`s-v2-holder-a`…`c`, `s-v2-e507-a`…`d`).",
+    "- Alcance: es evidencia de coincidencia sobre las secuencias generadas, no una demostración de equivalencia (CAM-04, sección 6.3 de la especificación).",
+    "",
+    `La columna «Réplica coincide» se mide al generar este documento: la réplica coincide con el original en ${matching}/${rows.length} líneas de estas secuencias.`,
+    "",
+    "### Secuencias",
+    "",
+    "| seq | Líneas | Pasos | Estados del original (en orden) | Réplica coincide |",
+    "|---|---|---|---|---|",
+  ];
+  for (const g of groups) {
+    const sequenceSteps = steps(g);
+    lines.push(
+      `| \`${g.seq}\` | ${range(g.first.id, g.last.id)} | ${sequenceSteps.length} | ${sequenceSteps.map((r) => r.entry.status).join(" ")} | ${g.rows.every((r) => r.matches) ? "sí" : "no"} |`,
     );
   }
   lines.push("");
@@ -1096,16 +1154,19 @@ function renderSequences(groups: readonly SeqInfo[], ctx: Context): Sequences {
 export async function generateGuide(): Promise<string> {
   const log = readLog();
   const rows = await replayAll(log);
-  const groups = groupBySeq(rows);
+  const allGroups = groupBySeq(rows);
+  const groups = allGroups.filter((g) => !isFuzz(g.seq));
+  const fuzzGroups = allGroups.filter((g) => isFuzz(g.seq));
   const spec = loadSpec();
   assertGlossaryCitations(spec);
   const ctx: Context = { rows, byId: new Map(rows.map((r) => [r.entry.id, r])), spec, examples: loadExamples(), steps: reconstructStates(groups) };
   const sequences = renderSequences(groups, ctx);
   const text = [
     ...renderIntro(),
-    ...renderMethod(groups, rows),
+    ...renderMethod(groups, rows, fuzzGroups.reduce((total, g) => total + g.rows.length, 0)),
     ...renderSummary(rows, sequences.limitationCount),
     ...renderGlossary(),
+    ...renderFuzz(fuzzGroups),
     ...sequences.lines,
   ].join("\n");
   return `${text.trimEnd()}\n`;
