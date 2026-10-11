@@ -49,6 +49,7 @@ export function execute(state: BankState, msg: ParsedMessage): Reply {
       state.accountCounter += 1;
       const id = formatId("AC", state.accountCounter);
       state.accounts.set(id, 0);
+      state.holders.set(id, a);
       return { status: 201, body: { cuentaId: id } };
     }
 
@@ -85,7 +86,12 @@ export function execute(state: BankState, msg: ParsedMessage): Reply {
       const fromBalance = state.accounts.get(a);
       const toBalance = state.accounts.get(b);
       if (fromBalance === undefined || toBalance === undefined) return Errors.unknownAccount;
-      if (amount > TRANSFER_LIMIT) return Errors.limitExceeded;
+      // Observed (rule C): the limit does not apply between accounts whose holder names are exactly equal
+      // (experimentos.jsonl X:2467-2468, X:2479); the comparison is case-sensitive (X:2473); the balance check still
+      // applies, so a same-holder transfer above the limit and above the balance is E507 (X:610, X:1304). Different
+      // holders keep E506 (X:2442-2462, X:320, X:172).
+      const sameHolder = state.holders.get(a) === state.holders.get(b);
+      if (amount > TRANSFER_LIMIT && !sameHolder) return Errors.limitExceeded;
       if (fromBalance < amount) return Errors.insufficientFunds;
       state.accounts.set(a, fromBalance - amount);
       state.accounts.set(b, toBalance + amount);
