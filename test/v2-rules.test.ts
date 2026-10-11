@@ -56,8 +56,11 @@ const E506 = { status: 422, body: { error: "E506", mensaje: "límite excedido" }
 const E507 = { status: 422, body: { error: "E507", mensaje: "saldo insuficiente" } };
 const PONG = { status: 200, body: { pong: true } };
 
+// Each account gets its own holder: the transfer limit does not apply between accounts of the same holder (X:2467).
+const HOLDERS = ["Ana", "Beto", "Carla", "Dario"];
+
 async function openAccounts(count: number): Promise<void> {
-  for (let i = 0; i < count; i += 1) await signed("ALTA", "Ana");
+  for (let i = 0; i < count; i += 1) await signed("ALTA", HOLDERS[i] ?? `Holder${i}`);
 }
 
 describe("R1: every empty segment is E104, before control and command checks", () => {
