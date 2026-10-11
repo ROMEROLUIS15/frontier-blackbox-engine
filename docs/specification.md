@@ -2,9 +2,9 @@
 
 Permite reimplementar el servicio sin tocar el original. Evidencia: `X:n` = línea (`id`) n de `experimentos.jsonl`; `E:n` = línea `n` de `pruebas/ejemplos.jsonl`.
 Las líneas X:31–X:50 (`seq` `s-ej-01`) reproducen contra el original, en orden y tras un reset, los 20 ejemplos de
-`pruebas/ejemplos.jsonl` (X:30+n = ejemplo n), con status y cuerpo idénticos en los 20 casos. El log tiene 337 líneas:
+`pruebas/ejemplos.jsonl` (X:30+n = ejemplo n), con status y cuerpo idénticos en los 20 casos. El log tiene 7306 líneas:
 X:1–X:84 son la versión 1 (campo `version` ausente: orden de validación, ANULA, saldos negativos y TRANSFER con
-cuentas inexistentes o iguales) y X:85–X:337 son la versión 2 (`"version":"v2"`, 253 líneas; la última campaña es X:314–X:337). Esta especificación
+cuentas inexistentes o iguales) y X:85–X:7306 son la versión 2 (`"version":"v2"`, 7222 líneas; la última campaña es X:338–X:7306, ver sección 6.1). Esta especificación
 describe la **versión 2**; donde difiere de la versión 1 la diferencia se documenta en la sección 6. Los ejemplos de
 `pruebas/ejemplos.jsonl` se repitieron contra la versión 2 en X:115–X:134 (`s-ej-01-v2`, mismas 20 solicitudes).
 
@@ -68,7 +68,8 @@ El nombre del comando no distingue mayúsculas (X:41, X:57; probable). Aridad = 
 | CMD-08 | `DEPOSITO`: Sin el límite de E506: se aceptan 250000 y 500000 (inferido). | X:36, X:25, X:189 | probable |
 | CMD-08b | `DEPOSITO`, `TRANSFER`: Monto máximo 9999999999: por encima → `400 E303 "monto inválido"` (antes que E506 en TRANSFER); 9999999999 se acepta dos veces seguidas (saldo `"199999999.98"`), sin tope de saldo. Ver sección 6.2. | X:278, X:279, X:280, X:281, X:275, X:276; X:233 (9007199254740993) y X:235 (100000000000) → E303 | confirmado en v2 |
 | CMD-09 | `TRANSFER;origen;destino;monto` (3): Resta del origen, suma al destino → `200 {"status":"recieved","operacionId":"OP-NNNN"}`. | X:37, X:38, X:40, X:41, X:28, X:29 | confirmado |
-| CMD-10 | `TRANSFER`: Monto > 50000 → `422 {"error":"E506","mensaje":"límite excedido"}`; 50000 se acepta (inclusivo); con saldo 50000, 50001 → E506 y no E507 (X:320). En v1 el límite era 100000 (X:39, X:40, X:27, X:28); ver CAM-02. | X:190, X:191, X:112, X:320, X:321 | confirmado |
+| CMD-10 | `TRANSFER`: Monto > 50000 → `422 {"error":"E506","mensaje":"límite excedido"}`, salvo entre cuentas del mismo titular (CMD-10b); 50000 se acepta (inclusivo); con saldo 50000, 50001 → E506 y no E507 (X:320). En v1 el límite era 100000 (X:39, X:40, X:27, X:28); ver CAM-02. | X:190, X:191, X:112, X:320, X:321 | confirmado |
+| CMD-10b | `TRANSFER`: Regla del titular. El límite de 50000 **no aplica** cuando origen y destino tienen el mismo titular, es decir, el mismo argumento `nombre` de `ALTA` comparado de forma exacta y sensible a mayúsculas. `TRANSFER;AC-0001;AC-0002;100000` entre dos cuentas `Ana` con saldo 200000 → `200 OP-0002` y el destino queda en `"1000.00"` (X:2467, X:2468); lo mismo con cuentas no contiguas (`Ana`, `Beto`, `Ana`: `AC-0001` → `AC-0003`, X:2479). `Ana` y `ana` son titulares distintos → `422 E506` (X:2473). El saldo se sigue comprobando: mismo titular, monto sobre el límite y sobre el saldo → `422 E507`, no E506 (X:610, X:1304). Con titulares distintos el límite se mantiene (X:2442–X:2462, X:320, X:172). Las demás validaciones y su orden (ORD-08) no cambian. | X:2467, X:2468, X:2473, X:2479, X:610, X:1304; contraste: X:2442–X:2462, X:320, X:172 | confirmado |
 | CMD-11 | `TRANSFER`: El límite es por transferencia, no acumulado: en v2 dos TRANSFER de 30000 seguidas (suma 60000 > 50000) se aceptan y el destino queda en `"600.00"`. En v1: 100000 + 30000 (X:28, X:29). | X:218, X:219, X:220; X:28, X:29 | confirmado |
 | CMD-12 | `TRANSFER`: Saldo del origen menor que el monto → `422 {"error":"E507","mensaje":"saldo insuficiente"}`. Transferir exactamente el saldo del origen se acepta (`200`). | X:46; X:295; X:321 (50000 con saldo exacto 50000 → `200 OP-0002`); X:323 (desde saldo negativo → E507) | probable; confirmado en v2 para el saldo exacto y el saldo negativo |
 | CMD-13 | `TRANSFER`: Monto 0 → `400 E303 "monto inválido"`. | X:26 | probable |
@@ -134,7 +135,7 @@ Orden de evaluación:
 | ORD-05 | E506 antes que E507: monto 150000 sobre el límite y sobre el saldo (130000) → E506 (v1, X:30). En v2: monto 50001 con saldo 50000 → E506 (X:320). | X:30; X:320 | confirmado en v2 |
 | ORD-06 | TRANSFER: E303 antes que E401 (origen inexistente y monto 0 → E303) y antes que E304 (cuentas iguales y monto 0 → E303). | X:77, X:221 | confirmado |
 | ORD-07 | TRANSFER: E401 antes que E506 (destino inexistente y monto 200000 → E401). | X:78 | probable |
-| ORD-08 | TRANSFER: E303 → E304 → E401 → E506 → E507. E304 antes que E401 (cuentas iguales inexistentes) y antes que E506 (monto 60000). | X:221, X:210, X:222, X:78, X:30 | confirmado en v2 |
+| ORD-08 | TRANSFER: E303 → E304 → E401 → E506 → E507; E506 no se evalúa entre cuentas del mismo titular (CMD-10b). E304 antes que E401 (cuentas iguales inexistentes) y antes que E506 (monto 60000). | X:221, X:210, X:222, X:78, X:30 | confirmado en v2 |
 | ORD-09 | DEPOSITO: E303 antes que E401 (cuenta inexistente y monto `abc` → E303). | X:211 | confirmado en v2 |
 
 ## 6. Cambios durante el día
@@ -142,14 +143,15 @@ Orden de evaluación:
 ### 6.1 Método y diferencias entre versiones
 
 Método: se reprodujeron las 84 líneas de la versión 1 contra la versión 2 (X:85–X:168, mismas solicitudes que
-X:1–X:84) y luego se ejecutaron oleadas nuevas de experimentos (X:169–X:337). Una diferencia está **probada** solo
+X:1–X:84) y luego se ejecutaron oleadas nuevas de experimentos (X:169–X:7306). Una diferencia está **probada** solo
 si la misma solicitud existe en ambas versiones con respuestas distintas.
 
 | ID | Comportamiento | Evidencia | Confianza |
 |---|---|---|---|
 | CAM-01 | Formato del saldo en `CONSULTA`: v1 devolvía un número (`"saldo":0`, `"saldo":40000`); v2 devuelve un string con dos decimales (`"saldo":"0.00"`, `"saldo":"400.00"`). Diferencial probado: la misma solicitud con distinta respuesta. | X:35 vs X:119; X:38 vs X:122 | confirmado |
-| CAM-02 | Límite de `TRANSFER`: v1 aceptaba 100000 y rechazaba más; v2 acepta hasta 50000 inclusive y rechaza 50001 (`E506`). Diferencial probado: `TRANSFER;AC-0001;AC-0002;100000` pasó de `200` a `422 E506`. | X:28 vs X:112; v2: X:190, X:191 | confirmado |
+| CAM-02 | Límite de `TRANSFER`: v1 aceptaba 100000 y rechazaba más; v2 acepta hasta 50000 inclusive y rechaza 50001 (`E506`), salvo entre cuentas del mismo titular (CMD-10b). Diferencial probado: `TRANSFER;AC-0001;AC-0002;100000` pasó de `200` a `422 E506`. | X:28 vs X:112; v2: X:190, X:191 | confirmado |
 | CAM-03 | **Candidato**: segmento vacío → `400 E104 "segmento vacío"` (ver INT-10 y ORD-04c). Observado en v2 en las líneas E104 citadas. **No hay línea base en v1 para segmentos vacíos** (ninguna de X:1–X:84 envía uno), así que la diferencia respecto de v1 **no está probada**: puede ser un cambio de v2 o un comportamiento que ya existía. | X:179, X:194, X:195, X:196, X:198, X:199, X:200, X:201, X:202, X:205, X:242 | supuesto (candidato: diferencia no probada) |
+| CAM-04 | Método: campaña de fuzzing diferencial (X:338–X:7306), no una prueba de equivalencia. Secuencias aleatorias con estado de 1 a 12 pasos sobre los seis comandos con valores de borde; cada paso se envió al original y se comparó con la réplica. Tres lotes (300, 300 y 200 secuencias; semillas 20261011, 20261012 y 20261013), más sondas dirigidas (`s-v2-access-01`, `s-v2-e507-a`…`d`, `s-v2-holder-a`…`c`). Criterio de parada: dos lotes consecutivos sin diferencias nuevas. La campaña reveló la regla del titular (CMD-10b). No demuestra que no queden diferencias en lo que el fuzzing no generó (ver 6.3). | X:338–X:7306; regla revelada: X:610, X:1304, X:2467 | confirmado (método); la ausencia de otras diferencias no está probada |
 
 ### 6.2 Comportamiento observado en v2, sin línea base en v1
 
@@ -159,7 +161,7 @@ de versión**. La réplica los implementa porque son lo observado.
 | ID | Comportamiento | Evidencia | Confianza |
 |---|---|---|---|
 | OBS-01 | `PING` ignora el control (formato y valor) pero valida la aridad (INT-09). Consistente con el ejemplo del README (líneas 62–64, `PING;XX`). | X:197, X:212, X:213; README líneas 62–64 | confirmado en v2 |
-| OBS-02 | Orden de validación de TRANSFER E303 → E304 → E401 → E506 → E507 (ORD-08) y de DEPOSITO E303 → E401 (ORD-09). | X:210, X:211, X:221, X:222 | confirmado en v2 |
+| OBS-02 | Orden de validación de TRANSFER E303 → E304 → E401 → E506 → E507 (ORD-08; E506 no aplica entre cuentas del mismo titular, CMD-10b) y de DEPOSITO E303 → E401 (ORD-09). | X:210, X:211, X:221, X:222 | confirmado en v2 |
 | OBS-03 | Monto máximo 9999999999 en DEPOSITO y TRANSFER (`E303` por encima, antes que `E506`); sin tope de saldo (CMD-08b). | X:275, X:276, X:278, X:279, X:280, X:281 | confirmado en v2 |
 | OBS-04 | Mensaje vacío `""` → `E103` (INT-07). | X:204 | confirmado en v2 |
 | OBS-05 | `E301` con campo opcional `sugerencia`: nombre del comando conocido más cercano si está a distancia de edición (Levenshtein) ≤ 2 del campo de comando en mayúsculas, sin recortar espacios: `" PING"`, `PIN`, `PINGG`, `ping `, `PIGN` (distancia 2) → `PING`; `ALTA ` y `AL TA` → `ALTA`; `DEPOSITOS` → `DEPOSITO`; `CONSULT` y `CONSUL` (distancia 2) → `CONSULTA`. Sin la clave cuando no hay comando cercano: `DEPOS` (distancia 3, X:313), `SALDOS` (distancia 4, X:126) y `XYZ`. Los errores de control ganan antes: `" PING;XX"` → E201, `" PING;63"` → E202. La métrica es consistente con Levenshtein (X:311–X:313, X:315); no se afirma el algoritmo general de sugerencia. Supuesto: desempate por el orden PING, ALTA, CONSULTA, DEPOSITO, TRANSFER, ANULA (ver OBS-07). | X:286, X:287, X:300–X:305, X:311–X:313, X:308, X:126; X:306, X:307 | confirmado en v2 (umbral ≤ 2); supuesto: desempate |
@@ -169,7 +171,7 @@ de versión**. La réplica los implementa porque son lo observado.
 ### 6.3 Límite del método
 
 No se ejecutó un chequeo sistemático de deriva sobre comportamientos no repetidos entre versiones: un cambio en un
-comportamiento que no se probó en ambas versiones no sería detectado (supuesto, sin evidencia).
+comportamiento que no se probó en ambas versiones no sería detectado (supuesto, sin evidencia). La campaña de fuzzing (CAM-04) comparó la réplica con la versión 2 del original, no entre versiones: no prueba los resultados de ninguna evaluación externa.
 
 ## 7. Riesgos
 
